@@ -1,0 +1,74 @@
+{
+  "type": "closure",
+  "params": [
+    "x?"
+  ],
+  "body": [
+    "do?",
+    [
+      "print?",
+      "@Hello, world!?"
+    ],
+    "42?",
+    [
+      "lambda?",
+      [
+        "y?"
+      ],
+      [
+        "do?",
+        [
+          "print?",
+          "@Goodbye, world!?"
+        ],
+        [
+          "return?",
+          [
+            "+?",
+            "x?",
+            "y?"
+          ]
+        ]
+      ]
+    ]
+  ],
+  "env": {
+    "+": {
+      "type": "callable",
+      "expression": "lambda *a: sum(a),"
+    },
+    "-": {
+      "type": "callable",
+      "expression": "lambda a, b: a - b,"
+    },
+    "*": {
+      "type": "callable",
+      "expression": "lambda *a: math.prod(a),"
+    },
+    "/": {
+      "type": "callable",
+      "expression": "lambda a, b: a / b,"
+    },
+    "<": {
+      "type": "callable",
+      "expression": "lambda a, b: a < b,"
+    },
+    ">": {
+      "type": "callable",
+      "expression": "lambda a, b: a > b,"
+    },
+    "=": {
+      "type": "callable",
+      "expression": "lambda a, b: a == b,"
+    },
+    "abs": {
+      "type": "callable",
+      "module": "builtins"
+    },
+    "print": {
+      "type": "callable",
+      "expression": "lambda *a: (print(*a), None)[1],   # returns None"
+    },
+    "main": "Closure(params=['x'], body=['do', ['print', '@Hello, world!'], 42, ['lambda', ['y'], ['do', ['print', '@Goodbye, world!'], ['return', ['+', 'x', 'y']]]]], env={'+': <function make_prelude.<locals>.<lambda> at 0x7c2a7bcedb20>, '-': <function make_prelude.<locals>.<lambda> at 0x7c2a7bcedd00>, '*': <function make_prelude.<locals>.<lambda> at 0x7c2a7bcedda0>, '/': <function make_prelude.<locals>.<lambda> at 0x7c2a7bb32700>, '<': <function make_prelude.<locals>.<lambda> at 0x7c2a7bb327a0>, '>': <function make_prelude.<locals>.<lambda> at 0x7c2a7bb32840>, '=': <function make_prelude.<locals>.<lambda> at 0x7c2a7bb328e0>, 'abs': <built-in function abs>, 'print': <function make_prelude.<locals>.<lambda> at 0x7c2a7bb32980>, 'main': ...})"
+  }
+}

@@ -1,0 +1,188 @@
+{
+  "$type": "program",
+  "forms": [
+    ["def", "make-point",
+      ["lambda", ["x", "y"],
+        ["dict", "@x", "x", "@y", "y"]
+      ]
+    ],
+
+    ["def", "point-distance",
+      ["lambda", ["p1", "p2"],
+        ["sqrt", ["+",
+          ["pow", ["-", ["get", "p1", "@x"], ["get", "p2", "@x"]], 2],
+          ["pow", ["-", ["get", "p1", "@y"], ["get", "p2", "@y"]], 2]
+        ]]
+      ]
+    ],
+
+    ["def", "make-cluster",
+      ["lambda", ["points", "centroid"],
+        ["dict", "@points", "points", "@centroid", "centroid"]
+      ]
+    ],
+
+    ["def", "compute-centroid",
+      ["lambda", ["points"],
+        ["if", ["empty?", "points"],
+          ["make-point", 0, 0],
+          ["do",
+            ["def", "sum-x", ["reduce", "+", ["map", ["lambda", ["p"], ["get", "p", "@x"]], "points"], 0]],
+            ["def", "sum-y", ["reduce", "+", ["map", ["lambda", ["p"], ["get", "p", "@y"]], "points"], 0]],
+            ["def", "count", ["length", "points"]],
+            ["make-point", ["/", "sum-x", "count"], ["/", "sum-y", "count"]]
+          ]
+        ]
+      ]
+    ],
+
+    ["def", "nearest-centroid",
+      ["lambda", ["point", "centroids"],
+        ["if", ["empty?", "centroids"],
+          ["error", "@No centroids available"],
+          ["do",
+            ["def", "distances", 
+              ["map", ["lambda", ["c"], ["point-distance", "point", "c"]], "centroids"]
+            ],
+            ["def", "min-dist", ["apply", "min", "distances"]],
+            ["def", "min-index", ["index", "distances", "min-dist"]],
+            ["nth", "centroids", "min-index"]
+          ]
+        ]
+      ]
+    ],
+
+    ["def", "assign-points-to-clusters",
+      ["lambda", ["points", "centroids"],
+        ["map", 
+          ["lambda", ["point"],
+            ["dict", 
+              "@point", "point",
+              "@cluster", ["nearest-centroid", "point", "centroids"]
+            ]
+          ],
+          "points"
+        ]
+      ]
+    ],
+
+    ["def", "group-by-cluster",
+      ["lambda", ["assignments"],
+        ["reduce",
+          ["lambda", ["acc", "assignment"],
+            ["do",
+              ["def", "cluster", ["get", "assignment", "@cluster"]],
+              ["def", "point", ["get", "assignment", "@point"]],
+              ["def", "cluster-key", ["str-concat", 
+                ["to-string", ["get", "cluster", "@x"]], 
+                "@,", 
+                ["to-string", ["get", "cluster", "@y"]]
+              ]],
+              ["def", "existing", ["get", "acc", "cluster-key", ["list"]]],
+              ["set", "acc", "cluster-key", ["append", "existing", "point"]]
+            ]
+          ],
+          "assignments",
+          ["dict"]
+        ]
+      ]
+    ],
+
+    ["def", "k-means-step",
+      ["lambda", ["points", "centroids"],
+        ["do",
+          ["def", "assignments", ["assign-points-to-clusters", "points", "centroids"]],
+          ["def", "grouped", ["group-by-cluster", "assignments"]],
+          ["map",
+            ["lambda", ["cluster-points"], ["compute-centroid", "cluster-points"]],
+            ["values", "grouped"]
+          ]
+        ]
+      ]
+    ],
+
+    ["def", "centroids-converged?",
+      ["lambda", ["old-centroids", "new-centroids", "threshold"],
+        ["if", ["=", ["length", "old-centroids"], ["length", "new-centroids"]],
+          ["do",
+            ["def", "distances",
+              ["map", 
+                ["lambda", ["i"], 
+                  ["point-distance", 
+                    ["nth", "old-centroids", "i"], 
+                    ["nth", "new-centroids", "i"]
+                  ]
+                ],
+                ["map", ["lambda", ["i"], "i"], ["list", 0, 1, 2]]
+              ]
+            ],
+            ["<", ["apply", "max", "distances"], "threshold"]
+          ],
+          false
+        ]
+      ]
+    ],
+
+    ["def", "k-means",
+      ["lambda", ["points", "k", "max-iterations", "threshold"],
+        ["do",
+          ["def", "initial-centroids", 
+            ["slice", "points", 0, "k"]
+          ],
+          ["def", "iterate",
+            ["lambda", ["centroids", "iteration"],
+              ["if", [">", "iteration", "max-iterations"],
+                "centroids",
+                ["do",
+                  ["def", "new-centroids", ["k-means-step", "points", "centroids"]],
+                  ["print", ["str-concat", "@Iteration ", ["to-string", "iteration"], "@: ", ["to-string", ["length", "new-centroids"]], "@ clusters"]],
+                  ["if", ["centroids-converged?", "centroids", "new-centroids", "threshold"],
+                    ["do",
+                      ["print", "@Converged!"],
+                      "new-centroids"
+                    ],
+                    ["iterate", "new-centroids", ["+", "iteration", 1]]
+                  ]
+                ]
+              ]
+            ]
+          ],
+          ["iterate", "initial-centroids", 1]
+        ]
+      ]
+    ]
+  ],
+  "entrypoint": [
+    "do",
+    ["def", "sample-points", [
+      "list",
+      ["make-point", 1.0, 1.0],
+      ["make-point", 1.5, 2.0],
+      ["make-point", 3.0, 4.0],
+      ["make-point", 5.0, 7.0],
+      ["make-point", 3.5, 5.0],
+      ["make-point", 4.5, 5.0],
+      ["make-point", 3.5, 4.5],
+      ["make-point", 2.0, 2.0],
+      ["make-point", 2.0, 1.0],
+      ["make-point", 1.0, 3.0]
+    ]],
+    ["print", "@Starting K-means clustering..."],
+    ["print", ["str-concat", "@Dataset size: ", ["to-string", ["length", "sample-points"]], "@ points"]],
+    ["def", "final-centroids", ["k-means", "sample-points", 3, 10, 0.1]],
+    ["print", "@Final centroids:"],
+    ["map", 
+      ["lambda", ["centroid"], 
+        ["print", ["str-concat", 
+          "@(", 
+          ["to-string", ["get", "centroid", "@x"]], 
+          "@, ", 
+          ["to-string", ["get", "centroid", "@y"]], 
+          "@)"
+        ]]
+      ], 
+      "final-centroids"
+    ],
+    "final-centroids"
+  ]
+}

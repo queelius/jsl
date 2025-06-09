@@ -1,0 +1,36 @@
+{
+  "$type": "program",
+  "forms": [
+    ["def", "f",
+      ["lambda", ["x"],
+        ["-", ["*", "x", "x"], 2]
+      ]
+    ],
+
+    ["def", "f-prime",
+      ["lambda", ["x"],
+        ["*", 2, "x"]
+      ]
+    ],
+
+    ["def", "newton-step",
+      ["lambda", ["x"],
+        ["-", "x", ["/", ["f", "x"], ["f-prime", "x"]]]
+      ]
+    ],
+
+    ["def", "newton-loop",
+      ["lambda", ["x", "eps"],
+        ["if", ["<", ["abs", ["f", "x"]], "eps"],
+          "x",
+          ["newton-loop", ["newton-step", "x"], "eps"]
+        ]
+      ]
+    ]
+  ],
+  "entrypoint":
+    ["do",
+      ["print", "@Root of x^2 - 2:"],
+      ["newton-loop", 1.0, 1e-6]
+    ]
+}

@@ -1,0 +1,21 @@
+{
+  "$type": "program",
+  "forms": [
+    ["def", "main",
+      ["lambda", ["x"],
+        ["do",
+          ["print", "@Hello, world!"],
+          42,
+          ["lambda", ["y"],
+            ["do",
+              ["print", "@Goodbye, world!"],
+              ["return", ["+", "x", "y"]]
+            ]
+          ]
+        ]
+      ]
+    ]
+  ],
+  "entrypoint0": ["main"],
+  "entrypoint": "main"
+}

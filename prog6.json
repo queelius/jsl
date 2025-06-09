@@ -1,0 +1,19 @@
+{
+  "$type": "program",
+  "forms": [
+    ["def", "make-counter", ["lambda", ["start", "step"],
+      ["do",
+        ["def", "current", "start"],
+        ["def", "increment", "step"],
+        ["lambda", [],
+          ["do",
+            ["def", "old-value", "current"],
+            ["def", "current", ["+", "current", "increment"]],
+            "old-value"
+          ]
+        ]
+      ]
+    ]]
+  ],
+  "entrypoint": ["make-counter", 10, 3]
+}

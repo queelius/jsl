@@ -1,0 +1,66 @@
+{
+  "$type": "program",
+  "forms": [
+    ["def", "expensive-calc", ["lambda", ["x"], 
+      ["do",
+        ["host", "log/info", "@Computing expensive calculation for", "x"],
+        ["*", "x", "x", 1000]]]],
+    
+    ["def", "safe-divide", ["lambda", ["a", "b"],
+      ["try",
+        ["/", "a", "b"],
+        ["catch", "err", 
+          ["dict", "@error", "err", "@result", 0]]]]],
+    
+    ["def", "maybe-compute", ["lambda", ["should-run", "value"],
+      ["if", "should-run",
+        ["force", ["defer", ["expensive-calc", "value"]]],
+        "@skipped"]]],
+    
+    ["def", "process-data", ["lambda", ["data"],
+      ["map", 
+        ["lambda", ["item"], 
+          ["dict", 
+            "@original", "item",
+            "@doubled", ["*", "item", 2],
+            "@safe-inverse", ["safe-divide", 1, "item"]]],
+        "data"]]],
+    
+    ["def", "demo-host-commands", ["lambda", [],
+      ["list",
+        ["host", "log/info", "@Starting demo"],
+        ["host", "time/now"],
+        ["host", "env/get", "@USER"],
+        ["host", "math/random", 1, 100]]]],
+    
+    ["def", "demo-lazy", ["lambda", [],
+      ["do",
+        ["def", "expensive-thunk", ["defer", ["expensive-calc", 42]]],
+        ["host", "log/info", "@Created thunk, not yet computed"],
+        ["def", "result", ["force", "expensive-thunk"]],
+        ["host", "log/info", "@Now computed:", "result"],
+        "result"]]],
+    
+    ["def", "demo-error-handling", ["lambda", [],
+      ["list",
+        ["safe-divide", 10, 2],
+        ["safe-divide", 10, 0],
+        ["try",
+          ["host", "file/read", "@nonexistent.txt"],
+          ["catch", "err", ["str-concat", "@File error: ", "err"]]]]]],
+    
+    ["def", "main", ["lambda", [],
+      ["dict",
+        "@lazy-demo", ["demo-lazy"],
+        "@error-demo", ["demo-error-handling"],
+        "@host-demo", ["demo-host-commands"],
+        "@data-processing", ["process-data", ["list", 1, 2, 3, 4, 5]],
+        "@conditional-compute", ["list",
+          ["maybe-compute", true, 10],
+          ["maybe-compute", false, 10]],
+        "@higher-order", ["list",
+          ["filter", ["lambda", ["x"], [">", "x", 2]], ["list", 1, 2, 3, 4, 5]],
+          ["reduce", ["lambda", ["acc", "x"], ["+", "acc", "x"]], ["list", 1, 2, 3, 4, 5], 0]]]]]
+  ],
+  "entrypoint": ["main"]
+}

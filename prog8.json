@@ -1,0 +1,17 @@
+{
+  "$type": "program",
+  "forms": [
+    ["def", "unused", "@This should not appear anywhere"],
+    
+    ["def", "make-adder", ["lambda", ["x"],
+      ["do",
+        ["def", "y", ["+", "x", 10]],
+        ["def", "unused-local", "@Should not be captured"],
+        ["lambda", ["z"], ["+", "y", "z"]]
+      ]
+    ]]
+  ],
+  
+  "entrypoint": ["make-adder", 5],
+  "entrypoint1": [ ["make-adder", 5], 7]
+}

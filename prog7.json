@@ -1,0 +1,82 @@
+{
+  "$type": "program",
+  "forms": [
+    ["def", "unused-global", "@I should not appear in any closure"],
+    
+    ["def", "counter-factory", ["lambda", ["start"],
+      ["do",
+        ["def", "current", "start"],
+        ["def", "unused-local", "@I should not appear in the returned closure"],
+        ["lambda", ["increment"],
+          ["do",
+            ["def", "old", "current"],
+            ["def", "current", ["+", "current", "increment"]],
+            "old"
+          ]
+        ]
+      ]
+    ]],
+    
+    ["def", "math-utils", ["lambda", ["base"],
+      ["do",
+        ["def", "multiplier", 10],
+        ["def", "offset", 5],
+        ["def", "unused-math", "@Should not be captured"],
+        ["dict",
+          "@square", ["lambda", ["x"], ["*", "x", "x"]],
+          "@scale", ["lambda", ["x"], ["+", ["*", "x", "multiplier"], "offset"]],
+          "@transform", ["lambda", ["x"], ["+", ["*", "x", "base"], "offset"]]
+        ]
+      ]
+    ]],
+    
+    ["def", "nested-closures", ["lambda", ["a"],
+      ["do",
+        ["def", "b", ["+", "a", 1]],
+        ["def", "unused-nested", "@Should not appear anywhere"],
+        ["lambda", ["c"],
+          ["do",
+            ["def", "d", ["+", "b", "c"]],
+            ["lambda", ["e"],
+              ["+", "a", "d", "e"]
+            ]
+          ]
+        ]
+      ]
+    ]],
+    
+    ["def", "self-referential", ["lambda", ["n"],
+      ["if", ["<=", "n", 1],
+        1,
+        ["*", "n", ["self-referential", ["-", "n", 1]]]
+      ]
+    ]],
+    
+    ["def", "closure-with-host", ["lambda", ["filename"],
+      ["do",
+        ["def", "prefix", "@Reading file: "],
+        ["def", "unused-file", "@Should not be in closure"],
+        ["lambda", [],
+          ["do",
+            ["host", "log/info", "prefix", "filename"],
+            ["host", "file/read", "filename"]
+          ]
+        ]
+      ]
+    ]]
+  ],
+  
+  "entrypoint": [
+    "do",
+    ["def", "counter", ["counter-factory", 100]],
+    ["def", "math", ["math-utils", 3]],
+    ["def", "nested", ["nested-closures", 10]],
+    ["def", "reader", ["closure-with-host", "@test.txt"]],
+    
+    ["dict",
+      "@counter", ["counter", 10],
+      "@factorial", ["self-referential", 4],
+      "@file-reader", ["reader"]
+    ]
+  ]
+}
