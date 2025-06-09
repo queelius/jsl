@@ -167,16 +167,16 @@ class TestJSLAdvanced(unittest.TestCase):
         self.assertIsInstance(closure_obj, Closure)
 
         serialized_closure = to_json(closure_obj)
-        # print("\nSerialized Closure:", json.dumps(serialized_closure, indent=2))
+        # # print("\nSerialized Closure:", json.dumps(serialized_closure, indent=2))
 
-        # Ensure basic structure
+        # # Ensure basic structure
         self.assertEqual(serialized_closure.get("type"), "closure")
         self.assertEqual(serialized_closure.get("params"), ["x"])
         self.assertIsNotNone(serialized_closure.get("body"))
         self.assertIsNotNone(serialized_closure.get("env"))
         self.assertIn("captured_val", json.dumps(serialized_closure["env"])) # Check if captured_val is in env dump
 
-        # For from_json to work, the global prelude must be set.
+        # # For from_json to work, the global prelude must be set.
         jsl.prelude = self.prelude # Ensure from_json can access the current prelude
         
         # The from_json in jsl.py is a stub, this test will likely fail or need from_json to be implemented.
@@ -189,12 +189,16 @@ class TestJSLAdvanced(unittest.TestCase):
         self.assertIsInstance(deserialized_closure, Closure)
         self.assertEqual(deserialized_closure.params, ["x"])
         
-        # Test the deserialized closure's functionality
-        # It needs an environment to run, eval_expr provides it.
-        # The deserialized_closure.env should be correctly reconstructed.
-        # We'll call it using eval_expr with a new top-level env for the call.
+        # # Test the deserialized closure's functionality
+        # # It needs an environment to run, eval_expr provides it.
+        # # The deserialized_closure.env should be correctly reconstructed.
+        # # We'll call it using eval_expr with a new top-level env for the call.
+
+        # print("\nSerialized Closure:", json.dumps(serialized_closure, indent=2))
         
-        # Create a new environment for calling the deserialized closure
+        deserialized_closure = from_json(serialized_closure, self.prelude)
+
+        # # Create a new environment for calling the deserialized closure
         call_env = Env(parent=self.prelude) # Fresh env, prelude is parent
         call_env["my_deserialized_func"] = deserialized_closure
         

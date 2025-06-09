@@ -132,7 +132,7 @@ class Closure:
     body: Any          # Function body (JSL expression)
     env: "Env"         # Captured lexical environment (user bindings only)
 
-class Env: # No longer inherits from dict
+class Env:
     """
     Lexical environment with parent chaining for scope resolution.
     Manages its own bindings and provides dictionary-like access.
@@ -177,63 +177,11 @@ class Env: # No longer inherits from dict
         return self._bindings.get(name, default)
 
     def get_id(self) -> str:
-        """Get content-based deterministic ID for this environment."""
+        """Get a unique ID for this environment instance."""
         if self._id is None:
-            # Create ID based on content, not memory address
-            # Use self.items() which now refers to the method above
-            content = {
-                "bindings": sorted(self.items()), 
-                "parent_id": self.parent.get_id() if self.parent else None
-            }
-            # Convert possibly complex values in bindings to a string representation
-            # This might need a more robust serialization if values are complex objects
-            serializable_bindings = []
-            for k, v in sorted(self.items()):
-                if isinstance(v, (Closure, Env)): # Avoid deep recursion for ID
-                    serializable_bindings.append((k, f"<{type(v).__name__}:{id(v)}>"))
-                else:
-                    try:
-                        # Attempt a simple string conversion, hoping it's deterministic enough for ID
-                        serializable_bindings.append((k, str(v)))
-                    except Exception:
-                        serializable_bindings.append((k, f"<UnserializableType:{type(v).__name__}>"))
-
-            content_for_id = {
-                "bindings": serializable_bindings,
-                "parent_id": self.parent.get_id() if self.parent else None
-            }
-            content_str = json.dumps(content_for_id, sort_keys=True) # Use JSON for more stable string
-            self._id = hashlib.md5(content_str.encode()).hexdigest()[:12]
+            self._id = str(id(self))
         return self._id
     
-    def __str__(self) -> str:
-        """String representation for debugging."""
-        lines = []
-        # Use self.items() which now refers to the method above
-        for k, v_obj in self.items():
-            # Avoid overly verbose output for complex objects like closures or nested envs in str
-            if isinstance(v_obj, Closure):
-                v_repr = f"<Closure params={v_obj.params}>"
-            elif isinstance(v_obj, Env):
-                v_repr = f"<Env id={v_obj.get_id()}>" # Show Env ID to break recursion visually
-            else:
-                v_repr = repr(v_obj)
-            lines.append(f"  {k}: {v_repr}")
-        
-        result = "Env bindings:\n" + "\n".join(lines)
-        
-        if self.parent:
-            # For __str__, avoid infinite recursion by not fully printing parent if it's too deep
-            # or just indicate parent's ID.
-            result += f"\nParent Env ID: {self.parent.get_id()}"
-            # To see full parent chain, one might need a different debug utility.
-            # For now, let's limit recursion depth for __str__ or just show parent ID.
-            # For this example, we'll just show the parent ID to avoid overly long strings.
-        else:
-            result += "\nParent: None"
-            
-        return result
-
 # Global reference to the prelude for closure environment fixing
 prelude: Env | None = None # Ensure type hint matches
 
@@ -412,7 +360,20 @@ def make_prelude() -> Env:
         "+": lambda *args: sum(args) if args else 0,
         "-": lambda *args: args[0] - sum(args[1:]) if len(args) > 1 else (-args[0] if args else 0),
         "*": lambda *args: math.prod(args) if args else 1,
-        "/": lambda *args: args[0] / math.prod(args[1:]) if len(args) > 1 and all(x != 0 for x in args[1:]) else (1/args[0] if len(args) == 1 and args[0] != 0 else float('inf')),
+        "/": lambda *args: (
+            # Case: 1 argument
+            (
+                (lambda val: 1 / val if val != 0 else (_ for _ in ()).throw(ZeroDivisionError("division by zero")))(args[0])
+            ) if len(args) == 1 else (
+                # Case: >1 argument
+                (lambda num, *denoms_tuple: (
+                    (lambda prod_denoms: num / prod_denoms if prod_denoms != 0 else (_ for _ in ()).throw(ZeroDivisionError("division by zero")))(math.prod(denoms_tuple))
+                ))(args[0], *args[1:])
+            ) if len(args) > 1 else (
+                # Case: 0 arguments
+                (_ for _ in ()).throw(TypeError("/ requires at least one argument"))
+            )
+        ),
         "mod": lambda a, b: a % b if b != 0 else 0,
         "pow": lambda a, b: pow(a, b),
         
@@ -891,37 +852,78 @@ def from_json_env_value(val: Any, env_registry: Dict[str, Dict], prelude: Env) -
     
     return val
 
-def reconstruct_env(env_id: str, registry: Dict[str, Dict], prelude: Env, _cache: Dict[str, Env] | None = None) -> Env:
-    """Reconstruct environment from flat registry using hash-based parent references."""
+def reconstruct_env(env_id_or_data: str | Dict, registry: Dict[str, Dict], prelude: Env, _cache: Dict[str | int, Env] | None = None) -> Env:
+    """Reconstruct environment from flat registry or inline data."""
     if _cache is None:
         _cache = {}
-    
-    if env_id in _cache:
-        return _cache[env_id]
-    
-    if env_id not in registry:
-        raise ValueError(f"Environment ID {env_id} not found in registry")
-    
-    env_data = registry[env_id]
-    
-    # Reconstruct parent first (if it exists)
-    parent = prelude
-    if env_data["parent"]:
-        parent = reconstruct_env(env_data["parent"], registry, prelude, _cache)
-    
-    # Reconstruct bindings
-    bindings = {
-        k: from_json_env_value(v, registry, prelude) 
-        for k, v in env_data["bindings"].items()
-    }
+
+    cache_key: str | int
+    env_data_to_process: Dict[str, Any]
+
+    if isinstance(env_id_or_data, str):  # It's an ID
+        cache_key = env_id_or_data
+        if cache_key in _cache:
+            return _cache[cache_key]
+        if cache_key not in registry:
+            raise ValueError(f"Environment ID {cache_key} not found in registry")
+        env_data_to_process = registry[cache_key]
+    elif isinstance(env_id_or_data, dict):  # It's inline data
+        # Use Python's id of the dict object for caching if it's inline data
+        cache_key = id(env_id_or_data)
+        if cache_key in _cache:
+            return _cache[cache_key]
+        env_data_to_process = env_id_or_data
+    else:
+        raise TypeError(f"env_id_or_data must be a string ID or a dict, got {type(env_id_or_data)}")
+
+    # env_data_to_process is the dictionary describing the environment's bindings and parent.
+    # This format comes from to_json_env_user_only: {k1:v1, "$parent": parent_data}
+    # or from the registry: {"bindings": {...}, "parent": "parent_id_str"}
+
+    current_bindings: Dict[str, Any] = {}
+    parent_representation: Any = None
+
+    if "$parent" in env_data_to_process or "bindings" in env_data_to_process: # Heuristic for structure
+        # Handles format like: {k1:v1, k2:v2, "$parent": parent_representation} (from to_json_env_user_only)
+        # Or format like: {"bindings": {k1:v1}, "parent": parent_id_str} (potentially from registry)
+        
+        # Extract actual bindings
+        if "bindings" in env_data_to_process and isinstance(env_data_to_process["bindings"], dict):
+            # Registry-like structure
+            bindings_source = env_data_to_process["bindings"]
+        else:
+            # Inline structure (to_json_env_user_only output) or flat registry item
+            bindings_source = {k: v for k, v in env_data_to_process.items() if k != "$parent" and k != "parent"}
+
+
+        for k, v_json in bindings_source.items():
+            current_bindings[k] = from_json_env_value(v_json, registry, prelude)
+        
+        # Determine parent representation
+        if "$parent" in env_data_to_process:
+            parent_representation = env_data_to_process["$parent"]
+        elif "parent" in env_data_to_process: # For registry-like structure
+            parent_representation = env_data_to_process["parent"]
+    else: # Assume flat dictionary is all bindings, no explicit parent key means prelude
+        for k, v_json in env_data_to_process.items():
+            current_bindings[k] = from_json_env_value(v_json, registry, prelude)
+        parent_representation = None
+
+
+    parent_env = prelude  # Default parent
+    if parent_representation is not None:
+        # Recursively reconstruct parent. Parent representation could be an ID string or inline dict.
+        parent_env = reconstruct_env(parent_representation, registry, prelude, _cache)
     
     # Create environment and cache it
-    env = Env(bindings, parent=parent)
-    # Override the computed ID to match the serialized one
-    env._id = env_id
-    _cache[env_id] = env
+    reconstructed_env = Env(current_bindings, parent=parent_env)
     
-    return env
+    # If the original call was with a string ID (from registry), set the env's _id
+    if isinstance(env_id_or_data, str):
+        reconstructed_env._id = env_id_or_data
+    
+    _cache[cache_key] = reconstructed_env
+    return reconstructed_env
 
 # ----------------------------------------------------------------------
 # Module Loader
@@ -1066,7 +1068,7 @@ def run_with_imports(main_program_path: str, cli_allowed_imports: List[str], cli
         raise RuntimeError(f"Main program file not found: {main_program_path}")
     except json.JSONDecodeError:
         raise RuntimeError(f"Invalid JSON in main program file: {main_program_path}")
-    
+
     # Run the main program in the environment that now contains all loaded module bindings.
     return run_program(program_data, env_for_loading_and_main)
 
