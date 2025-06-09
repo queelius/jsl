@@ -100,6 +100,7 @@ import operator
 import math
 from functools import reduce
 import hashlib
+from .jsl_host_dispatcher import process_host_request # Added import
 
 # ----------------------------------------------------------------------
 # Runtime Data Structures
@@ -131,43 +132,110 @@ class Closure:
     body: Any          # Function body (JSL expression)
     env: "Env"         # Captured lexical environment (user bindings only)
 
-class Env(dict):
+class Env: # No longer inherits from dict
     """
     Lexical environment with parent chaining for scope resolution.
-    
-    Environments now use content-based IDs for deterministic serialization
-    and cleaner environment reference management.
+    Manages its own bindings and provides dictionary-like access.
     """
     
     def __init__(self, bindings: Dict[str, Any] | None = None, parent: "Env|None" = None):
-        super().__init__(bindings or {})
-        self.parent = parent
-        self._id = None  # Computed lazily
+        self._bindings: Dict[str, Any] = bindings or {}
+        self.parent: Env | None = parent
+        self._id: str | None = None  # Computed lazily
     
     def lookup(self, name: str) -> Any:
-        if name in self:
-            return self[name]
+        if name in self._bindings:
+            return self._bindings[name]
         if self.parent:
             return self.parent.lookup(name)
         raise NameError(f"Unbound symbol: {name}")
     
     def extend(self, bindings: Dict[str, Any]) -> "Env":
+        # Create a new environment with the current one as parent
         return Env(bindings, parent=self)
     
+    def __setitem__(self, name: str, value: Any):
+        """Allows setting bindings like env[name] = value."""
+        self._bindings[name] = value
+
+    def __getitem__(self, name: str) -> Any:
+        """Allows getting bindings like env[name], raises KeyError if not found directly."""
+        if name in self._bindings:
+            return self._bindings[name]
+        raise KeyError(name) # Consistent with dict behavior for direct access
+
+    def __contains__(self, name: str) -> bool:
+        """Allows checking bindings like name in env."""
+        return name in self._bindings
+
+    def items(self) -> list[tuple[str, Any]]:
+        """Returns a list of (name, value) pairs for direct bindings."""
+        return list(self._bindings.items())
+
+    def get(self, name: str, default: Any = None) -> Any:
+        """Gets a binding, returning a default if not found directly."""
+        return self._bindings.get(name, default)
+
     def get_id(self) -> str:
         """Get content-based deterministic ID for this environment."""
         if self._id is None:
             # Create ID based on content, not memory address
+            # Use self.items() which now refers to the method above
             content = {
-                "bindings": sorted(self.items()),
+                "bindings": sorted(self.items()), 
                 "parent_id": self.parent.get_id() if self.parent else None
             }
-            content_str = str(content)
+            # Convert possibly complex values in bindings to a string representation
+            # This might need a more robust serialization if values are complex objects
+            serializable_bindings = []
+            for k, v in sorted(self.items()):
+                if isinstance(v, (Closure, Env)): # Avoid deep recursion for ID
+                    serializable_bindings.append((k, f"<{type(v).__name__}:{id(v)}>"))
+                else:
+                    try:
+                        # Attempt a simple string conversion, hoping it's deterministic enough for ID
+                        serializable_bindings.append((k, str(v)))
+                    except Exception:
+                        serializable_bindings.append((k, f"<UnserializableType:{type(v).__name__}>"))
+
+            content_for_id = {
+                "bindings": serializable_bindings,
+                "parent_id": self.parent.get_id() if self.parent else None
+            }
+            content_str = json.dumps(content_for_id, sort_keys=True) # Use JSON for more stable string
             self._id = hashlib.md5(content_str.encode()).hexdigest()[:12]
         return self._id
+    
+    def __str__(self) -> str:
+        """String representation for debugging."""
+        lines = []
+        # Use self.items() which now refers to the method above
+        for k, v_obj in self.items():
+            # Avoid overly verbose output for complex objects like closures or nested envs in str
+            if isinstance(v_obj, Closure):
+                v_repr = f"<Closure params={v_obj.params}>"
+            elif isinstance(v_obj, Env):
+                v_repr = f"<Env id={v_obj.get_id()}>" # Show Env ID to break recursion visually
+            else:
+                v_repr = repr(v_obj)
+            lines.append(f"  {k}: {v_repr}")
+        
+        result = "Env bindings:\n" + "\n".join(lines)
+        
+        if self.parent:
+            # For __str__, avoid infinite recursion by not fully printing parent if it's too deep
+            # or just indicate parent's ID.
+            result += f"\nParent Env ID: {self.parent.get_id()}"
+            # To see full parent chain, one might need a different debug utility.
+            # For now, let's limit recursion depth for __str__ or just show parent ID.
+            # For this example, we'll just show the parent ID to avoid overly long strings.
+        else:
+            result += "\nParent: None"
+            
+        return result
 
 # Global reference to the prelude for closure environment fixing
-prelude = None
+prelude: Env | None = None # Ensure type hint matches
 
 def eval_closure_or_builtin(fn, args):
     """
@@ -295,7 +363,7 @@ def make_prelude() -> Env:
     global prelude  # Declare that we'll modify the global prelude
     
     # Create the prelude environment with all built-in functions
-    prelude = Env({
+    prelude_bindings = {
         # =================================================================
         # DATA CONSTRUCTORS
         # =================================================================
@@ -438,13 +506,47 @@ def make_prelude() -> Env:
         
         "print": print,
         "error": lambda msg: (_ for _ in ()).throw(RuntimeError(str(msg))),
-    })
-    
-    return prelude
+    }
+    # Create the new Env instance using the refactored class
+    new_prelude_env = Env(prelude_bindings, parent=None) # Explicitly parent=None for prelude
+    prelude = new_prelude_env
+    return new_prelude_env
 
 # ----------------------------------------------------------------------
 # Evaluator
 # ----------------------------------------------------------------------
+
+def eval_template(part: Any, env: Env) -> Any:
+    """
+    This is a template for JSON. We do not do general evaluations,
+    but only lookups in the environment. Otherwise, everything
+    is treated as a literal.
+    """
+    if isinstance(part, str):
+        if part.startswith("@"):
+            return part[1:]  # String literal escape
+        else:
+            # Symbol lookup. The result of the lookup might need further template processing.
+            value = env.lookup(part)
+            if isinstance(value, str):
+                if value.startswith("@"):
+                    return env.lookup(value[1:])
+                return value  # Return the looked-up string as is
+            else:
+                return eval_template(value, env)  # Evaluate the looked-up value as a template part
+    
+    elif isinstance(part, (int, float, bool)) or part is None:
+        return part  # Primitive values evaluate to themselves
+
+    elif isinstance(part, list):
+        # This is a list literal within the template. Process its parts.
+        return [eval_template(part, env) for part in part]
+    
+    elif isinstance(part, dict):
+        # This is a dict literal within the template. Process its keys and values.
+        return {eval_template(k, env): eval_template(v, env) for k, v in part.items()}
+    
+    raise ValueError(f"Cannot evaluate JSON template part of type {type(part)}: {part}")
 
 def eval_expr(expr: Any, env: Env) -> Any:
     """
@@ -463,29 +565,28 @@ def eval_expr(expr: Any, env: Env) -> Any:
             return expr[1:]  # String literal escape
         return env.lookup(expr)  # Symbol lookup
     
-    if isinstance(expr, (int, float, bool)) or expr is None:
+    if isinstance(expr, (int, float, bool, dict)) or expr is None:
         return expr
 
-    if not expr:
-        raise ValueError("Empty list cannot be evaluated")
+    if not isinstance(expr, list) or not expr: # Ensure expr is a non-empty list for further processing
+        # If it's not a list, and wasn't handled as a literal/symbol above,
+        # it might be an already evaluated dict from a module, or an error.
+        # For now, assume if it reached here and isn't a list, it's a value (e.g. a dict from a module).
+        # This part might need refinement based on how non-list, non-primitive exprs are expected.
+        # However, the `json` special form's argument will be a list or dict.
+        if isinstance(expr, dict): # Allow pre-formed dicts (e.g. from module exports) to pass through
+            return expr
+        raise ValueError(f"Cannot evaluate expression of type {type(expr)}: {expr}")
 
     head, *tail = expr
 
-    if head == "dict":
-        """
-        Create a dictionary from key-value pairs.
-        
-        Args:
-            ["dict", key1, value1, key2, value2, ...]
-            
-        Returns:
-            A dictionary with the provided key-value pairs.
-        """
-        if len(tail) % 2 != 0:
-            raise ValueError("dict expects an even number of arguments")
-        return {eval_expr(tail[i], env): eval_expr(tail[i+1], env) for i in range(0, len(tail), 2)}
-
     # ---------- special forms ----------
+    if head == "json":              # ["json", template]
+        if len(tail) != 1:
+            raise ValueError("json special form expects exactly one argument (the template)")
+        # The argument to "json" is the root of the template.
+        return eval_template(tail[0], env)
+
     if head == "quote":            # ["quote", expr]
         if len(tail) != 1:
             raise ValueError("quote expects exactly one argument")
@@ -522,240 +623,84 @@ def eval_expr(expr: Any, env: Env) -> Any:
         for sub in tail:
             result = eval_expr(sub, env)
         return result
+    
+    if head == "let":
+        """
+        let special form: ["let", [bindings], body]
+        bindings is a list of pairs [name, value_expr]
+        """
+        if len(tail) != 2: # Check number of arguments first
+            raise ValueError("let expects exactly two arguments: a list of bindings and a body")
+        
+        bindings_expr, body = tail # Unpack after length check
 
-    if head == "defer":            # ["defer", expr]
-        """
-        Defer evaluation - creates a thunk for lazy evaluation.
-        
-        THEORETICAL FOUNDATION
-        =====================
-        
-        Implements **lazy evaluation** and **call-by-need** semantics from
-        functional programming theory. A deferred expression is wrapped in
-        a thunk that can be forced later, enabling:
-        
-        1. **Infinite Data Structures**: Define recursive structures without
-           immediate evaluation
-        2. **Conditional Computation**: Expensive computations only happen
-           if their results are actually needed
-        3. **Performance Optimization**: Avoid computing values that might
-           never be used
-        4. **Memory Efficiency**: Large structures can be computed on-demand
-        
-        PRACTICAL APPLICATIONS
-        ======================
-        
-        - Stream processing with infinite sequences
-        - Optional expensive computations
-        - Memoization and caching strategies
-        - Resource-conscious programming
-        
-        Args:
-            expr: Expression to defer (not evaluated immediately)
-            
-        Returns:
-            ["defer", expr] - A thunk representing the deferred computation
-            
-        Examples:
-            ["defer", ["+", 1000000, 2000000]]  // Expensive computation
-            ["defer", ["host", "file/read", "large-file.txt"]]  // I/O operation
-        """
-        if len(tail) != 1:
-            raise ValueError("defer expects exactly one argument")
-        
-        # Don't evaluate the expression - return it as a thunk
-        return ["defer", tail[0]]
+        if not isinstance(bindings_expr, list): # Then check type of bindings argument
+            raise ValueError("let bindings must be a list")
 
-    if head == "force":            # ["force", thunk_expr]
-        """
-        Force evaluation of a deferred expression (thunk).
+        # Now bindings_expr is confirmed to be a list.
+        # Proceed to check the structure of each binding pair.
+        if not all(isinstance(b, list) and len(b) == 2 for b in bindings_expr):
+            raise ValueError("Each let binding must be a list of [name, value_expr]")
         
-        Complements the defer special form by actually evaluating a
-        previously deferred expression. This enables lazy evaluation
-        patterns where expensive computations are delayed until needed.
-        
-        Args:
-            thunk_expr: Expression that should evaluate to a defer thunk
-            
-        Returns:
-            Result of evaluating the deferred expression
-            
-        Examples:
-            ["force", ["defer", ["+", 1, 2]]]  // Returns 3
-        """
-        if len(tail) != 1:
-            raise ValueError("force expects exactly one argument")
-        
-        thunk = eval_expr(tail[0], env)
-        
-        if isinstance(thunk, list) and len(thunk) == 2 and thunk[0] == "defer":
-            # Force the deferred expression
-            return eval_expr(thunk[1], env)
-        else:
-            # If it's not a thunk, just return it as-is
-            return thunk
+        let_env = env.extend({})
+        for name, value_expr in bindings_expr: # Use bindings_expr here
+            if not isinstance(name, str):
+                raise ValueError(f"let binding name must be a string, got {type(name).__name__}")
+            value = eval_expr(value_expr, env) # Values are evaluated in the outer environment
+            let_env[name] = value
 
-    if head == "try":              # ["try", expr, ["catch", error_var, handler_expr]]
-        """
-        Exception handling with functional semantics.
-        
-        THEORETICAL FOUNDATION
-        =====================
-        
-        Implements **exception handling** in a purely functional style,
-        treating errors as values that can be handled and transformed.
-        This follows the **Railway Oriented Programming** pattern where
-        computation can flow along either success or error tracks.
-        
-        Unlike imperative exception handling, this approach:
-        1. Makes error handling explicit and visible
-        2. Maintains referential transparency
-        3. Enables composition of error-handling logic
-        4. Supports error transformation and recovery
-        
-        PRACTICAL APPLICATIONS
-        ======================
-        
-        - Safe resource access with fallbacks
-        - Network operations with retry logic
-        - Data validation with error collection
-        - Graceful degradation in distributed systems
-        
-        Args:
-            expr: Expression to try (may throw an exception)
-            catch_clause: ["catch", error_var, handler_expr] for error handling
-            
-        Returns:
-            Result of expr if successful, or result of handler_expr if error
-            
-        Examples:
-            ["try", 
-             ["host", "file/read", "config.json"],
-             ["catch", "err", ["dict", "error", "err", "default", true]]]
-        """
-        if len(tail) != 2:
-            raise ValueError("try expects exactly two arguments: expr and catch clause")
-        
-        try_expr, catch_clause = tail
-        
-        # Validate catch clause format
-        if (not isinstance(catch_clause, list) or 
-            len(catch_clause) != 3 or 
-            catch_clause[0] != "catch" or
-            not isinstance(catch_clause[1], str)):
-            raise ValueError("catch clause must be ['catch', error_var, handler_expr]")
-        
-        _, error_var, handler_expr = catch_clause
-        
-        try:
-            # Try to evaluate the main expression
-            return eval_expr(try_expr, env)
-        except Exception as e:
-            # Create new environment with error bound to error_var
-            error_env = env.extend({error_var: str(e)})
-            # Evaluate the error handler
-            return eval_expr(handler_expr, error_env)
+        # Evaluate the body in the new environment
+        return eval_expr(body, let_env)
 
     if head == "host":             # ["host", command_id, ...args]
-        """
-        Host command special form - reifies side effects as data.
-        
-        THEORETICAL FOUNDATION
-        ======================
-        
-        The host form implements several key principles from programming
-        language theory and distributed systems:
-        
-        1. **Effect Reification**: Instead of executing side effects directly,
-           they are converted to data structures that describe the intended
-           effect. This enables:
-           - Effect inspection and auditing
-           - Effect batching and optimization  
-           - Effect denial and sandboxing
-           - Effect logging and replay
-        
-        2. **Capability Security**: The host environment acts as a capability
-           broker, deciding which operations to allow based on:
-           - Security policies
-           - Resource constraints
-           - Trust relationships
-           - Operational context
-        
-        3. **Algebraic Effects**: Host commands represent algebraic effects
-           that can be:
-           - Composed and combined
-           - Handled by different interpreters
-           - Transformed and optimized
-           - Made subject to static analysis
-        
-        PRACTICAL APPLICATIONS
-        ======================
-        
-        Host commands enable powerful distributed computing patterns:
-        
-        - **Secure Code Execution**: Untrusted code can request capabilities
-          without being able to execute them directly
-        - **Transparent Distribution**: The same JSL code can run locally
-          or remotely with different host command handlers
-        - **Effect Batching**: Multiple host commands can be collected and
-          executed efficiently in batches
-        - **Audit Trails**: All attempted side effects are visible as data
-        - **Gradual Trust**: Different hosts can provide different subsets
-          of capabilities based on trust level
-        
-        SECURITY MODEL
-        ==============
-        
-        The host command model provides several security guarantees:
-        
-        1. **No Privilege Escalation**: Transmitted code cannot gain more
-           capabilities than the host explicitly provides
-        2. **Effect Visibility**: All side effects are explicit and inspectable
-        3. **Capability Delegation**: Hosts can provide restricted versions
-           of capabilities (e.g., file I/O limited to specific directories)
-        4. **Fail-Safe Defaults**: Unknown commands are safely ignored or
-           rejected rather than causing errors
-        
-        Args:
-            command_id: String identifying the requested host capability
-            *args: Arguments for the host command (pre-evaluated to pure values)
-            
-        Returns:
-            ["host", command_id, *evaluated_args] - A data structure describing
-            the requested effect, to be interpreted by the host environment
-            
-        Examples:
-            ["host", "file/read", "/path/to/file"]
-            ["host", "http/get", "https://api.example.com/data"]
-            ["host", "db/query", "SELECT * FROM users WHERE id = ?", 123]
-            ["host", "log/info", "Processing completed successfully"]
-        """
         if not tail:
             raise ValueError("host command requires at least a command_id")
         
-        command_id = tail[0]
-        args = tail[1:] if len(tail) > 1 else []
+        command_id_expr = tail[0]
+        arg_exprs = tail[1:]
         
-        # Validate command_id is a string
+        # Evaluate command_id expression
+        command_id = eval_expr(command_id_expr, env)
         if not isinstance(command_id, str):
-            raise TypeError(f"host command_id must be a string, got {type(command_id).__name__}")
+            raise TypeError(f"host command_id must evaluate to a string, got {type(command_id).__name__} from {command_id_expr}")
         
-        # Evaluate all arguments to pure values
-        # This ensures no unevaluated code can escape to the host
+        # Evaluate all argument expressions to pure values
         try:
-            evaluated_args = [eval_expr(arg, env) for arg in args]
+            evaluated_args = [eval_expr(arg, env) for arg in arg_exprs]
         except Exception as e:
-            raise RuntimeError(f"Error evaluating host command arguments: {e}")
+            # More specific error message for argument evaluation failure
+            raise RuntimeError(f"Error evaluating arguments for host command '{command_id}': {e}")
         
-        # Validate that all arguments are JSON-serializable
-        # This prevents non-serializable objects from reaching the host
+        # Construct the JHIP request message
+        request_message = ["host", command_id] + evaluated_args
+        
+        # Validate that the constructed request_message (specifically args) is JSON-serializable
+        # process_host_request might do its own validation, but good to ensure here too.
         try:
-            json.dumps([command_id] + evaluated_args)
+            # We only need to check evaluated_args as command_id is already a string
+            # and "host" is a
+            json.dumps(request_message)
         except (TypeError, ValueError) as e:
             raise ValueError(f"host command arguments must be JSON-serializable: {e}")
         
-        # Return the effect description as data
-        return ["host", command_id] + evaluated_args
+        # Send the request to the host and return the response
+        response = process_host_request(request_message)
+        
+        # Check if the response indicates a JHIP error
+        if isinstance(response, dict) and "$jsl_host_error" in response:
+            error_obj = response["$jsl_host_error"]
+            error_type = error_obj.get("type", "UnknownHostError")
+            error_message = error_obj.get("message", "An unspecified error occurred on the host.")
+            error_details = error_obj.get("details", {})
+            # Construct the error message to match the test's expectation
+            raise RuntimeError(f"Host error ({error_type}): {error_message} - Details: {error_details}")
+        
+        return response
+
+    if head == "json":
+        if len(tail) != 1:
+            raise ValueError("json special form expects exactly one argument (the template)")
+        return eval_template(tail[0], env)
 
     # ---------- function application ----------
     # Resolve operator
@@ -774,7 +719,10 @@ def eval_expr(expr: Any, env: Env) -> Any:
 
     if callable(fn_val):
         return fn_val(*args)
-
+    
+    if isinstance(fn_val, (str, int, float, bool, list, dict) or fn_val is None):
+        return fn_val
+    
     raise TypeError(f"Cannot call non‑callable value: {fn_val!r}")
 
 def find_free_variables(expr: Any, bound: set[str] = None) -> set[str]:
@@ -838,7 +786,8 @@ def to_json_env_user_only(env: Env, _seen: set[int], referenced_vars: set[str] =
     
     try:
         # Get the prelude to know what to exclude
-        prelude_keys = set(make_prelude().keys())
+        current_prelude = make_prelude() # This ensures global prelude is also fresh if called multiple times
+        prelude_keys = set(current_prelude._bindings.keys()) # Access _bindings directly
         
         result = {}
         
@@ -1082,12 +1031,13 @@ def run_with_imports(main_program_path: str, cli_allowed_imports: List[str], cli
     if prelude is None:
         prelude = make_prelude()
     
-    # Environment for the main program starts based on the prelude.
-    # We will extend this with module bindings.
-    env_for_main_program = Env(parent=prelude)
+    # This environment will be built up with module bindings and then used for the main program.
+    # It starts parented by the prelude.
+    env_for_loading_and_main = Env(parent=prelude)
 
     if cli_bindings:
-        module_definitions_for_env = {}
+        # The order of loading might matter if modules depend on each other at definition time.
+        # Python dicts from 3.7+ preserve insertion order, which is usually the order from args.
         for alias, module_path in cli_bindings.items():
             # Optional: Enforce that bound modules must be in --import list
             if cli_allowed_imports and module_path not in cli_allowed_imports:
@@ -1097,17 +1047,18 @@ def run_with_imports(main_program_path: str, cli_allowed_imports: List[str], cli
             
             try:
                 # print(f"Loading module '{alias}' from '{module_path}'...", file=sys.stderr)
-                # Each module is loaded using the global prelude as the base for its own environment.
-                exports_dict = load_module(module_path, prelude)
-                module_definitions_for_env[alias] = exports_dict # Bind the dict of exports to the alias
+                # Load the current module using an environment that contains *previously* loaded modules.
+                # The module_env inside load_module will be parented by env_for_loading_and_main.
+                exports_dict = load_module(module_path, env_for_loading_and_main)
+                
+                # Add the newly loaded module's exports (as a dict) to the env_for_loading_and_main
+                # under its alias, so subsequent modules or the main program can see it.
+                env_for_loading_and_main[alias] = exports_dict
                 # print(f"Module '{alias}' loaded. Exports: {list(exports_dict.keys())}", file=sys.stderr)
             except Exception as e:
                 # Fail fast if a module can't be loaded
                 raise RuntimeError(f"Failed to load module '{alias}' from '{module_path}': {e}") from e
         
-        if module_definitions_for_env:
-            env_for_main_program = env_for_main_program.extend(module_definitions_for_env)
-
     try:
         with open(main_program_path) as f:
             program_data = json.load(f)
@@ -1116,7 +1067,8 @@ def run_with_imports(main_program_path: str, cli_allowed_imports: List[str], cli
     except json.JSONDecodeError:
         raise RuntimeError(f"Invalid JSON in main program file: {main_program_path}")
     
-    return run_program(program_data, env_for_main_program)
+    # Run the main program in the environment that now contains all loaded module bindings.
+    return run_program(program_data, env_for_loading_and_main)
 
 def main():
     parser = argparse.ArgumentParser(description="JSL - JSON Script Language")
@@ -1184,7 +1136,7 @@ def main():
                 result = run_with_imports(args.program, args.imports, binding_map)
             else: # main program is from stdin, pass program_data
                   # We need to adjust run_with_imports or have a separate path
-                  # For simplicity, let's assume if program is from stdin, it's a direct run for now
+                  # For simplicity, let's assume for now that if program is from stdin, it's a direct run
                   # or that run_with_imports is adapted.
                   # The previous run_with_imports was:
                   # run_with_imports(main_program_path: str, ...)
