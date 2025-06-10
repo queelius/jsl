@@ -182,10 +182,16 @@ class TestSerializationCompatibility(unittest.TestCase):
         deserialized = from_json(serialized, self.prelude)
         print("\nDeserialized closure:")
         print(deserialized)
+
+        print("-----")
         
         # Test functional equivalence
         test_env = Env(parent=self.prelude)
         test_env["fact"] = deserialized
+
+        print("-- env ---")
+        print(test_env)
+        print("-----")
         
         result = eval_expr(["fact", 5], test_env)
         self.assertEqual(result, 120)  # 5!
@@ -249,7 +255,7 @@ class TestSerializationCompatibility(unittest.TestCase):
         test_env = Env(parent=self.prelude)
         test_env["fn"] = deserialized
         
-        result = eval_expr(["fn", [1, 2, 3]], test_env)
+        result = eval_expr(["fn", ["list", 1, 2, 3]], test_env)
         self.assertEqual(result, [2, 4, 6])  # Each element multiplied by 2
 
     def test_serialization_preserves_closure_semantics(self):
