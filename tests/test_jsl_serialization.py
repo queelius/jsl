@@ -4,15 +4,10 @@ import tempfile
 import os
 from typing import Any
 
-from jsl import jsl
-from jsl.jsl import (
-    Env,
-    Closure,
-    make_prelude,
-    to_json,
-    from_json,
-    eval_expr
-)
+from jsl.core import Env, Closure
+from jsl.prelude import make_prelude
+from jsl import to_json, from_json
+from jsl.evaluator import eval_expr
 
 class TestSerializationCompatibility(unittest.TestCase):
     """
@@ -24,9 +19,7 @@ class TestSerializationCompatibility(unittest.TestCase):
 
     def setUp(self):
         """Set up fresh prelude and environment for each test."""
-        jsl.prelude = None
         self.prelude = make_prelude()
-        jsl.prelude = self.prelude  # Set global prelude for from_json
         self.env = Env(parent=self.prelude)
 
     def test_primitive_values_roundtrip(self):

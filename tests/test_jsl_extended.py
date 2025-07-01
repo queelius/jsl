@@ -8,16 +8,12 @@ from unittest.mock import patch
 
 # Assuming your project structure allows this import path
 # If 'jsl' is a package in your PYTHONPATH:
-from jsl import jsl
-from jsl.jsl import (
-    eval_expr,
-    Env,
-    Closure,
-    make_prelude,
-    to_json,
-    run_program,
-    load_module
-)
+from jsl.evaluator import eval_expr
+from jsl.core import Env, Closure
+from jsl.prelude import make_prelude
+from jsl import jsl_to_json as to_json
+from jsl.runner import run as run_program
+from jsl.modules import load_module
 from jsl import jsl_host_dispatcher # Import the dispatcher
 
 # Mock for process_host_request that will be used by the main JSL evaluator
@@ -29,7 +25,6 @@ def mock_dispatch_to_actual_host_processor(request_message):
 class TestJSLExtended(unittest.TestCase):
 
     def setUp(self):
-        jsl.prelude = None # Reset global prelude
         self.prelude = make_prelude()
         self.env = Env(parent=self.prelude)
 
