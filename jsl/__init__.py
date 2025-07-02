@@ -1,21 +1,50 @@
 """
-JSL: A JSON Serializable Language
+JSL - JSON Serializable Language
+
+A network-native functional programming language where code and data are both JSON.
 """
 
+# Version information
+__version__ = "0.1.0"
+__author__ = "JSL Project"
+__license__ = "MIT"
+
 # Core components
-from .core import Env, Closure, JSL_TYPE, JSL_JSON
+from .core import (
+    Env, 
+    Closure, 
+    Evaluator, 
+    HostDispatcher,
+    JSLError, 
+    SymbolNotFoundError, 
+    JSLTypeError,
+    JSLValue,
+    JSLExpression
+)
 
-# High-level functions for running JSL programs
-from .runner import run_program
+# Prelude
+from .prelude import make_prelude
 
-# The evaluator is not part of the public API, but is used by other modules.
-from .evaluator import eval_expr, eval_template
+# High-level API
+from .runner import run_program, eval_expression
+from .serialization import serialize, deserialize, to_json, from_json
 
-# The prelude is not part of the public API, but is used by other modules.
-from .prelude import prelude, make_prelude, eval_closure_or_builtin
-
-# Serialization functions
-from .serialization import dumps, loads, to_json, from_json, jsl_to_json, json_to_jsl, JSLEncoder, JSLDecoder
-
-# The modules loader is not part of the public API.
-# from .modules import get_modules, load_module
+# Make sure all expected exports are available
+__all__ = [
+    # Version info
+    "__version__", "__author__", "__license__",
+    
+    # Core data structures and types
+    "Env", "Closure", "Evaluator", "HostDispatcher",
+    "JSLError", "SymbolNotFoundError", "JSLTypeError",
+    "JSLValue", "JSLExpression",
+    
+    # Prelude  
+    "make_prelude",
+    
+    # High-level API
+    "run_program", "eval_expression",
+    
+    # Serialization
+    "serialize", "deserialize", "to_json", "from_json",
+]

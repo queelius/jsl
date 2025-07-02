@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "jsl-lang"
 version = "0.1.0"
 authors = [
-  { name="Your Name", email="your.email@example.com" },
+  { name="Alex Towell", email="lex@metafunctor.com" },
 ]
 description = "JSL (JSON Serializable Language) - A Network-Native Functional Language."
 readme = "README.md"
@@ -31,27 +31,28 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-service = [
-  "fastapi>=0.100.0", # Specify versions as appropriate
-  "uvicorn[standard]>=0.20.0", # [standard] includes common extras for uvicorn
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "flake8>=5.0.0",
+    "mypy>=1.0.0",
 ]
-all = [ # Allows installing all optional dependencies
-  "jsl-lang[service]",
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
 ]
-
 
 [project.urls]
-Homepage = "https://github.com/yourusername/jsl"
-Repository = "https://github.com/yourusername/jsl"
+Homepage = "https://github.com/queelius/jsl"
+Repository = "https://github.com/queelius/jsl"
 
 [project.scripts]
-jsl = "jsl.jsl:main"
-jsl-service = "jsl.service:start_service" # New script for the service
+jsl = "jsl.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["jsl*"]
 exclude = ["dev*", "__pycache__*"]
 
-[tool.setuptools.package-data]
-jsl = ["modules/*.json"]
+

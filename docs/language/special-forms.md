@@ -102,38 +102,71 @@ Provides conditional branching with lazy evaluation of branches.
   ["host", "log", "Production mode"]]
 ```
 
-### Sequential Evaluation - `do`
+### Local Bindings - `let`
 
-Evaluates multiple expressions in sequence and returns the last result.
+Creates temporary, local variable bindings for use within a single expression. This is a cornerstone of functional programming as it avoids mutating the parent environment.
 
 ```json
-["do", expression1, expression2, ..., expressionN]
+["let", [["var1", val1_expr], ["var2", val2_expr]], body_expr]
 ```
 
 **Evaluation Rules:**
-1. Evaluate expressions in order from left to right
-2. Return the value of the last expression
-3. Side effects from all expressions are preserved
+1. Create a new, temporary environment that extends the current one.
+2. Evaluate all `val_expr`s in the original environment.
+3. Bind the results to the `var` names in the new temporary environment.
+4. Evaluate `body_expr` in the new environment.
+5. Return the result of `body_expr`. The temporary environment is then discarded.
 
-**Examples:**
+**Example:**
+```json
+// Calculate area of a circle without polluting the environment
+["let", [["pi", 3.14159], ["r", 10]],
+  ["*", "pi", ["*", "r", "r"]]]
+// Result: 314.159 (pi and r are not defined afterwards)
+```
+
+### Error Handling - `try`
+
+Provides a mechanism to catch and handle errors that occur during evaluation.
 
 ```json
-// Sequential assignments
-["do",
-  ["def", "x", 10],
-  ["def", "y", 20],
-  ["+", "x", "y"]]
-// Result: 30
-
-// Setup and computation
-["do",
-  ["host", "log", "Starting computation"],
-  ["def", "data", ["host", "file/read", "data.json"]],
-  ["def", "processed", ["map", "process_item", "data"]],
-  ["host", "log", "Computation complete"],
-  "processed"]
-// Result: processed data
+["try", body_expression, handler_expression]
 ```
+
+**Evaluation Rules:**
+1. Evaluate `body_expression`.
+2. If evaluation succeeds, its result is the result of the `try` expression. The `handler_expression` is not evaluated.
+3. If an error occurs during the evaluation of `body_expression`, the `handler_expression` is evaluated. The handler should be a function that accepts the error object as its argument. The result of the handler becomes the result of the entire `try` expression.
+
+**Example:**
+```json
+// Safe file reading with a fallback default
+["try",
+  ["host", "file/read", "/app/config.json"],
+  ["lambda", ["err"],
+    ["do",
+      ["host", "log/warn", ["str-concat", "Config not found, using default: ", ["get", "err", "message"]]],
+      { "default_setting": true }
+    ]
+  ]
+]
+```
+
+### Sequential Evaluation - `do`
+
+Evaluates multiple expressions in sequence and returns the result of the final expression.
+
+While JSL encourages a functional style using `let` and function composition, `do` is provided as a pragmatic tool for imperative-style sequencing, especially when dealing with multiple side-effects.
+
+> **Design Note: Why is there no `for` or `while` loop?**
+>
+> JSL intentionally omits traditional `for` or `while` loop special forms. This is a core design decision to encourage a functional approach to collection processing. Instead of imperative looping, you should use the powerful higher-order functions provided in the prelude:
+> - **`map`**: To transform each element in a list.
+> - **`filter`**: To select elements from a list.
+> - **`reduce`**: To aggregate a list into a single value.
+> - **`for_each`**: To perform a side-effect for each element in a list.
+>
+> These functions are safer, more declarative, and more composable than manual loops.
 
 ### Quotation - `quote` and `@`
 
@@ -143,6 +176,15 @@ Prevents evaluation of expressions, returning them as literal data.
 ["quote", expression]
 ["@", expression]  // Shorthand syntax
 ```
+
+There  is also a syntactic sugar for quoting simple expressions:
+  
+```json
+["quote", "hello"]  // Result: "hello"
+"@hello"// Result: "hello" (same as above)
+```
+It is only useful for simple values, as it does not allow for complex expressions, such as:
+`["@", ["+", 1, 2]]`.
 
 **Evaluation Rules:**
 1. Do NOT evaluate the argument
@@ -212,6 +254,8 @@ Unlike regular functions, special forms control when and if their arguments are 
 | `def` | Evaluate value, don't evaluate variable name |
 | `lambda` | Don't evaluate parameters or body |
 | `if` | Evaluate condition, then only one branch |
+| `let` | Evaluate bindings, then body in new scope |
+| `try` | Evaluate body, then handler only on error |
 | `do` | Evaluate all arguments in sequence |
 | `quote`/`@` | Don't evaluate argument at all |
 | `host` | Evaluate all arguments |
@@ -242,7 +286,7 @@ Special forms interact with the environment in specific ways:
 // Generate conditional code
 ["def", "make_comparator", 
   ["lambda", ["op"], 
-    ["@", ["lambda", ["a", "b"], [op, "a", "b"]]]]]
+    ["@", ["lambda", ["a", "b"], ["op", "a", "b"]]]]]
 
 // Usage
 ["def", "greater_than", ["make_comparator", ">"]]
@@ -269,11 +313,11 @@ Special forms interact with the environment in specific ways:
 // Define a "when" macro-like construct
 ["def", "when",
   ["lambda", ["condition", "action"],
-    ["if", "condition", "action", "@null"]]]
+    ["if", "condition", "action", null]]]
 
 // Usage
 ["when", [">", "temperature", 30], 
-  ["host", "log", "It's hot outside!"]]
+  ["host", "log", "@It's hot outside!"]]
 ```
 
 ## Advanced Special Form Usage
@@ -287,12 +331,12 @@ Special forms interact with the environment in specific ways:
   ["def", "database", 
     ["if", ["get", "config", "use_database"],
       ["host", "db/connect", ["get", "config", "db_url"]],
-      "@null"]],
+      null]],
   ["def", "processor",
     ["lambda", ["data"],
       ["if", "database",
         ["host", "db/store", "database", "data"],
-        ["host", "log", "No database configured"]]]],
+        ["host", "log", "@No database configured"]]]],
   "processor"]
 ```
 
@@ -316,7 +360,7 @@ Special forms interact with the environment in specific ways:
           ["def", "result", ["action", "resource"]],
           ["host", "resource/release", "resource"],
           "result"],
-        "@null"]]]]
+        null]]]]
 ```
 
 ## Special Forms vs Functions
@@ -335,10 +379,11 @@ Special forms interact with the environment in specific ways:
 
 **Use Special Forms for:**
 - Control flow (`if`, `do`)
-- Variable binding (`def`)
+- Variable binding (`def`, `let`)
 - Function creation (`lambda`)
 - Meta-programming (`quote`)
 - Host interaction (`host`)
+- Error handling (`try`)
 
 **Use Functions for:**
 - Data transformation
@@ -346,6 +391,7 @@ Special forms interact with the environment in specific ways:
 - String processing
 - Collection manipulation
 - Business logic
+- JSON object construction (using JSL's first-class object support)
 
 ## Implementation Notes
 
@@ -361,6 +407,8 @@ Special forms are evaluated in the context of JSL's evaluator, which maintains:
 ### Performance Considerations
 
 - **`def`**: O(1) environment binding
+- **`let`**: O(1) local binding
+- **`try`**: O(n) body evaluation, O(m) handler evaluation on error
 - **`lambda`**: O(1) closure creation, O(e) environment capture
 - **`if`**: O(1) branch selection, avoids evaluating unused branch  
 - **`do`**: O(n) sequential evaluation
@@ -368,3 +416,34 @@ Special forms are evaluated in the context of JSL's evaluator, which maintains:
 - **`host`**: O(h) depends on host operation complexity
 
 Special forms are the foundation of JSL's expressiveness, providing the essential building blocks for all higher-level language constructs while maintaining the language's homoiconic JSON-based structure.
+
+## Special Form Details
+
+### `host`
+
+The `host` special form is the gateway for all side effects and interactions with the host system.
+
+-   **Syntax**: `["host", command_expr, arg1_expr, ...]`
+-   **Evaluation**: All arguments are evaluated. The results are packaged into a JHIP request and yielded to the host runtime.
+
+## JSON Objects as First-Class Citizens
+
+JSL provides powerful support for JSON object construction through its first-class object syntax. Objects in JSL:
+
+- Are always treated as data structures (never function calls)
+- Use normal JSL evaluation rules for both keys and values
+- Require keys to evaluate to strings
+- Support dynamic construction with variables and expressions
+
+For example:
+```json
+["do",
+  ["def", "name", "@Alice"],
+  ["def", "age", 30],
+  {"@greeting": ["str-concat", "@Hello ", "name"],
+   "@info": {"@name": "name", "@age": "age"}}
+]
+```
+
+For more details, see **[JSON Objects as First-Class Citizens](./objects.md)**.
+

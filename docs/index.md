@@ -14,6 +14,7 @@ In an era of distributed systems and microservices, JSL addresses common challen
 - **🎯 Homoiconic**: Code and data share the same JSON representation
 - **⚡ Deterministic**: Core language evaluation is predictable and reproducible
 - **🔧 Extensible**: Built-in prelude provides practical functionality
+- **🏗️ First-Class Objects**: JSON objects are native data structures with dynamic construction support
 
 ## Core Design Principles
 
@@ -29,14 +30,17 @@ JSL is built upon fundamental principles that guide every aspect of its design:
 ## Quick Example
 
 ```json
-// Define and call a factorial function
-[
-  "do",
-  ["def", "factorial", 
-   ["lambda", ["n"], 
-    ["if", ["<=", "n", 1], 
-     1, 
-     ["*", "n", ["factorial", ["-", "n", 1]]]]]],
+// Define and call a factorial function using a local binding
+["let", [
+  ["factorial", 
+    ["lambda", ["n"], 
+      ["if", ["<=", "n", 1], 
+        1, 
+        ["*", "n", ["factorial", ["-", "n", 1]]]
+      ]
+    ]
+  ]
+],
   ["factorial", 5]
 ]
 // → 120
@@ -94,10 +98,9 @@ JSL's design makes it suitable for a variety of applications:
 
 ## Getting Started
 
-1. **[Installation](getting-started/installation.md)** - Set up JSL in your environment
-2. **[Quick Start](getting-started/quickstart.md)** - Your first JSL program
-3. **[Language Guide](language/overview.md)** - Learn the syntax and semantics
-4. **[Tutorials](tutorials/first-program.md)** - Step-by-step examples
+1. **[Getting Started](getting-started.md)** - Set up JSL in your environment and learn the basics.
+2. **[Language Guide](language/overview.md)** - Learn the syntax and semantics
+3. **[Tutorials](tutorials/first-program.md)** - Step-by-step examples
 
 ## Architecture Overview
 
@@ -112,6 +115,6 @@ This separation ensures transmitted code is always safe while remaining fully fu
 ## Learn More
 
 - **[Design Philosophy](architecture/philosophy.md)** - Theoretical foundations and principles
-- **[AST Specification](language/ast.md)** - Formal language syntax definition
+- **[AST Specification](language/semantics.md)** - Formal language syntax definition
 - **[JHIP Protocol](jhip/protocol.md)** - Host interaction for side effects
 - **[API Reference](api/core.md)** - Complete function documentation

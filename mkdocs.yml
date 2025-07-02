@@ -18,16 +18,13 @@ theme:
 
 nav:
   - Home: index.md
-  - Getting Started:
-    - Getting Started: getting-started.md
-    - Installation: getting-started/installation.md
-    - Quick Start: getting-started/quickstart.md
-    - Examples: getting-started/examples.md
+  - Getting Started: getting-started.md
   - Language Guide:
-    - Syntax: language/syntax.md
-    - AST: language/ast.md
+    - Overview: language/overview.md
+    - Syntax and Semantics: language/semantics.md
+    - Environments: language/environments.md
     - Special Forms: language/special-forms.md
-    - Templates: language/templates.md
+    - Objects: language/objects.md
     - Prelude: language/prelude.md
   - Tutorials:
     - First Program: tutorials/first-program.md
@@ -35,8 +32,7 @@ nav:
     - Data: tutorials/data.md
   - Host Interaction:
     - JHIP Protocol: jhip/protocol.md
-    - Commands: jhip/commands.md
-    - Custom Commands: jhip/custom.md
+    - Host Commands: jhip/host-commands.md
   - Architecture:
     - Philosophy: architecture/philosophy.md
     - Runtime: architecture/runtime.md
@@ -49,20 +45,41 @@ nav:
     - Practical: examples/practical.md
     - Advanced: examples/advanced.md
   - API Reference:
-    - Serialization API: api/serialization.md
+    - Core: api/core.md
+    - Evaluator: api/evaluator.md
+    - Serialization: api/serialization.md
     - Runner: api/runner.md
-    - Service: api/service.md
+    - Fluent API: api/fluent.md
 
 plugins:
   - search
-  # - mkdocstrings:
-  #     handlers:
-  #       python:
-  #         options:
-  #           show_root_heading: yes
-  #           show_source: yes
-  #           docstring_style: google
-  #           merge_init_into_class: yes
+  - with-pdf:
+      # Generates a PDF version of the documentation
+      # The output will be saved in the 'site/pdf' directory
+      output_dir: pdf
+      output_file: docs.pdf
+      # Additional options for PDF generation
+      latex:
+        documentclass: article
+        papersize: a4
+        fontsize: 12pt
+        geometry: margin=1in
+      # add metadata: author is Alex Towell, email is lex@metafunctor
+      metadata:
+        author: Alex Towell
+        email: lex@metafunctor
+      # additional metadata
+      additional:
+        keywords: [JSL, documentation, PDF]
+      title: JSL Documentation
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_root_heading: yes
+            show_source: yes
+            docstring_style: google
+            merge_init_into_class: yes
 
 markdown_extensions:
   - codehilite:

@@ -20,9 +20,9 @@ This creates a programming model where the physical location of code execution b
 
 ### JSON as Universal Representation
 
-JSL achieves network transparency by using JSON as the canonical representation for both code and data:
+JSL achieves network transparency by using JSON as the canonical representation for both code and data.
 
-```json
+```jsl
 // This JSL function can be transmitted anywhere JSON is supported
 ["lambda", ["x"], ["*", "x", "x"]]
 ```
@@ -35,9 +35,9 @@ JSL achieves network transparency by using JSON as the canonical representation 
 
 ### Closure Serialization
 
-JSL's closure serialization ensures that functions retain their behavior across network boundaries:
+JSL's closure serialization ensures that functions retain their behavior across network boundaries.
 
-```json
+```jsl
 // Original environment: x = 10
 ["lambda", ["y"], ["+", "x", "y"]]
 
@@ -54,7 +54,7 @@ JSL's closure serialization ensures that functions retain their behavior across 
 
 ### Request-Response Pattern
 
-```
+```text
 Client                    Server
   |                         |
   |------ JSL Function ---->|
@@ -63,21 +63,24 @@ Client                    Server
   |                         |
 ```
 
-Example:
-```json
-// Send computation to server
+Example of sending a computation to a server:
+
+```jsl
 {
   "code": ["map", ["lambda", ["x"], ["*", "x", 2]], [1, 2, 3, 4]],
   "data": {}
 }
+```
 
-// Receive result
+And receiving the result:
+
+```json
 {"result": [2, 4, 6, 8]}
 ```
 
 ### Code Migration Pattern
 
-```
+```text
 Runtime A                 Runtime B
   |                         |
   |-- Serialize Closure --->|
@@ -89,7 +92,7 @@ Runtime A                 Runtime B
 
 ### Distributed Pipeline Pattern
 
-```
+```text
 Data Source -> JSL Stage 1 -> JSL Stage 2 -> JSL Stage 3 -> Result
     |             |             |             |
     |             |             |             |

@@ -1,8 +1,49 @@
-# JSL: JSON Serializable Language
+# JSL - JSON Serializable Language
 
-## Introduction
+**A Network-Native Functional Programming Language**
 
-JSL (JSON Serializable Language) is a Lisp-like functional programming language designed from the ground up with network-nativity and JSON serializability as core tenets. In an era of distributed systems and microservices, JSL aims to provide a robust, secure, and transparent way to transmit, store, and execute code across diverse environments. By treating JSON as the canonical representation for both data and code, JSL addresses common challenges in code mobility, runtime dependencies, and cross-platform interoperability.
+JSL is a Lisp-like functional programming language designed from the ground up for network transmission and distributed computing. Unlike traditional languages that treat serialization as an afterthought, JSL makes wire-format compatibility a first-class design principle.
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+pip install jsl-lang
+```
+
+### Your First JSL Program
+
+```python
+from jsl import eval_expression
+
+# Simple arithmetic
+result = eval_expression('["+", 1, 2, 3]')
+print(result)  # Output: 6
+
+# Define and call a function
+program = '''
+["do",
+  ["def", "square", ["lambda", ["x"], ["*", "x", "x"]]],
+  ["square", 5]
+]
+'''
+result = eval_expression(program)
+print(result)  # Output: 25
+```
+
+### Command Line Interface
+
+```bash
+# Start interactive REPL
+jsl --repl
+
+# Evaluate an expression
+jsl --eval '["+", 1, 2, 3]'
+
+# Run a JSL file
+jsl program.jsl
+```
 
 ## Core Design Principles
 

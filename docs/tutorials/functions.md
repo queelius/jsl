@@ -183,7 +183,7 @@ Create a function that returns statistics about a list of numbers:
 ## Next Steps
 
 - Learn about [working with data](data.md)
-- Explore [JSON templates](../language/templates.md)
+- Explore [JSON Objects](../language/objects.md) as first-class citizens
 - Try [distributed computing](../architecture/distributed.md)
 
 Functions in JSL are powerful and flexible. With closures and higher-order functions, you can build complex programs from simple, composable pieces.

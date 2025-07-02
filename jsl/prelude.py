@@ -1,296 +1,556 @@
 """
-JSL Prelude Environment
+JSL Prelude - Built-in Functions
 
-Contains the built-in functions and operations that form the computational
-foundation of JSL. These functions are available in all JSL environments
-but are not serialized with user code.
+This module provides the standard library of functions available in every
+JSL environment. These functions implement the computational foundation
+of the language.
 """
 
-from __future__ import annotations
 import math
-from typing import Any
-from .core import Env, prelude, Closure
+import json
+from typing import Any, List, Dict, Union, Callable
+from .core import Env, JSLValue
 
-def eval_closure_or_builtin(fn, args):
-    """
-    Universal function call interface for JSL closures and built-ins.
-    
-    This function solves the fundamental challenge of making JSL closures
-    work seamlessly with built-in higher-order functions like map and filter.
-    
-    PROBLEM: When a JSL closure is created, it captures its lexical 
-    environment. However, that environment might not chain back to the
-    prelude, especially for closures created in nested scopes or if the
-    global prelude instance changes.
-    
-    SOLUTION: At call time, ensure the closure's captured environment chain
-    ultimately links to the current global prelude. This is done by finding
-    the highest-level user environment in the closure's captured chain and
-    setting its parent to the current prelude if it's not already linked.
-    
-    This approach maintains several important properties:
-    1. **Lexical Correctness**: Original variable bindings from the full captured chain are preserved.
-    2. **Built-in Access**: All closures can access primitive functions via the current prelude.
-    3. **Performance**: Environment chain modification is done when necessary.
-    4. **Serialization Safety**: Only user bindings are ever serialized with closures.
-    
-    Args:
-        fn: Function to call (JSL Closure or Python callable)
-        args: List of arguments to pass to the function
-        
-    Returns:
-        Result of calling fn with args
-        
-    Raises:
-        TypeError: If fn is not callable or has arity mismatch
-    """
-    global prelude  # Access the global prelude
-    
-    if isinstance(fn, Closure):
-        if len(args) != len(fn.params):
-            raise TypeError(f"Arity mismatch: expected {len(fn.params)}, got {len(args)}")
-        
-        captured_env = fn.env
-        
-        # Ensure the captured_env's chain links to the current global prelude.
-        # This is important if the prelude instance has changed since closure creation,
-        # or if the closure was defined in an environment not initially linked to the prelude.
-        if prelude is not None:
-            # Check if the current global prelude is already an ancestor of captured_env.
-            env_chain_iterator = captured_env
-            highest_user_env_in_chain = None # Will store the topmost user env in the captured_env's chain.
-            is_already_linked_to_current_prelude = False
-
-            while env_chain_iterator is not None:
-                if env_chain_iterator is prelude:
-                    is_already_linked_to_current_prelude = True
-                    break
-                highest_user_env_in_chain = env_chain_iterator
-                env_chain_iterator = env_chain_iterator.parent
-            
-            if not is_already_linked_to_current_prelude:
-                # The end of the chain was reached without finding the current prelude.
-                # `highest_user_env_in_chain` now holds the top-most environment in the original chain
-                # (or its highest ancestor that wasn't the current prelude).
-                # Its .parent is currently None or an old/different prelude.
-                # We need to link this topmost user environment to the current `prelude`.
-                if highest_user_env_in_chain is not None and highest_user_env_in_chain is not prelude:
-                    highest_user_env_in_chain.parent = prelude
-                # If highest_user_env_in_chain is None, captured_env was None (which is invalid for a Closure).
-                # If highest_user_env_in_chain is prelude, is_already_linked_to_current_prelude would be true.
-        
-        # Now, captured_env (which is fn.env) is part of a chain
-        # that should correctly resolve to the current `prelude` if prelude is not None.
-        from .evaluator import eval_expr
-        call_env = captured_env.extend(dict(zip(fn.params, args)))
-        return eval_expr(fn.body, call_env)
-    elif callable(fn):
-        return fn(*args)
-    else:
-        raise TypeError(f"Cannot call non-callable value: {fn!r}")
-
-def reduce_jsl(fn, lst, init=None):
-    """
-    JSL-compatible reduce operation supporting both closures and built-ins.
-    
-    Implements the standard functional programming reduce operation
-    (also known as fold) with proper support for JSL closures.
-    
-    Args:
-        fn: Binary function to apply (closure or built-in)
-        lst: List to reduce
-        init: Initial value (optional)
-        
-    Returns:
-        Single value produced by applying fn to all elements
-        
-    Mathematical Definition:
-        reduce(f, [x1, x2, ..., xn], init) = f(...f(f(init, x1), x2)..., xn)
-    """
-    if not lst:
-        return init
-    
-    if init is None:
-        result = lst[0]
-        items = lst[1:]
-    else:
-        result = init
-        items = lst
-    
-    for item in items:
-        result = eval_closure_or_builtin(fn, [result, item])
-    
-    return result
 
 def make_prelude() -> Env:
     """
-    Create the foundational environment containing all built-in functions.
+    Create the standard JSL prelude environment.
     
-    The prelude serves as the computational foundation of JSL. It contains
-    all primitive operations needed for computation but is never serialized
-    or transmitted over the wire.
+    This environment contains all the built-in functions that form
+    the computational foundation of JSL.
     """
-    global prelude  # Declare that we'll modify the global prelude
-    
-    # Create the prelude environment with all built-in functions
     prelude_bindings = {
-        # =================================================================
-        # DATA CONSTRUCTORS
-        # =================================================================
-        # These provide the fundamental data types for JSL programs
+        # Arithmetic operations
+        "+": _add,
+        "-": _subtract,
+        "*": _multiply,
+        "/": _divide,
+        "%": _modulo,
+        "abs": abs,
+        "max": max,
+        "min": min,
+        "round": round,
+        "floor": math.floor,
+        "ceil": math.ceil,
+        "sqrt": math.sqrt,
+        "pow": math.pow,
+        "exp": math.exp,
+        "log": math.log,
+        "log10": math.log10,
+        "log2": math.log2,
+        "gcd": math.gcd,
+        "lcm": lambda a, b: abs(a * b) // math.gcd(a, b) if a and b else 0,
+        "comb": math.comb,
+        "perm": math.perm,
+        "mod": _modulo,
         
-        "list": lambda *args: list(args),
-       
-        # =================================================================
-        # LIST OPERATIONS
-        # =================================================================
-        # Comprehensive list manipulation functions following functional
-        # programming principles (immutability, composability)
+        # Comparison operations
+        "=": _equals,
+        "!=": _not_equals,
+        "<": _less_than,
+        "<=": _less_than_or_equal,
+        ">": _greater_than,
+        ">=": _greater_than_or_equal,
         
-        "append": lambda lst, item: lst + [item] if isinstance(lst, list) else [item],
-        "prepend": lambda item, lst: [item] + lst if isinstance(lst, list) else [item],
-        "concat": lambda *lsts: [item for lst in lsts for item in (lst if isinstance(lst, list) else [])],
-        "first": lambda lst: lst[0] if lst else None,
-        "rest": lambda lst: lst[1:] if len(lst) > 1 else [],
-        "nth": lambda lst, i: lst[i] if isinstance(lst, list) and 0 <= i < len(lst) else None,
-        "length": len,
-        "empty?": lambda x: len(x) == 0 if hasattr(x, '__len__') else True,
-        "slice": lambda lst, start, end=None: lst[start:end] if isinstance(lst, (list, str)) else [],
-        "reverse": lambda lst: lst[::-1] if isinstance(lst, (list, str)) else lst,
-        "contains?": lambda lst, item: item in lst if hasattr(lst, '__contains__') else False,
-        "index": lambda lst, item: lst.index(item) if item in lst else -1,
+        # Logical operations
+        "and": _logical_and,
+        "or": _logical_or,
+        "not": _logical_not,
         
-        # =================================================================
-        # DICTIONARY OPERATIONS  
-        # =================================================================
-        # Immutable dictionary operations supporting functional programming
-        # patterns and data transformation pipelines
-        
-        "get": lambda d, k, default=None: d.get(k, default) if isinstance(d, dict) else default,
-        "set": lambda d, k, v: {**d, k: v} if isinstance(d, dict) else {},
-        "keys": lambda d: list(d.keys()) if isinstance(d, dict) else [],
-        "values": lambda d: list(d.values()) if isinstance(d, dict) else [],
-        "merge": lambda *dicts: {k: v for d in dicts if isinstance(d, dict) for k, v in d.items()},
-        "has-key?": lambda d, k: k in d if isinstance(d, dict) else False,
-        
-        # =================================================================
-        # N-ARITY ARITHMETIC
-        # =================================================================
-        # Mathematical operations supporting variable numbers of arguments
-        # for more natural expression and reduced intermediate allocations
-        
-        "+": lambda *args: sum(args) if args else 0,
-        "-": lambda *args: args[0] - sum(args[1:]) if len(args) > 1 else (-args[0] if args else 0),
-        "*": lambda *args: math.prod(args) if args else 1,
-        "/": lambda *args: (
-            # Case: 1 argument
-            (
-                (lambda val: 1 / val if val != 0 else (_ for _ in ()).throw(ZeroDivisionError("division by zero")))(args[0])
-            ) if len(args) == 1 else (
-                # Case: >1 argument
-                (lambda num, *denoms_tuple: (
-                    (lambda prod_denoms: num / prod_denoms if prod_denoms != 0 else (_ for _ in ()).throw(ZeroDivisionError("division by zero")))(math.prod(denoms_tuple))
-                ))(args[0], *args[1:])
-            ) if len(args) > 1 else (
-                # Case: 0 arguments
-                (_ for _ in ()).throw(TypeError("/ requires at least one argument"))
-            )
-        ),
-        "mod": lambda a, b: a % b if b != 0 else 0,
-        "pow": lambda a, b: pow(a, b),
-        
-        # =================================================================
-        # N-ARITY COMPARISONS
-        # =================================================================
-        # Chained comparisons supporting mathematical notation like a < b < c
-        
-        "=": lambda *args: all(x == args[0] for x in args[1:]) if len(args) > 1 else True,
-        "<": lambda *args: all(args[i] < args[i+1] for i in range(len(args)-1)) if len(args) > 1 else True,
-        ">": lambda *args: all(args[i] > args[i+1] for i in range(len(args)-1)) if len(args) > 1 else True,
-        "<=": lambda *args: all(args[i] <= args[i+1] for i in range(len(args)-1)) if len(args) > 1 else True,
-        ">=": lambda *args: all(args[i] >= args[i+1] for i in range(len(args)-1)) if len(args) > 1 else True,
-        
-        # =================================================================
-        # N-ARITY LOGIC
-        # =================================================================
-        # Logical operations with short-circuiting behavior
-        
-        "and": lambda *args: all(args),
-        "or": lambda *args: any(args),
-        "not": lambda x: not x,
-        
-        # =================================================================
-        # TYPE PREDICATES
-        # =================================================================
-        # Essential for wire format validation and dynamic type checking
-        
-        "null?": lambda x: x is None,
-        "bool?": lambda x: isinstance(x, bool),
-        "number?": lambda x: isinstance(x, (int, float)),
-        "string?": lambda x: isinstance(x, str),
-        "list?": lambda x: isinstance(x, list),
-        "dict?": lambda x: isinstance(x, dict),
-        "callable?": callable,
-        
-        # =================================================================
-        # STRING OPERATIONS
-        # =================================================================
-        # String manipulation functions for text processing and formatting
-        
-        "str-concat": lambda *args: ''.join(str(arg) for arg in args),
-        "str-split": lambda s, sep=' ': s.split(sep) if isinstance(s, str) else [],
-        "str-join": lambda lst, sep='': sep.join(str(x) for x in lst),
-        "str-length": lambda s: len(s) if isinstance(s, str) else 0,
+        # String operations
+        "str-concat": _string_concat,
+        "str-length": len,
         "str-upper": lambda s: s.upper() if isinstance(s, str) else s,
         "str-lower": lambda s: s.lower() if isinstance(s, str) else s,
+        "str-split": _string_split,
+        "str-join": _string_join,
+        "str-slice": _string_slice,
         
-        # =================================================================
-        # HIGHER-ORDER FUNCTIONS
-        # =================================================================
-        # The cornerstone of functional programming, enabling composition
-        # and abstraction. These work seamlessly with JSL closures through
-        # the eval_closure_or_builtin integration layer.
+        # List operations
+        "list": _make_list,
+        "length": len,
+        "first": _first,
+        "rest": _rest,
+        "last": _last,
+        "cons": _cons,
+        "append": _append,
+        "concat": _concat_lists,
+        "reverse": _reverse,
+        "slice": _slice,
+        "contains": _contains,
+        "index-of": _index_of,
         
-        "map": lambda fn, lst: [eval_closure_or_builtin(fn, [item]) for item in lst] if isinstance(lst, list) else [],
-        "filter": lambda fn, lst: [item for item in lst if eval_closure_or_builtin(fn, [item])] if isinstance(lst, list) else [],
-        "reduce": reduce_jsl,
-        "apply": lambda fn, args: eval_closure_or_builtin(fn, args) if isinstance(args, list) else None,
+        # Higher-order functions
+        "map": _map,
+        "filter": _filter,
+        "reduce": _reduce,
+        "for-each": _for_each,
+        "any": _any,
+        "all": _all,
         
-        # =================================================================
-        # MATHEMATICAL FUNCTIONS
-        # =================================================================
-        # Extended mathematical operations for scientific computing
+        # Object operations
+        "get": _get,
+        "set": _set,
+        "has": _has,
+        "keys": _keys,
+        "values": _values,
+        "items": _items,
+        "merge": _merge,
         
-        "min": lambda *args: min(args) if args else None,
-        "max": lambda *args: max(args) if args else None,
-        "abs": abs,
-        "round": round,
-        "sin": math.sin,
-        "cos": math.cos,
-        "tan": math.tan,
-        "sqrt": math.sqrt,
-        "log": math.log,
-        "exp": math.exp,
+        # Type checking
+        "is-null": lambda x: x is None,
+        "is-bool": lambda x: isinstance(x, bool),
+        "is-num": lambda x: isinstance(x, (int, float)),
+        "is-str": lambda x: isinstance(x, str),
+        "is-list": lambda x: isinstance(x, list),
+        "is-obj": lambda x: isinstance(x, dict),
+        "is-func": callable,
         
-        # =================================================================
-        # TYPE CONVERSION
-        # =================================================================
-        # Safe type conversion functions with reasonable defaults
+        # Utility functions
+        "range": _range,
+        "sort": _sort,
+        "group-by": _group_by,
+        "unique": _unique,
+        "zip": _zip,
+        "enumerate": _enumerate,
         
-        "to-string": str,
-        "to-number": lambda x: float(x) if str(x).replace('.','').replace('-','').isdigit() else 0,
-        "type-of": lambda x: type(x).__name__,
+        # JSON operations
+        "json-parse": json.loads,
+        "json-stringify": _json_stringify,
         
-        # =================================================================
-        # I/O OPERATIONS
-        # =================================================================
-        # Basic I/O functions (can be customized or restricted in sandboxed
-        # environments)
-        
-        "print": print,
-        "error": lambda msg: (_ for _ in ()).throw(RuntimeError(str(msg))),
+        # Math constants
+        "pi": math.pi,
+        "e": math.e,
     }
-    # Create the new Env instance using the refactored class
-    new_prelude_env = Env(prelude_bindings, parent=None) # Explicitly parent=None for prelude
-    prelude = new_prelude_env
-    return new_prelude_env
+    
+    return Env(prelude_bindings)
+
+
+# Arithmetic functions
+def _add(*args):
+    """Add numbers or concatenate strings/lists."""
+    if not args:
+        return 0
+    
+    result = args[0]
+    for arg in args[1:]:
+        if isinstance(result, str) and isinstance(arg, str):
+            result = result + arg
+        elif isinstance(result, list) and isinstance(arg, list):
+            result = result + arg
+        elif isinstance(result, (int, float)) and isinstance(arg, (int, float)):
+            result = result + arg
+        else:
+            raise TypeError(f"Cannot add {type(result).__name__} and {type(arg).__name__}")
+    
+    return result
+
+
+def _subtract(*args):
+    """Subtract numbers."""
+    if not args:
+        return 0
+    if len(args) == 1:
+        return -args[0]
+    
+    result = args[0]
+    for arg in args[1:]:
+        result = result - arg
+    return result
+
+
+def _multiply(*args):
+    """Multiply numbers."""
+    if not args:
+        return 1
+    
+    result = args[0]
+    for arg in args[1:]:
+        result = result * arg
+    return result
+
+
+def _divide(*args):
+    """Divide numbers."""
+    if len(args) != 2:
+        raise ValueError("Division requires exactly 2 arguments")
+    
+    a, b = args
+    if b == 0:
+        raise ZeroDivisionError("Division by zero")
+    return a / b
+
+
+def _modulo(a, b):
+    """Modulo operation."""
+    return a % b
+
+
+# Comparison functions
+def _equals(*args):
+    """Check if all arguments are equal."""
+    if len(args) < 2:
+        return True
+    
+    first = args[0]
+    return all(arg == first for arg in args[1:])
+
+
+def _not_equals(a, b):
+    """Check if two values are not equal."""
+    return a != b
+
+
+def _less_than(a, b):
+    """Check if a < b."""
+    return a < b
+
+
+def _less_than_or_equal(a, b):
+    """Check if a <= b."""
+    return a <= b
+
+
+def _greater_than(a, b):
+    """Check if a > b."""
+    return a > b
+
+
+def _greater_than_or_equal(a, b):
+    """Check if a >= b."""
+    return a >= b
+
+
+# Logical functions
+def _logical_and(*args):
+    """Logical AND of all arguments."""
+    return all(args)
+
+
+def _logical_or(*args):
+    """Logical OR of all arguments."""
+    return any(args)
+
+
+def _logical_not(x):
+    """Logical NOT."""
+    return not x
+
+
+# String functions
+def _string_concat(*args):
+    """Concatenate strings."""
+    return ''.join(str(arg) for arg in args)
+
+
+def _string_split(string, delimiter=' '):
+    """Split string by delimiter."""
+    return string.split(delimiter)
+
+
+def _string_join(delimiter, strings):
+    """Join strings with delimiter."""
+    return delimiter.join(strings)
+
+
+def _string_slice(string, start, end=None):
+    """Slice a string."""
+    if end is None:
+        return string[start:]
+    return string[start:end]
+
+
+# List functions
+def _make_list(*args):
+    """Create a list from arguments."""
+    return list(args)
+
+
+def _first(lst):
+    """Get the first element of a list."""
+    if not lst:
+        return None
+    return lst[0]
+
+
+def _rest(lst):
+    """Get all elements except the first."""
+    if not lst:
+        return []
+    return lst[1:]
+
+
+def _last(lst):
+    """Get the last element of a list."""
+    if not lst:
+        return None
+    return lst[-1]
+
+
+def _cons(item, lst):
+    """Add item to the front of a list."""
+    return [item] + lst
+
+
+def _append(lst, item):
+    """Add item to the end of a list."""
+    return lst + [item]
+
+
+def _concat_lists(*lists):
+    """Concatenate multiple lists."""
+    result = []
+    for lst in lists:
+        result.extend(lst)
+    return result
+
+
+def _reverse(lst):
+    """Reverse a list."""
+    return list(reversed(lst))
+
+
+def _slice(lst, start, end=None):
+    """Slice a list."""
+    if end is None:
+        return lst[start:]
+    return lst[start:end]
+
+
+def _contains(lst, item):
+    """Check if list contains item."""
+    return item in lst
+
+
+def _index_of(lst, item):
+    """Find index of item in list."""
+    try:
+        return lst.index(item)
+    except ValueError:
+        return -1
+
+
+# Higher-order functions
+def _map(func, lst):
+    """Apply function to each element in list."""
+    from .core import Closure, Evaluator
+    
+    if isinstance(func, Closure):
+        evaluator = Evaluator()
+        return [func(evaluator, [item]) for item in lst]
+    else:
+        return [func(item) for item in lst]
+
+
+def _filter(func, lst):
+    """Filter list by predicate function."""
+    from .core import Closure, Evaluator
+    
+    if isinstance(func, Closure):
+        evaluator = Evaluator()
+        return [item for item in lst if func(evaluator, [item])]
+    else:
+        return [item for item in lst if func(item)]
+
+
+def _reduce(func, lst, initial=None):
+    """Reduce list to single value using function."""
+    from .core import Closure, Evaluator
+    
+    if not lst:
+        return initial
+    
+    if isinstance(func, Closure):
+        evaluator = Evaluator()
+        if initial is None:
+            result = lst[0]
+            items = lst[1:]
+        else:
+            result = initial
+            items = lst
+        
+        for item in items:
+            result = func(evaluator, [result, item])
+        return result
+    else:
+        if initial is None:
+            result = lst[0]
+            items = lst[1:]
+        else:
+            result = initial
+            items = lst
+        
+        for item in items:
+            result = func(result, item)
+        return result
+
+
+def _for_each(func, lst):
+    """Apply function to each element for side effects."""
+    from .core import Closure, Evaluator
+    
+    if isinstance(func, Closure):
+        evaluator = Evaluator()
+        for item in lst:
+            func(evaluator, [item])
+    else:
+        for item in lst:
+            func(item)
+    
+    return None
+
+
+def _any(lst):
+    """Check if any element is truthy."""
+    return any(lst)
+
+
+def _all(lst):
+    """Check if all elements are truthy."""
+    return all(lst)
+
+
+# Object functions
+def _get(obj, key, default=None):
+    """Get value from object by key."""
+    if isinstance(obj, dict):
+        return obj.get(key, default)
+    elif isinstance(obj, list) and isinstance(key, int):
+        try:
+            return obj[key]
+        except IndexError:
+            return default
+    else:
+        return default
+
+
+def _set(obj, key, value):
+    """Set value in object (returns new object)."""
+    if isinstance(obj, dict):
+        result = obj.copy()
+        result[key] = value
+        return result
+    elif isinstance(obj, list) and isinstance(key, int):
+        result = obj.copy()
+        if 0 <= key < len(result):
+            result[key] = value
+        return result
+    else:
+        raise TypeError(f"Cannot set key in {type(obj).__name__}")
+
+
+def _has(obj, key):
+    """Check if object has key."""
+    if isinstance(obj, dict):
+        return key in obj
+    elif isinstance(obj, list) and isinstance(key, int):
+        return 0 <= key < len(obj)
+    else:
+        return False
+
+
+def _keys(obj):
+    """Get keys from object."""
+    if isinstance(obj, dict):
+        return list(obj.keys())
+    elif isinstance(obj, list):
+        return list(range(len(obj)))
+    else:
+        return []
+
+
+def _values(obj):
+    """Get values from object."""
+    if isinstance(obj, dict):
+        return list(obj.values())
+    elif isinstance(obj, list):
+        return obj.copy()
+    else:
+        return []
+
+
+def _items(obj):
+    """Get key-value pairs from object."""
+    if isinstance(obj, dict):
+        return [[k, v] for k, v in obj.items()]
+    elif isinstance(obj, list):
+        return [[i, v] for i, v in enumerate(obj)]
+    else:
+        return []
+
+
+def _merge(*objs):
+    """Merge objects (later objects override earlier ones)."""
+    result = {}
+    for obj in objs:
+        if isinstance(obj, dict):
+            result.update(obj)
+    return result
+
+
+# Utility functions
+def _range(*args):
+    """Create a range of numbers."""
+    return list(range(*args))
+
+
+def _sort(lst, key_func=None, reverse=False):
+    """Sort a list."""
+    from .core import Closure, Evaluator
+    
+    if key_func and isinstance(key_func, Closure):
+        evaluator = Evaluator()
+        return sorted(lst, key=lambda x: key_func(evaluator, [x]), reverse=reverse)
+    elif key_func:
+        return sorted(lst, key=key_func, reverse=reverse)
+    else:
+        return sorted(lst, reverse=reverse)
+
+
+def _group_by(key_func, lst):
+    """Group list elements by key function."""
+    from .core import Closure, Evaluator
+    
+    groups = {}
+    
+    if isinstance(key_func, Closure):
+        evaluator = Evaluator()
+        for item in lst:
+            key = key_func(evaluator, [item])
+            if key not in groups:
+                groups[key] = []
+            groups[key].append(item)
+    else:
+        for item in lst:
+            key = key_func(item)
+            if key not in groups:
+                groups[key] = []
+            groups[key].append(item)
+    
+    return groups
+
+
+def _unique(lst):
+    """Remove duplicates from list (preserving order)."""
+    seen = set()
+    result = []
+    for item in lst:
+        if item not in seen:
+            seen.add(item)
+            result.append(item)
+    return result
+
+
+def _zip(*lists):
+    """Zip multiple lists together."""
+    return [list(items) for items in zip(*lists)]
+
+
+def _enumerate(lst):
+    """Enumerate list items with indices."""
+    return [[i, item] for i, item in enumerate(lst)]
+
+
+def _json_stringify(obj, indent=None):
+    """Convert object to JSON string."""
+    return json.dumps(obj, indent=indent)

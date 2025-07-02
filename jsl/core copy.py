@@ -1,0 +1,384 @@
+"""
+JSL (JSON Serializable Language) - Core Module
+
+This module provides the fundamental data structures and evaluation engine
+for JSL, a network-native functional programming language.
+"""
+
+from typing import Any, Dict, List, Optional, Union, Callable
+from dataclasses import dataclass
+import json
+import hashlib
+
+
+# Type aliases for clarity
+JSLValue = Union[str, int, float, bool, None, List, Dict]
+JSLExpression = JSLValue
+Environment = Dict[str, Any]
+
+
+class JSLError(Exception):
+    """Base exception for all JSL runtime errors."""
+    pass
+
+
+class SymbolNotFoundError(JSLError):
+    """Raised when a symbol cannot be found in the current environment."""
+    pass
+
+
+class JSLTypeError(JSLError):
+    """Raised when there's a type mismatch in JSL operations."""
+    pass
+
+
+@dataclass
+class Closure:
+    """
+    Represents a JSL function (closure).
+    
+    A closure captures three things:
+    1. The parameter names it expects
+    2. The body expression to evaluate when called
+    3. The environment where it was defined (lexical scoping)
+    """
+    params: List[str]
+    body: JSLExpression
+    env: 'Env'
+    
+    def __call__(self, evaluator: 'Evaluator', args: List[JSLValue]) -> JSLValue:
+        """Apply this closure to the given arguments."""
+        if len(args) != len(self.params):
+            raise JSLTypeError(f"Function expects {len(self.params)} arguments, got {len(args)}")
+        
+        # Create new environment extending the closure's captured environment
+        call_env = self.env.extend(dict(zip(self.params, args)))
+        return evaluator.eval(self.body, call_env)
+
+
+class Env:
+    """
+    Represents a JSL environment - a scope containing variable bindings.
+    
+    Environments form a chain: each environment has an optional parent.
+    When looking up a variable, we search the current environment first,
+    then its parent, and so on until we find it or reach the root.
+    """
+    
+    def __init__(self, bindings: Optional[Dict[str, Any]] = None, parent: Optional['Env'] = None):
+        self.bindings = bindings or {}
+        self.parent = parent
+    
+    def get(self, name: str) -> Any:
+        """Look up a variable in this environment or its parents."""
+        if name in self.bindings:
+            return self.bindings[name]
+        elif self.parent:
+            return self.parent.get(name)
+        else:
+            raise SymbolNotFoundError(f"Symbol '{name}' not found")
+    
+    def define(self, name: str, value: Any) -> None:
+        """Define a variable in this environment."""
+        self.bindings[name] = value
+    
+    def extend(self, new_bindings: Dict[str, Any]) -> 'Env':
+        """Create a new environment that extends this one with additional bindings."""
+        return Env(new_bindings, parent=self)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert environment bindings to a dictionary (for serialization)."""
+        result = {}
+        if self.parent:
+            result.update(self.parent.to_dict())
+        result.update(self.bindings)
+        return result
+    
+    def content_hash(self) -> str:
+        """Generate a content-addressable hash for this environment."""
+        # Create a canonical representation for hashing
+        canonical = {
+            "bindings": self._serialize_bindings(),
+            "parent_hash": self.parent.content_hash() if self.parent else None
+        }
+        content = json.dumps(canonical, sort_keys=True)
+        return hashlib.sha256(content.encode()).hexdigest()
+    
+    def _serialize_bindings(self) -> Dict[str, Any]:
+        """Serialize bindings to a JSON-compatible format."""
+        result = {}
+        for k, v in self.bindings.items():
+            if isinstance(v, Closure):
+                # Detect if this closure references the current environment
+                if v.env is self:
+                    # Self-referential closure - use placeholder
+                    env_hash = f"self_ref_{id(self)}"
+                else:
+                    # Normal closure - compute hash normally
+                    env_hash = v.env.content_hash()
+                
+                result[k] = {
+                    "type": "closure",
+                    "params": v.params,
+                    "body": v.body,
+                    "env_hash": env_hash
+                }
+            elif not callable(v):  # Skip built-in functions
+                result[k] = v
+            else:
+                # For built-in functions, just store a reference
+                result[k] = {"type": "builtin", "name": k}
+        return result
+
+
+class HostDispatcher:
+    """
+    Handles JHIP (JSL Host Interaction Protocol) requests.
+    
+    This is where all side effects are controlled. The host environment
+    registers handlers for specific commands and decides what operations
+    are permitted.
+    """
+    
+    def __init__(self):
+        self.handlers: Dict[str, Callable] = {}
+    
+    def register(self, command: str, handler: Callable) -> None:
+        """Register a handler for a specific host command."""
+        self.handlers[command] = handler
+    
+    def dispatch(self, command: str, args: List[Any]) -> Any:
+        """Dispatch a host command with arguments."""
+        if command not in self.handlers:
+            raise JSLError(f"Unknown host command: {command}")
+        
+        try:
+            return self.handlers[command](*args)
+        except Exception as e:
+            raise JSLError(f"Host command '{command}' failed: {e}")
+
+
+class Evaluator:
+    """
+    The core JSL evaluator - the "engine" of the language.
+    
+    This class implements the evaluation rules for JSL expressions.
+    It handles special forms and delegates host interactions to the
+    dispatcher.
+    """
+    
+    def __init__(self, host_dispatcher: Optional[HostDispatcher] = None):
+        self.host = host_dispatcher or HostDispatcher()
+    
+    def eval(self, expr: JSLExpression, env: Env) -> JSLValue:
+        """
+        Evaluate a JSL expression in the given environment.
+        
+        This is the core of the language - it implements the evaluation
+        rules that determine what each JSL construct means.
+        """
+        # Literals: numbers, booleans, null, objects
+        if isinstance(expr, (int, float, bool)) or expr is None:
+            return expr
+        
+        # Objects: evaluate both keys and values, keys must be strings
+        if isinstance(expr, dict):
+            result = {}
+            for key_expr, value_expr in expr.items():
+                # Evaluate key - must result in a string
+                key_result = self.eval(key_expr, env)
+                if not isinstance(key_result, str):
+                    raise JSLTypeError(f"Object key must evaluate to string, got {type(key_result)}: {key_result}")
+                
+                # Evaluate value
+                value_result = self.eval(value_expr, env)
+                result[key_result] = value_result
+            return result
+        
+        # Strings: variables or string literals
+        if isinstance(expr, str):
+            return self._eval_string(expr, env)
+        
+        # Arrays: function calls or special forms
+        if isinstance(expr, list):
+            return self._eval_list(expr, env)
+        
+        raise JSLTypeError(f"Cannot evaluate expression of type {type(expr)}")
+    
+    def _eval_string(self, s: str, env: Env) -> JSLValue:
+        """Evaluate a string: either a variable lookup or a string literal."""
+        if s.startswith('@'):
+            # String literal: "@hello" -> "hello"
+            return s[1:]
+        else:
+            # Variable lookup: "x" -> value of x
+            return env.get(s)
+    
+    def _eval_list(self, lst: List, env: Env) -> JSLValue:
+        """Evaluate a list: either a special form or a function call."""
+        if not lst:
+            return lst  # Empty list evaluates to itself
+        
+        operator = lst[0]
+        
+        # Special forms have unique evaluation rules
+        if operator == "def":
+            return self._eval_def(lst, env)
+        elif operator == "lambda":
+            return self._eval_lambda(lst, env)
+        elif operator == "if":
+            return self._eval_if(lst, env)
+        elif operator == "let":
+            return self._eval_let(lst, env)
+        elif operator == "do":
+            return self._eval_do(lst, env)
+        elif operator == "quote" or operator == "@":
+            return self._eval_quote(lst, env)
+        elif operator == "try":
+            return self._eval_try(lst, env)
+        elif operator == "host":
+            return self._eval_host(lst, env)
+        else:
+            # Regular function call: evaluate operator and arguments
+            return self._eval_function_call(lst, env)
+    
+    def _eval_def(self, lst: List, env: Env) -> JSLValue:
+        """Handle 'def' special form: ["def", name, value_expr]"""
+        if len(lst) != 3:
+            raise JSLError("'def' requires exactly 2 arguments: name and value")
+        
+        _, name, value_expr = lst
+        if not isinstance(name, str):
+            raise JSLTypeError("'def' name must be a string")
+        
+        value = self.eval(value_expr, env)
+        env.define(name, value)
+        return value
+    
+    def _eval_lambda(self, lst: List, env: Env) -> Closure:
+        """Handle 'lambda' special form: ["lambda", [params], body]"""
+        if len(lst) != 3:
+            raise JSLError("'lambda' requires exactly 2 arguments: params and body")
+        
+        _, params, body = lst
+        if not isinstance(params, list) or not all(isinstance(p, str) for p in params):
+            raise JSLTypeError("'lambda' parameters must be a list of strings")
+        
+        return Closure(params, body, env)
+    
+    def _eval_if(self, lst: List, env: Env) -> JSLValue:
+        """Handle 'if' special form: ["if", condition, then_expr, else_expr]"""
+        if len(lst) != 4:
+            raise JSLError("'if' requires exactly 3 arguments: condition, then, else")
+        
+        _, condition, then_expr, else_expr = lst
+        condition_value = self.eval(condition, env)
+        
+        if self._is_truthy(condition_value):
+            return self.eval(then_expr, env)
+        else:
+            return self.eval(else_expr, env)
+    
+    def _eval_let(self, lst: List, env: Env) -> JSLValue:
+        """Handle 'let' special form: ["let", [[name, value], ...], body]"""
+        if len(lst) != 3:
+            raise JSLError("'let' requires exactly 2 arguments: bindings and body")
+        
+        _, bindings, body = lst
+        if not isinstance(bindings, list):
+            raise JSLTypeError("'let' bindings must be a list")
+        
+        # Create new environment with the bindings
+        new_bindings = {}
+        for binding in bindings:
+            if not isinstance(binding, list) or len(binding) != 2:
+                raise JSLError("Each 'let' binding must be [name, value]")
+            
+            name, value_expr = binding
+            if not isinstance(name, str):
+                raise JSLTypeError("'let' binding name must be a string")
+            
+            # Evaluate in the original environment (not the new one)
+            value = self.eval(value_expr, env)
+            new_bindings[name] = value
+        
+        new_env = env.extend(new_bindings)
+        return self.eval(body, new_env)
+    
+    def _eval_do(self, lst: List, env: Env) -> JSLValue:
+        """Handle 'do' special form: ["do", expr1, expr2, ...]"""
+        if len(lst) < 2:
+            raise JSLError("'do' requires at least one expression")
+        
+        result = None
+        for expr in lst[1:]:
+            result = self.eval(expr, env)
+        return result
+    
+    def _eval_quote(self, lst: List, env: Env) -> JSLValue:
+        """Handle 'quote' or '@' special form: ["@", expr]"""
+        if len(lst) != 2:
+            raise JSLError("'quote' requires exactly 1 argument")
+        
+        return lst[1]  # Return the argument without evaluating it
+    
+    def _eval_try(self, lst: List, env: Env) -> JSLValue:
+        """Handle 'try' special form: ["try", body, handler]"""
+        if len(lst) != 3:
+            raise JSLError("'try' requires exactly 2 arguments: body and handler")
+        
+        _, body, handler = lst
+        
+        try:
+            return self.eval(body, env)
+        except Exception as e:
+            # Create error object
+            error_obj = {
+                "type": type(e).__name__,
+                "message": str(e)
+            }
+            
+            # Apply handler function to the error
+            handler_func = self.eval(handler, env)
+            if not isinstance(handler_func, Closure):
+                raise JSLTypeError("'try' handler must be a function")
+            
+            return handler_func(self, [error_obj])
+    
+    def _eval_host(self, lst: List, env: Env) -> JSLValue:
+        """Handle 'host' special form: ["host", command, arg1, ...]"""
+        if len(lst) < 2:
+            raise JSLError("'host' requires at least a command")
+        
+        # Evaluate all arguments
+        command = self.eval(lst[1], env)
+        args = [self.eval(arg, env) for arg in lst[2:]]
+        
+        if not isinstance(command, str):
+            raise JSLTypeError("Host command must be a string")
+        
+        return self.host.dispatch(command, args)
+    
+    def _eval_function_call(self, lst: List, env: Env) -> JSLValue:
+        """Handle regular function calls: [func, arg1, arg2, ...]"""
+        func = self.eval(lst[0], env)
+        args = [self.eval(arg, env) for arg in lst[1:]]
+        
+        if isinstance(func, Closure):
+            return func(self, args)
+        elif callable(func):
+            # Built-in function
+            return func(*args)
+        else:
+            raise JSLTypeError(f"Cannot call non-function value: {func}")
+
+    def _is_truthy(self, value: JSLValue) -> bool:
+        """Determine if a value is truthy in JSL."""
+        if value is None or value is False:
+            return False
+        elif isinstance(value, (list, dict, str)) and len(value) == 0:
+            return False
+        elif isinstance(value, (int, float)) and value == 0:
+            return False
+        else:
+            return True

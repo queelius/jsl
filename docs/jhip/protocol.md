@@ -2,162 +2,233 @@
 
 ## Introduction
 
-The JSL Host Interaction Protocol (JHIP) defines a standardized, JSON-based
-message-passing interface for JSL (JSON Serializable Language) programs to
-request and interact with side-effecting operations performed by a host
-environment. This protocol enables JSL's core philosophy of reifying effects
-as data, allowing for secure, auditable, and portable interactions with
-the external world.
+The JSL Host Interaction Protocol (JHIP) defines how JSL programs interact with the host environment for side effects. JSL's core philosophy is to reify effects as data - side effects are described as JSON messages rather than executed directly, allowing the host environment to control, audit, and secure all external interactions.
 
 ## Core Principles
 
-- Request-Response Model: JSL initiates a request; the host provides a response.
-- JSON Serialization: All request and response messages MUST be valid JSON.
-- Synchronous Interaction (from JSL's perspective): A `["host", ...]`
-    expression in JSL blocks until the host system returns a response.
-    The underlying transport may be asynchronous, but the JSL evaluation
-    awaits the result.
-- Stateless Commands (Recommended): Individual host commands should ideally
-    be stateless, though the host system itself may maintain state.
-- Host Authority: The host system is the ultimate authority on whether a
-    command is permitted and how it is executed.
+- **Effect Reification**: Side effects are described as data, not executed directly
+- **Host Authority**: The host controls what operations are permitted and how they execute
+- **JSON-Native**: All messages are valid JSON for universal compatibility
+- **Synchronous Model**: From JSL's perspective, host operations are synchronous
+- **Capability-Based Security**: Hosts provide only the capabilities they choose to expose
 
-## Message Schemas
+## Request Structure
 
-### Request Message (JSL -> Host)
-
-A JSL `["host", ...]` expression is transformed into a JSON Array
-representing the request.
-
-Schema:
+JSL programs request host operations using the `host` special form:
 
 ```json
-[
-    "host",                // Element 0: Literal string "host" (Protocol Identifier)
-    "<command_id>",        // Element 1: String (Host-defined command identifier)
-    <arg1>,                // Element 2 (optional): JSON-serializable value
-    <arg2>,                // Element 3 (optional): JSON-serializable value
-    ...                    // Additional arguments
-]
+["host", "command", "arg1", "arg2", ...]
 ```
 
-Details:
-
-- Protocol Identifier: The first element MUST be the string "host".
-- command_id: A non-empty string uniquely identifying the desired host
-    operation (e.g., "file/read", "http/post", "log/info"). The host
-    defines the available command_ids.
-- Arguments: Zero or more JSON-serializable values. These are the
-    evaluated results of the argument expressions provided in the JSL
-    `["host", ...]` form. The JSL interpreter ensures these are fully
-    evaluated before constructing the request.
-
-Example Request:
-
-When we evaluate the JSL program:
-
-```json
-["host", "@file/write-string", "@/tmp/output.txt", "@Hello from JSL!"]
-
-It is transformed into the following JSON request message:
-
-```json
-["host", "file/write-string", "/tmp/output.txt", "Hello from JSL!"]
-```
-
-### Response Message (Host -> JSL)
-
-The host system processes the request and MUST return a single,
-JSON-serializable value. This value becomes the result of the
-`["host", ...]` expression in the JSL program.
-
-Two categories of responses exist: Success and Error.
-
-#### Success Response
-
-Any valid JSON value that is NOT a JHIP Error Response Object (see 3.2.2).
-The specific structure of a success response is defined by the host
-for each `command_id`.
-
-Examples:
-
-- `null` (for operations with no meaningful return value, like logging)
-- "File content as a string"
-- 42
-- true
-- ["item1", "item2"]
-- {"id": 123, "status": "created"}
-
-#### Error Response Object
-
-To clearly distinguish host-level operational errors from successful
-results that might be `null`, `false`, or other potentially ambiguous
-values, errors are returned as a specific JSON Object.
-
-Schema:
+This creates a request message with the following structure:
 
 ```json
 {
-    "$jsl_host_error": {    // Top-level key indicating a JHIP error
-    "type": "<ErrorType>", // String (Required): Host-defined error category
-    "message": "<String>", // String (Required): Human-readable error message
-    "details": { ... }     // Object (Optional): Additional structured error info
-    }
+  "command": "string",
+  "args": ["arg1", "arg2", ...]
 }
 ```
 
-Details:
+### Request Examples
 
-- `$jsl_host_error`: The presence of this top-level key signifies
-    a JHIP error response.
-- `type`: A string categorizing the error (e.g., "FileSystemError",
-    "NetworkError", "PermissionDenied", "InvalidArgument",
-    "CommandNotFound").
-- `message`: A clear, human-readable description of the error.
-- `details`: An optional object providing more specific, structured
-    information relevant to the error (e.g., file path, error codes,
-    expected vs. actual values).
+**File Operations:**
+```json
+// JSL code
+["host", "@file/read", "@/tmp/data.txt"]
 
-Example Error Response:
+// Request message
+{
+  "command": "file/read",
+  "args": ["/tmp/data.txt"]
+}
+```
+
+**HTTP Requests:**
+```json
+// JSL code
+["host", "@http/get", "@https://api.example.com/users", {"@Authorization": "@Bearer token"}]
+
+// Request message
+{
+  "command": "http/get", 
+  "args": ["https://api.example.com/users", {"Authorization": "Bearer token"}]
+}
+```
+
+**Logging:**
+```json
+// JSL code
+["host", "@log/info", "@User logged in", {"@user_id": 123}]
+
+// Request message
+{
+  "command": "log/info",
+  "args": ["User logged in", {"user_id": 123}]
+}
+```
+
+## Response Structure
+
+The host responds with either a success value or an error object.
+
+### Success Response
+
+Any valid JSON value represents success:
+
+```json
+// File read success
+"file content as string"
+
+// HTTP response success
+{
+  "status": 200,
+  "headers": {"content-type": "application/json"},
+  "body": {"users": [...]}
+}
+
+// Operation with no return value
+null
+```
+
+### Error Response
+
+Errors use a standard structure to distinguish them from successful `null`, `false`, or empty results:
 
 ```json
 {
-    "$jsl_host_error": {
-    "type": "PermissionDenied",
-    "message": "Host denied write access to the specified path.",
+  "$jsl_error": {
+    "type": "ErrorType",
+    "message": "Human readable description",
+    "details": {}
+  }
+}
+```
+
+**Error Fields:**
+- `type`: Error category (e.g., "FileNotFound", "NetworkError", "PermissionDenied")
+- `message`: Clear description for developers
+- `details`: Additional structured information (optional)
+
+**Error Examples:**
+
+```json
+// File not found
+{
+  "$jsl_error": {
+    "type": "FileNotFound",
+    "message": "File does not exist",
     "details": {
-        "path": "/etc/important_file.txt",
-        "requested_operation": "file/write-string"
+      "path": "/tmp/missing.txt",
+      "operation": "file/read"
     }
+  }
+}
+
+// Permission denied
+{
+  "$jsl_error": {
+    "type": "PermissionDenied", 
+    "message": "Insufficient permissions for operation",
+    "details": {
+      "operation": "file/write",
+      "path": "/etc/passwd",
+      "required_permission": "root"
     }
+  }
+}
+
+// Network error
+{
+  "$jsl_error": {
+    "type": "NetworkError",
+    "message": "Connection timeout",
+    "details": {
+      "url": "https://api.example.com",
+      "timeout_ms": 5000
+    }
+  }
 }
 ```
 
-## Protocol Flow Summary
+## Standard Commands
 
-1. JSL Interpreter encounters `["host", cmd_id_expr, arg1_expr, ...]`.
-2. JSL Interpreter evaluates `cmd_id_expr` and all `argN_expr` to obtain
-    `command_id` (string) and `arg_values`.
-3. JSL Interpreter constructs the JSON Request Message:
-    `["host", command_id, ...arg_values]`.
-4. JSL Runtime transmits this Request Message to the Host System Handler.
-5. Host System Handler:
-    a. Parses the Request Message.
-    b. Validates `command_id` and arguments.
-    c. Attempts to perform the operation.
-    d. Constructs a JSON Response Message (Success value or Error Object).
-6. Host System Handler transmits the Response Message back to the JSL Runtime.
-7. JSL Runtime:
-    a. Parses the Response Message.
-    b. If it's an Error Response Object, the JSL `["host", ...]` expression
-        might result in a JSL-level error (e.g., by evaluating `["error", ...]`).
-        (The exact behavior of JSL error handling for host errors is an
-        implementation detail of the JSL runtime/runner).
-    c. If it's a Success Response, this value becomes the result of the
-        `["host", ...]` expression.
+While hosts define their own command sets, these common patterns are recommended:
 
-## Versioning
+### File System
+- `@file/read` - Read file content as string
+- `@file/write` - Write string to file  
+- `@file/exists` - Check if file exists
+- `@file/list` - List directory contents
+- `@file/delete` - Delete file or directory
 
-This document describes JHIP v1.0. Future versions may introduce changes
-but should strive for backward compatibility where feasible or provide clear
-migration paths.
+### HTTP
+- `@http/get` - GET request
+- `@http/post` - POST request
+- `@http/put` - PUT request
+- `@http/delete` - DELETE request
+
+### Logging
+- `@log/debug` - Debug level log
+- `@log/info` - Info level log
+- `@log/warn` - Warning level log
+- `@log/error` - Error level log
+
+### System
+- `@env/get` - Get environment variable
+- `@time/now` - Current timestamp
+- `@random/uuid` - Generate UUID
+- `@process/exec` - Execute system command
+
+## Protocol Flow
+
+1. **JSL Evaluation**: JSL encounters `["host", "command", ...args]`
+2. **Argument Evaluation**: All arguments are evaluated to JSON values
+3. **Message Construction**: Create request message with command and args
+4. **Host Processing**: Host validates, executes, and responds
+5. **Response Handling**: Success value returned or error thrown in JSL
+
+## Security Model
+
+JHIP implements capability-based security:
+
+- **Host Controls Access**: Only commands explicitly enabled by the host are available
+- **Argument Validation**: Host validates all arguments before execution
+- **Resource Limits**: Host can impose limits on operations (file size, request timeouts, etc.)
+- **Audit Trail**: All host interactions can be logged for security analysis
+
+## Implementation Notes
+
+### Error Handling in JSL
+
+JSL implementations should convert JHIP error responses into JSL errors:
+
+```json
+// If host returns error, JSL should throw
+["try",
+  ["host", "file/read", "/missing.txt"],
+  ["lambda", ["err"], 
+    ["get", "err", "message"]]]
+```
+
+### Async Implementation
+
+While JSL sees synchronous operations, hosts may implement async processing:
+
+- Queue requests for batch processing
+- Use connection pooling for HTTP requests
+- Implement timeout and retry logic
+- Cache results when appropriate
+
+### Testing
+
+JHIP enables easy testing by mocking host responses:
+
+```json
+// Mock successful file read
+{"command": "file/read", "args": ["/data.txt"]} 
+→ "mocked file content"
+
+// Mock error response  
+{"command": "file/read", "args": ["/missing.txt"]}
+→ {"$jsl_error": {"type": "FileNotFound", "message": "File not found"}}
+```

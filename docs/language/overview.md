@@ -1,245 +1,78 @@
-# Language Overview
+# JSL Language Overview
 
-JSL (JSON Serializable Language) is a functional programming language designed for network transmission and distributed computing. Every JSL program is valid JSON that can be executed directly.
+## What is JSL?
 
-## Core Concepts
+JSL (JSON Serializable Language) is a powerful, functional programming language where every program is valid JSON. This unique design makes it perfect for network transmission, distributed computing, and safe, sandboxed execution.
 
-### Homoiconicity
-JSL code and data use the same JSON representation. There's no distinction between code that executes and data that gets processed - they're all JSON values.
+JSL is built on three core principles:
+1.  **Homoiconic**: Code and data share the same structure (JSON). This means you can build and manipulate code as easily as you handle data.
+2.  **Functional**: With features like immutability, first-class functions, and a rich library of higher-order functions, JSL encourages a clean, declarative style.
+3.  **Serializable**: Every JSL value, including functions with their environments, can be perfectly serialized to a string, sent across a network, and safely executed on a remote machine.
 
-### Prefix Notation
-All operations use prefix notation (operator comes first):
+## A Taste of JSL
 
+Because JSL is JSON, operations use a simple prefix notation inside an array. This expression adds three numbers:
 ```json
-["+", 1, 2, 3]        // Addition: 1 + 2 + 3 = 6
-["*", 2, ["+", 3, 4]] // Multiplication: 2 * (3 + 4) = 14
-```
-
-### Immutability
-JSL values are immutable. Operations return new values rather than modifying existing ones:
-
-```json
-["append", [1, 2, 3], 4]  // Returns [1, 2, 3, 4], original unchanged
-```
-
-## Data Types
-
-JSL supports all JSON data types plus function closures:
-
-### Primitives
-- **null**: `null`
-- **boolean**: `true`, `false`  
-- **number**: `42`, `3.14`, `-17`
-- **string**: `"hello"`, `"world"`
-
-### Collections
-- **list**: `[1, 2, 3]`, `["a", "b", "c"]`
-- **object**: `{"name": "Alice", "age": 30}`
-
-### Functions
-- **built-ins**: `+`, `map`, `filter` (provided by prelude)
-- **closures**: `["lambda", ["x"], ["*", "x", 2]]` (user-defined)
-
-## Special Forms
-
-Special forms are built-in constructs that control evaluation flow:
-
-### `do` - Sequential Execution
-Executes expressions in order, returns the last result:
-
-```json
-[
-  "do",
-  ["def", "x", 5],
-  ["def", "y", 10], 
-  ["+", "x", "y"]
-]
-// Result: 15
-```
-
-### `def` - Variable Definition
-Binds a value to a name in the current environment:
-
-```json
-["def", "pi", 3.14159]
-```
-
-### `lambda` - Function Definition
-Creates an anonymous function:
-
-```json
-["lambda", ["x", "y"], ["+", "x", "y"]]
-```
-
-### `if` - Conditional Expression
-Evaluates condition and returns appropriate branch:
-
-```json
-["if", [">", "x", 0], "positive", "non-positive"]
-```
-
-### `quote` - Literal Values
-Prevents evaluation of an expression:
-
-```json
-["quote", ["+", 1, 2]]  // Returns ["+", 1, 2], not 3
-```
-
-### `template` - JSON Generation
-Dynamically generates JSON with computed values:
-
-```json
-["template", {
-  "name": {"$": "username"},
-  "timestamp": {"$": ["now"]},
-  "data": [1, 2, {"value": {"$": ["*", "x", 2]}}]
-}]
-```
-
-## Variable References
-
-Variables are referenced by name as strings:
-
-```json
-[
-  "do",
-  ["def", "radius", 5],
-  ["def", "area", ["*", "pi", "radius", "radius"]],
-  "area"
-]
-```
-
-## Function Calls
-
-Functions are called by placing them first in a list:
-
-```json
-// Built-in function
 ["+", 1, 2, 3]
+```
+The evaluator understands that the first element, `"+"`, is a function to be applied to the rest of the elements, resulting in `6`.
 
-// User-defined function  
-[
-  "do",
-  ["def", "square", ["lambda", ["x"], ["*", "x", "x"]]],
-  ["square", 5]
+## The Two Modes of JSL
+
+JSL has a single, consistent evaluation model where:
+
+### Core Evaluation Rules
+
+1. **Strings without `@`**: Variable lookups (e.g., `"x"` looks up the value of x)
+2. **Strings with `@`**: Literal strings (e.g., `"@hello"` is the string "hello")
+3. **Arrays**: Function calls in prefix notation (e.g., `["+", 1, 2]`)
+4. **Objects**: Data structures with evaluated keys and values
+5. **Other values**: Self-evaluating (numbers, booleans, null)
+
+### JSON Object Construction
+
+JSL treats JSON objects as first-class data structures. Unlike arrays (which are interpreted as S-expressions), objects are always data structures, never function calls. This makes them perfect for constructing pure JSON output:
+
+```json
+["do",
+  ["def", "user", "@Alice"],
+  ["def", "role", "@admin"],
+  {"@name": "user", "@role": "role"}
 ]
+// Result: {"name": "Alice", "role": "admin"}
 ```
 
-## Lexical Scoping
+> For a complete guide, see **[JSON Objects as First-Class Citizens](./objects.md)**.
 
-JSL uses lexical scoping - functions capture their defining environment:
+## Key Language Features
 
-```json
-[
-  "do",
-  ["def", "multiplier", 3],
-  ["def", "triple", ["lambda", ["x"], ["*", "multiplier", "x"]]],
-  ["def", "multiplier", 5],  // This doesn't affect 'triple'
-  ["triple", 4]               // Returns 12, not 20
-]
-```
+-   **Special Forms**: A small set of core keywords like `if`, `def`, and `lambda` provide the foundation for control flow and variable bindings. See the **[Special Forms Guide](./special-forms.md)**.
+-   **Rich Prelude**: A comprehensive standard library of functions for math, logic, and data manipulation is available everywhere. See the **[Prelude Reference](./prelude.md)**.
+-   **Lexical Scoping**: JSL uses lexical scoping, meaning functions (closures) capture the environment where they are defined, not where they are called. This provides a robust and predictable module system.
+-   **Host Interaction**: JSL interacts with the host system through a single, explicit special form, `["host", ...]`, making all side effects transparent and auditable.
 
-## Higher-Order Functions
+## A Complete Example
 
-Functions can accept and return other functions:
+This example defines and calls a recursive factorial function, showcasing variable and function definition (`def`, `lambda`), conditional logic (`if`), and a sequence of operations (`do`).
 
 ```json
-[
-  "do",
-  ["def", "numbers", [1, 2, 3, 4, 5]],
-  ["def", "double", ["lambda", ["x"], ["*", "x", 2]]],
-  ["map", "double", "numbers"]
-]
-// Result: [2, 4, 6, 8, 10]
-```
-
-## Error Handling
-
-JSL provides basic error handling through built-in functions:
-
-```json
-// Raise an error
-["error", "Something went wrong!"]
-
-// Safe operations with defaults
-["get", {"a": 1}, "b", "default"]  // Returns "default"
-```
-
-## Examples
-
-### Factorial Function
-
-```json
-[
-  "do",
+["do",
   ["def", "factorial",
-   ["lambda", ["n"],
-    ["if", ["<=", "n", 1],
-     1,
-     ["*", "n", ["factorial", ["-", "n", 1]]]]]],
+    ["lambda", ["n"],
+      ["if", ["<=", "n", 1],
+        1,
+        ["*", "n", ["factorial", ["-", "n", 1]]]
+      ]
+    ]
+  ],
   ["factorial", 5]
 ]
-// Result: 120
 ```
+The result of evaluating this expression is `120`.
 
-### List Processing
+## Where to Go Next
 
-```json
-[
-  "do",
-  ["def", "numbers", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]],
-  ["def", "is-even", ["lambda", ["n"], ["=", ["mod", "n", 2], 0]]],
-  ["def", "evens", ["filter", "is-even", "numbers"]],
-  ["def", "sum", ["reduce", "+", "evens", 0]],
-  {"evens": "evens", "sum": "sum"}
-]
-// Result: {"evens": [2, 4, 6, 8, 10], "sum": 30}
-```
-
-### Data Transformation
-
-```json
-[
-  "do",
-  ["def", "users", [
-    {"name": "Alice", "age": 30},
-    {"name": "Bob", "age": 25},
-    {"name": "Charlie", "age": 35}
-  ]],
-  ["def", "adult-names",
-   ["map", 
-    ["lambda", ["user"], ["get", "user", "name"]],
-    ["filter", 
-     ["lambda", ["user"], [">=", ["get", "user", "age"], 18]],
-     "users"]]],
-  "adult-names"
-]
-// Result: ["Alice", "Bob", "Charlie"]
-```
-
-## Serialization
-
-Every JSL value (including functions) can be serialized to JSON:
-
-```json
-// Original function
-["lambda", ["x"], ["*", "x", 2]]
-
-// After serialization and deserialization, works identically
-// Can be transmitted over network, stored in database, etc.
-```
-
-## Host Interaction
-
-JSL programs can interact with their host environment through:
-
-1. **Built-in functions** - Provided by the prelude
-2. **JHIP commands** - Host-specific operations
-3. **I/O functions** - Like `print` for output
-
-## Next Steps
-
-- **[AST Specification](ast.md)** - Formal syntax definition
-- **[Special Forms](special-forms.md)** - Detailed special form reference  
-- **[Prelude Functions](prelude.md)** - Complete built-in function catalog
-- **[JSON Templates](templates.md)** - Dynamic JSON generation guide
+-   **[JSL Syntax and Semantics](./semantics.md)**: The definitive guide to writing and understanding core JSL.
+-   **[JSON Objects](./objects.md)**: Learn how to generate dynamic JSON objects.
+-   **[Special Forms](./special-forms.md)**: A detailed reference for all core language constructs.
+-   **[Prelude Functions](./prelude.md)**: A complete catalog of all built-in functions

@@ -1,6 +1,16 @@
 # Prelude Functions
 
-The JSL prelude provides the computational foundation for all JSL programs. These built-in functions are available in every JSL environment but are never serialized with user code. The prelude is designed around functional programming principles with emphasis on immutability, composability, and mathematical precision.
+## Overview
+
+The JSL prelude provides the computational foundation for all JSL programs. These built-in functions are available in every JSL environment.
+
+> For a guide to creating and managing execution contexts, see the [Environments](./environments.md) documentation.
+
+## Special Forms (Core Syntax)
+
+While the prelude contains a library of standard functions, the core language is defined by a small set of **special forms**. These are syntactic constructs that do not follow the standard evaluation rule (i.e., they don't necessarily evaluate all of their arguments).
+
+The core special forms include `if`, `def`, `lambda`, `do`, `let`, and `try`. For a complete reference, please see the dedicated **[Special Forms](./special-forms.md)** documentation.
 
 ## Design Principles
 
@@ -13,7 +23,7 @@ The JSL prelude provides the computational foundation for all JSL programs. Thes
 ## Data Constructors
 
 ### `list`
-```javascript
+```json
 ["list", 1, 2, 3]  // → [1, 2, 3]
 ["list"]           // → []
 ```
@@ -24,21 +34,21 @@ Creates a list from the provided arguments.
 JSL provides comprehensive list manipulation functions following functional programming principles.
 
 ### `append`
-```javascript
+```json
 ["append", [1, 2, 3], 4]  // → [1, 2, 3, 4]
 ["append", [], 1]         // → [1]
 ```
 Returns a new list with the item appended to the end.
 
 ### `prepend`
-```javascript
+```json
 ["prepend", 0, [1, 2, 3]]  // → [0, 1, 2, 3]
 ["prepend", 1, []]         // → [1]
 ```
 Returns a new list with the item prepended to the beginning.
 
 ### `concat`
-```javascript
+```json
 ["concat", [1, 2], [3, 4], [5]]  // → [1, 2, 3, 4, 5]
 ["concat", [1], [2]]             // → [1, 2]
 ["concat"]                       // → []
@@ -46,14 +56,14 @@ Returns a new list with the item prepended to the beginning.
 Concatenates multiple lists into a single list.
 
 ### `first`
-```javascript
+```json
 ["first", [1, 2, 3]]  // → 1
 ["first", []]         // → null
 ```
 Returns the first element of a list, or null if empty.
 
 ### `rest`
-```javascript
+```json
 ["rest", [1, 2, 3]]  // → [2, 3]
 ["rest", [1]]        // → []
 ["rest", []]         // → []
@@ -61,14 +71,14 @@ Returns the first element of a list, or null if empty.
 Returns all elements except the first, or empty list if insufficient elements.
 
 ### `nth`
-```javascript
+```json
 ["nth", [10, 20, 30], 1]  // → 20
 ["nth", [10, 20], 5]      // → null
 ```
 Returns the element at the specified index (0-based), or null if out of bounds.
 
 ### `length`
-```javascript
+```json
 ["length", [1, 2, 3]]  // → 3
 ["length", []]         // → 0
 ["length", "hello"]    // → 5
@@ -76,7 +86,7 @@ Returns the element at the specified index (0-based), or null if out of bounds.
 Returns the length of a list or string.
 
 ### `empty?`
-```javascript
+```json
 ["empty?", []]      // → true
 ["empty?", [1]]     // → false
 ["empty?", ""]      // → true
@@ -85,7 +95,7 @@ Returns the length of a list or string.
 Returns true if the collection is empty.
 
 ### `slice`
-```javascript
+```json
 ["slice", [1, 2, 3, 4, 5], 1, 4]  // → [2, 3, 4]
 ["slice", [1, 2, 3], 1]           // → [2, 3]
 ["slice", "hello", 1, 4]          // → "ell"
@@ -93,14 +103,14 @@ Returns true if the collection is empty.
 Returns a slice of the list or string from start to end (exclusive).
 
 ### `reverse`
-```javascript
+```json
 ["reverse", [1, 2, 3]]  // → [3, 2, 1]
 ["reverse", "hello"]    // → "olleh"
 ```
 Returns a reversed copy of the list or string.
 
 ### `contains?`
-```javascript
+```json
 ["contains?", [1, 2, 3], 2]      // → true
 ["contains?", [1, 2, 3], 4]      // → false
 ["contains?", "hello", "ell"]    // → true
@@ -108,7 +118,7 @@ Returns a reversed copy of the list or string.
 Returns true if the collection contains the specified item.
 
 ### `index`
-```javascript
+```json
 ["index", [10, 20, 30], 20]  // → 1
 ["index", [10, 20, 30], 40]  // → -1
 ```
@@ -119,42 +129,42 @@ Returns the index of the first occurrence of item, or -1 if not found.
 Immutable dictionary operations supporting functional programming patterns.
 
 ### `get`
-```javascript
+```json
 ["get", {"name": "Alice", "age": 30}, "name"]           // → "Alice"
 ["get", {"name": "Alice"}, "age", "unknown"]            // → "unknown"
 ```
 Gets a value from a dictionary with optional default.
 
 ### `set`
-```javascript
+```json
 ["set", {"name": "Alice"}, "age", 30]  // → {"name": "Alice", "age": 30}
 ["set", {}, "key", "value"]            // → {"key": "value"}
 ```
 Returns a new dictionary with the key-value pair set.
 
 ### `keys`
-```javascript
+```json
 ["keys", {"name": "Alice", "age": 30}]  // → ["name", "age"]
 ["keys", {}]                            // → []
 ```
 Returns a list of all keys in the dictionary.
 
 ### `values`
-```javascript
+```json
 ["values", {"name": "Alice", "age": 30}]  // → ["Alice", 30]
 ["values", {}]                            // → []
 ```
 Returns a list of all values in the dictionary.
 
 ### `merge`
-```javascript
+```json
 ["merge", {"a": 1}, {"b": 2}, {"c": 3}]  // → {"a": 1, "b": 2, "c": 3}
 ["merge", {"a": 1}, {"a": 2}]            // → {"a": 2}
 ```
 Merges multiple dictionaries, with later values overriding earlier ones.
 
 ### `has-key?`
-```javascript
+```json
 ["has-key?", {"name": "Alice"}, "name"]  // → true
 ["has-key?", {"name": "Alice"}, "age"]   // → false
 ```
@@ -165,7 +175,7 @@ Returns true if the dictionary contains the specified key.
 Mathematical operations with n-arity support for natural expression.
 
 ### `+` (Addition)
-```javascript
+```json
 ["+", 1, 2, 3]    // → 6
 ["+", 5]          // → 5
 ["+"]             // → 0
@@ -173,7 +183,7 @@ Mathematical operations with n-arity support for natural expression.
 Adds all arguments. With no arguments, returns 0.
 
 ### `-` (Subtraction)
-```javascript
+```json
 ["-", 10, 3, 2]   // → 5 (10 - 3 - 2)
 ["-", 5]          // → -5 (negation)
 ["-"]             // → 0
@@ -181,7 +191,7 @@ Adds all arguments. With no arguments, returns 0.
 Subtracts subsequent arguments from the first. With one argument, returns negation.
 
 ### `*` (Multiplication)
-```javascript
+```json
 ["*", 2, 3, 4]    // → 24
 ["*", 5]          // → 5
 ["*"]             // → 1
@@ -189,21 +199,21 @@ Subtracts subsequent arguments from the first. With one argument, returns negati
 Multiplies all arguments. With no arguments, returns 1.
 
 ### `/` (Division)
-```javascript
+```json
 ["/", 12, 3, 2]   // → 2.0 (12 / 3 / 2)
 ["/", 5]          // → 0.2 (1 / 5)
 ```
 Divides the first argument by all subsequent arguments. With one argument, returns reciprocal.
 
 ### `mod` (Modulo)
-```javascript
+```json
 ["mod", 10, 3]    // → 1
 ["mod", 7, 0]     // → 0 (safe: returns 0 for division by zero)
 ```
 Returns the remainder of division.
 
 ### `pow` (Exponentiation)
-```javascript
+```json
 ["pow", 2, 3]     // → 8
 ["pow", 9, 0.5]   // → 3.0
 ```
@@ -214,7 +224,7 @@ Raises the first argument to the power of the second.
 Chained comparisons supporting mathematical notation.
 
 ### `=` (Equality)
-```javascript
+```json
 ["=", 1, 1, 1]        // → true
 ["=", 1, 2]           // → false
 ["=", "a", "a", "a"]  // → true
@@ -222,28 +232,28 @@ Chained comparisons supporting mathematical notation.
 Returns true if all arguments are equal.
 
 ### `<` (Less Than)
-```javascript
+```json
 ["<", 1, 2, 3]    // → true (1 < 2 < 3)
 ["<", 1, 3, 2]    // → false
 ```
 Returns true if arguments form an ascending sequence.
 
 ### `>` (Greater Than)
-```javascript
+```json
 [">", 3, 2, 1]    // → true (3 > 2 > 1)
 [">", 3, 1, 2]    // → false
 ```
 Returns true if arguments form a descending sequence.
 
 ### `<=` (Less Than or Equal)
-```javascript
+```json
 ["<=", 1, 2, 2, 3]  // → true
 ["<=", 1, 3, 2]     // → false
 ```
 Returns true if arguments form a non-decreasing sequence.
 
 ### `>=` (Greater Than or Equal)
-```javascript
+```json
 [">=", 3, 2, 2, 1]  // → true
 [">=", 3, 1, 2]     // → false
 ```
@@ -254,7 +264,7 @@ Returns true if arguments form a non-increasing sequence.
 Logical operations with n-arity support and short-circuiting.
 
 ### `and`
-```javascript
+```json
 ["and", true, true, true]   // → true
 ["and", true, false, true]  // → false
 ["and"]                     // → true
@@ -262,7 +272,7 @@ Logical operations with n-arity support and short-circuiting.
 Returns true if all arguments are truthy.
 
 ### `or`
-```javascript
+```json
 ["or", false, false, true]  // → true
 ["or", false, false]        // → false
 ["or"]                      // → false
@@ -270,7 +280,7 @@ Returns true if all arguments are truthy.
 Returns true if any argument is truthy.
 
 ### `not`
-```javascript
+```json
 ["not", true]    // → false
 ["not", false]   // → true
 ["not", 0]       // → true
@@ -283,7 +293,7 @@ Returns the logical negation of the argument.
 Essential for wire format validation and dynamic type checking.
 
 ### `null?`
-```javascript
+```json
 ["null?", null]    // → true
 ["null?", 0]       // → false
 ["null?", false]   // → false
@@ -291,7 +301,7 @@ Essential for wire format validation and dynamic type checking.
 Returns true if the value is null.
 
 ### `bool?`
-```javascript
+```json
 ["bool?", true]    // → true
 ["bool?", false]   // → true
 ["bool?", 0]       // → false
@@ -299,7 +309,7 @@ Returns true if the value is null.
 Returns true if the value is a boolean.
 
 ### `number?`
-```javascript
+```json
 ["number?", 42]      // → true
 ["number?", 3.14]    // → true
 ["number?", "42"]    // → false
@@ -307,28 +317,28 @@ Returns true if the value is a boolean.
 Returns true if the value is a number (integer or float).
 
 ### `string?`
-```javascript
+```json
 ["string?", "hello"]  // → true
 ["string?", 42]       // → false
 ```
 Returns true if the value is a string.
 
 ### `list?`
-```javascript
+```json
 ["list?", [1, 2, 3]]  // → true
 ["list?", "hello"]    // → false
 ```
 Returns true if the value is a list.
 
 ### `dict?`
-```javascript
+```json
 ["dict?", {"a": 1}]   // → true
 ["dict?", [1, 2]]     // → false
 ```
 Returns true if the value is a dictionary.
 
 ### `callable?`
-```javascript
+```json
 ["callable?", ["lambda", ["x"], "x"]]  // → true (after evaluation)
 ["callable?", 42]                      // → false
 ```
@@ -339,21 +349,21 @@ Returns true if the value is callable (function or closure).
 String manipulation functions for text processing.
 
 ### `str-concat`
-```javascript
+```json
 ["str-concat", "Hello", " ", "World"]  // → "Hello World"
 ["str-concat", "Number: ", 42]         // → "Number: 42"
 ```
 Concatenates all arguments after converting them to strings.
 
 ### `str-split`
-```javascript
+```json
 ["str-split", "a,b,c", ","]     // → ["a", "b", "c"]
 ["str-split", "hello world"]    // → ["hello", "world"] (default: space)
 ```
 Splits a string by the specified separator.
 
 ### `str-join`
-```javascript
+```json
 ["str-join", ["a", "b", "c"], ","]    // → "a,b,c"
 ["str-join", [1, 2, 3], "-"]          // → "1-2-3"
 ["str-join", ["a", "b"]]              // → "ab" (default: empty string)
@@ -361,20 +371,20 @@ Splits a string by the specified separator.
 Joins a list of values into a string with the specified separator.
 
 ### `str-length`
-```javascript
+```json
 ["str-length", "hello"]    // → 5
 ["str-length", ""]         // → 0
 ```
 Returns the length of a string.
 
 ### `str-upper`
-```javascript
+```json
 ["str-upper", "hello"]     // → "HELLO"
 ```
 Converts a string to uppercase.
 
 ### `str-lower`
-```javascript
+```json
 ["str-lower", "HELLO"]     // → "hello"
 ```
 Converts a string to lowercase.
@@ -384,21 +394,21 @@ Converts a string to lowercase.
 The cornerstone of functional programming, enabling composition and abstraction.
 
 ### `map`
-```javascript
+```json
 ["map", ["lambda", ["x"], ["*", "x", 2]], [1, 2, 3]]  // → [2, 4, 6]
 ["map", "+", [[1, 2], [3, 4]]]                        // → [3, 7]
 ```
 Applies a function to each element of a list, returning a new list of results.
 
 ### `filter`
-```javascript
+```json
 ["filter", ["lambda", ["x"], [">", "x", 5]], [1, 6, 3, 8, 2]]  // → [6, 8]
 ["filter", "even?", [1, 2, 3, 4, 5, 6]]                        // → [2, 4, 6]
 ```
 Returns a new list containing only elements for which the predicate returns true.
 
 ### `reduce`
-```javascript
+```json
 ["reduce", "+", [1, 2, 3, 4]]           // → 10
 ["reduce", "*", [1, 2, 3, 4], 1]        // → 24 (with initial value)
 ["reduce", "max", [3, 1, 4, 1, 5]]      // → 5
@@ -406,7 +416,7 @@ Returns a new list containing only elements for which the predicate returns true
 Reduces a list to a single value by repeatedly applying a binary function.
 
 ### `apply`
-```javascript
+```json
 ["apply", "+", [1, 2, 3]]                    // → 6
 ["apply", ["lambda", ["x", "y"], ["*", "x", "y"]], [3, 4]]  // → 12
 ```
@@ -417,28 +427,28 @@ Applies a function to a list of arguments.
 Extended mathematical operations for scientific computing.
 
 ### `min` / `max`
-```javascript
+```json
 ["min", 3, 1, 4, 1, 5]  // → 1
 ["max", 3, 1, 4, 1, 5]  // → 5
 ```
 Returns the minimum or maximum of the arguments.
 
 ### `abs`
-```javascript
+```json
 ["abs", -5]    // → 5
 ["abs", 3.14]  // → 3.14
 ```
 Returns the absolute value.
 
 ### `round`
-```javascript
+```json
 ["round", 3.7]     // → 4
 ["round", 3.14159, 2]  // → 3.14
 ```
 Rounds to the nearest integer or specified decimal places.
 
 ### Trigonometric Functions
-```javascript
+```json
 ["sin", 1.5708]    // → ~1.0 (π/2)
 ["cos", 0]         // → 1.0
 ["tan", 0.7854]    // → ~1.0 (π/4)
@@ -446,14 +456,14 @@ Rounds to the nearest integer or specified decimal places.
 Standard trigonometric functions (arguments in radians).
 
 ### `sqrt`
-```javascript
+```json
 ["sqrt", 16]   // → 4.0
 ["sqrt", 2]    // → ~1.414
 ```
 Returns the square root.
 
 ### `log` / `exp`
-```javascript
+```json
 ["log", 2.718]   // → ~1.0 (natural log)
 ["exp", 1]       // → ~2.718 (e^1)
 ```
@@ -464,7 +474,7 @@ Natural logarithm and exponential functions.
 Safe type conversion functions with reasonable defaults.
 
 ### `to-string`
-```javascript
+```json
 ["to-string", 42]     // → "42"
 ["to-string", true]   // → "True"
 ["to-string", [1,2]]  // → "[1, 2]"
@@ -472,7 +482,7 @@ Safe type conversion functions with reasonable defaults.
 Converts any value to its string representation.
 
 ### `to-number`
-```javascript
+```json
 ["to-number", "42"]      // → 42.0
 ["to-number", "3.14"]    // → 3.14
 ["to-number", "hello"]   // → 0 (safe default)
@@ -480,7 +490,7 @@ Converts any value to its string representation.
 Attempts to convert a value to a number, returning 0 for invalid inputs.
 
 ### `type-of`
-```javascript
+```json
 ["type-of", 42]        // → "int"
 ["type-of", "hello"]   // → "str"
 ["type-of", [1, 2]]    // → "list"
@@ -492,14 +502,14 @@ Returns the type name of a value.
 Basic I/O functions (can be customized in sandboxed environments).
 
 ### `print`
-```javascript
+```json
 ["print", "Hello, World!"]  // Outputs: Hello, World!
 ["print", 42, "is the answer"]  // Outputs: 42 is the answer
 ```
 Prints values to standard output.
 
 ### `error`
-```javascript
+```json
 ["error", "Something went wrong!"]  // Raises RuntimeError
 ```
 Raises a runtime error with the specified message.

@@ -13,23 +13,29 @@ JSL is unlike most programming languages you may have used before. The key insig
 
 ## Hello, World!
 
-Let's start with the classic first program. Create a file called `hello.json`:
+Let's start with the classic first program. Create a file called `hello.jsl`:
 
 ```json
-["print", "Hello, World!"]
+["print", "@Hello, JSL!"]
 ```
 
-Run it:
+Now, run it from your terminal:
 
 ```bash
-python -m jsl hello.json
+jsl hello.jsl
+```
+
+You should see the output:
+
+```
+Hello, JSL!
 ```
 
 **What happened?**
 
-1. `["print", "Hello, World!"]` is a **function call** 
+1. `["print", "Hello, JSL!"]` is a **function call** 
 2. `"print"` is the function name (a built-in function)
-3. `"Hello, World!"` is the argument
+3. `"Hello, JSL!"` is the argument
 4. JSL evaluates the expression and calls the print function
 
 ## Understanding Prefix Notation
@@ -252,8 +258,8 @@ Ready to learn more? Try these tutorials:
 
 - **[Working with Functions](functions.md)** - Advanced function concepts
 - **[Data Manipulation](data.md)** - Complex data processing patterns
-- **[Code Serialization](serialization.md)** - Sending code over networks
-- **[Distributed Computing](distributed.md)** - Building distributed applications
+- **[Code Serialization](../architecture/serialization.md)** - Sending code over networks
+- **[Distributed Computing](../architecture/distributed.md)** - Building distributed applications
 
 ## Practice Exercises
 

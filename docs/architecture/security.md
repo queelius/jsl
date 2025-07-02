@@ -6,45 +6,25 @@ JSL's security model is built on the principle of **effect reification** and **c
 
 ## Core Security Principles
 
-### 1. No Arbitrary Code Execution
+-   **No Arbitrary Code Execution:** JSL code is data. This eliminates entire classes of vulnerabilities like buffer overflows and direct system calls.
+-   **Effect Reification:** All side effects are represented as data (e.g., `["host", "file/read", ...]`). This makes them auditable, controllable, and transparent before execution.
+-   **Host Authority:** The host environment has complete control over what operations are permitted.
 
-JSL code is data, not executable machine instructions. This fundamental property eliminates entire classes of security vulnerabilities:
+## JSL's Layered Security Model
 
-- **No buffer overflows**: JSON parsing has well-defined bounds
-- **No code injection**: Code structure is validated against JSON schema
-- **No direct system calls**: All system interaction is mediated
-- **No memory corruption**: Interpreter manages all memory access
+JSL provides two complementary models for managing security and side effects.
 
-### 2. Effect Reification
+### Level 1: Dispatcher-Based Security (The Standard Model)
 
-All side effects are represented as data structures rather than executed directly:
+This is the most direct security model. The host system implements a **Host Command Dispatcher** that is the ultimate gatekeeper for all side effects. It is simple to understand and makes all side effects syntactically obvious.
 
-```json
-// Instead of executing: fs.writeFile("/etc/passwd", "malicious")
-// JSL represents the intent as data:
-["host", "file/write", "/etc/passwd", "content"]
-```
+### Level 2: Capability-Based Security (The Advanced Model)
 
-**Benefits:**
-- **Auditable**: All effects can be logged and inspected
-- **Controllable**: Host can deny, modify, or sandbox effects
-- **Transparent**: Effect intentions are visible before execution
-- **Reversible**: Effects can be undone or compensated
+This is a more advanced model for high-security applications. It uses the **Environment Algebra** and closures to create sandboxes that can restrict access to the `["host", ...]` special form itself, providing a deeper layer of defense.
 
-### 3. Host Authority
+## The Runtime Boundary
 
-The host environment has complete control over what operations are permitted:
-
-- **Capability-based**: Only explicitly granted capabilities are available
-- **Deny by default**: Unknown operations are rejected
-- **Fine-grained**: Permissions can be specific to resources or operations
-- **Context-aware**: Permissions can vary based on code source or runtime context
-
-## Security Boundaries
-
-### Runtime Boundary
-
-JSL code executes within the confines of the JSL interpreter:
+JSL code always executes within the confines of the JSL runtime, which is itself controlled by the host system. All interactions with the outside world must cross this boundary through the JHIP protocol, giving the host the final say.
 
 ```
 ┌─────────────────────────────────────┐
@@ -65,159 +45,85 @@ JSL code executes within the confines of the JSL interpreter:
 └─────────────────────────────────────┘
 ```
 
-### Network Boundary
-
-Code transmitted over networks is inherently safe:
-
-- **JSON format**: Standard, well-understood parsing
-- **No executable content**: Code requires interpreter to run
-- **Validation**: Structure can be validated before execution
-- **Sandboxing**: Execution environment is controlled
-
-### Storage Boundary
-
-Stored JSL code poses no security risks:
-
-- **Inert data**: Code is data until explicitly executed
-- **Version independence**: JSON structure is stable
-- **Inspection**: Code can be analyzed without execution
-- **Transformation**: Code can be modified safely
-
-## Threat Model
-
-### Threats JSL Prevents
-
-1. **Code Injection Attacks**
-   - JSON structure prevents arbitrary code construction
-   - Host validates all external inputs
-
-2. **Privilege Escalation**
-   - Capabilities are explicitly granted, not inherited
-   - No direct system access from JSL code
-
-3. **Resource Exhaustion**
-   - Host can limit computation resources
-   - JHIP allows resource monitoring and control
-
-4. **Data Exfiltration**
-   - All data access goes through controlled channels
-   - Host can audit and restrict data access
-
-### Threats Requiring Host Implementation
-
-1. **Denial of Service**
-   - Host must implement resource limits
-   - Computation timeouts and memory limits
-
-2. **Logic Bombs**
-   - Host can implement execution monitoring
-   - Behavioral analysis of code patterns
-
-3. **Covert Channels**
-   - Host must control timing and resource usage
-   - Monitoring of computational patterns
-
 ## Security Best Practices
 
 ### For Host Implementations
 
-1. **Capability Minimization**
-   ```json
-   // Good: Specific capability
-   ["host", "file/read", "/app/data/config.json"]
-   
-   // Bad: Overly broad capability
-   ["host", "shell", "cat /app/data/config.json"]
-   ```
+#### 1. Enforce Strict Resource Limits (The "Gas" Model)
 
-2. **Input Validation**
-   - Validate all JHIP requests
-   - Sanitize file paths and arguments
-   - Check resource bounds
+Untrusted code can easily attempt to cause a Denial of Service. The host runtime **must** enforce resource limits.
 
-3. **Audit Logging**
-   ```json
-   {
-     "timestamp": "2025-01-01T12:00:00Z",
-     "code_source": "user@example.com",
-     "operation": ["host", "file/read", "/sensitive/data"],
-     "result": "success",
-     "resource_usage": {"cpu_ms": 10, "memory_kb": 256}
-   }
-   ```
+The most straightforward way to do this is to wrap every JSL evaluation in a **strict timeout**. This is the host's primary defense against infinite loops and other denial-of-service attacks.
 
-4. **Resource Limits**
-   - CPU time limits
-   - Memory usage caps
-   - Network bandwidth restrictions
-   - File size limits
+For more granular control, a host can implement a **"gas" model**, similar to those used in blockchain systems.
 
-### For JSL Code
+-   **How it works:** The host assigns a "gas cost" to every JSL operation (e.g., `+` costs 1 gas, `map` costs 5 gas). A program is started with a finite amount of gas, which is consumed on each operation. If the gas runs out, execution halts.
+-   **Benefits:** This provides a predictable execution cost that is independent of machine speed.
 
-1. **Principle of Least Privilege**
-   - Request only necessary capabilities
-   - Use specific rather than general operations
+At a minimum, hosts should enforce simple timeouts and memory caps.
 
-2. **Error Handling**
-   ```json
-   ["if", ["host", "file/exists", "/tmp/data.json"],
-     ["host", "file/read", "/tmp/data.json"],
-     null]
-   ```
+##### Design Note: Why Gas is a Host-Level Concern
 
-3. **Input Sanitization**
-   - Validate external data before processing
-   - Use type predicates to check assumptions
+A natural question is why a "gas" model is not a mandatory, built-in part of the JSL language specification. This is a deliberate architectural decision based on JSL's core design philosophy.
 
-## Deployment Security
+*   **To Maximize Simplicity and Portability:** The primary goal of the JSL core is to be a simple, elegant, and easily embeddable evaluation engine. Forcing a complex gas accounting system into the language specification would dramatically increase the implementation burden. This would make it much harder to create compliant runtimes in different languages, undermining the goal of portability.
 
-### Secure Code Distribution
+*   **To Maintain Flexibility:** Different host environments have vastly different needs. A web server might manage resources via per-request timeouts, while a blockchain requires a strict, deterministic gas model. By defining gas as a host-level *best practice* rather than a language *requirement*, JSL remains flexible enough to be integrated naturally into any of these contexts without imposing a one-size-fits-all solution.
 
-1. **Code Signing**
-   - Cryptographically sign JSL code
-   - Verify signatures before execution
+Keeping resource management at the host level preserves the simplicity of the core language while still providing a clear and robust pattern for building secure, production-ready systems.
 
-2. **Content Validation**
-   - Validate JSON structure
-   - Check for malicious patterns
-   - Verify code against policies
+#### 2. Implement the Principle of Least Capability
 
-3. **Sandboxed Execution**
-   - Isolate code execution environments
-   - Separate capabilities for different code sources
+When designing host commands, always expose the most specific, narrowly-scoped capability possible. Avoid creating general-purpose "escape hatches."
 
-### Network Security
+A good example is a specific, auditable capability for reading a config file:
+```json
+["def", "config", ["host", "file/read", "/app/data/config.json"]]
+```
 
-1. **Transport Security**
-   - Use TLS for code transmission
-   - Implement mutual authentication
+A dangerous, overly broad capability would be:
+```json
+["def", "config", ["host", "shell", "cat /app/data/config.json"]]
+```
+A specific command like `file/read` can be easily secured and audited by the host dispatcher. A `shell` command is a black box that subverts JSL's security model.
 
-2. **Code Integrity**
-   - Hash verification of transmitted code
-   - Detect tampering during transmission
+#### 3. Maintain Detailed Audit Logs
 
-3. **Access Control**
-   - Authenticate code sources
-   - Authorize based on code origin
+Because all side effects are reified as data, the host can create a perfect audit trail. Every `["host", ...]` request should be logged with a timestamp, the source of the code, the full request, and the outcome. This is invaluable for security analysis and incident response.
 
-## Security Monitoring
+### For JSL Code Developers
 
-### Runtime Monitoring
+#### 1. Never Trust Input
 
-- **Effect Tracking**: Monitor all JHIP requests
-- **Resource Usage**: Track CPU, memory, and I/O usage
-- **Behavioral Analysis**: Detect anomalous patterns
+Just as in any other language, you must treat all data coming from an external source as untrusted.
 
-### Audit Capabilities
+This example shows a function that expects a number for a calculation. It validates the input's type before using it.
+```json
+["def", "calculate",
+  ["lambda", ["input"],
+    ["if", ["is_num", "input"],
+      ["*", "input", 10],
+      ["error", "InvalidInput", "Expected a number"]
+    ]
+  ]
+]
+```
+Always validate the type and structure of data before using it in your logic.
 
-- **Complete Effect Log**: Record all external interactions
-- **Code Provenance**: Track code sources and modifications
-- **Decision Trails**: Log all security decisions
+#### 2. Handle Errors Gracefully
 
-### Incident Response
+Host commands can fail for many reasons. Robust JSL code should anticipate these failures using the `try` special form.
 
-- **Code Isolation**: Ability to quarantine suspicious code
-- **Effect Rollback**: Undo harmful effects where possible
-- **Forensic Analysis**: Detailed investigation capabilities
-
-This security model ensures that JSL maintains its promise of safe code mobility while providing the transparency and control necessary for secure distributed computing.
+This example attempts to read a configuration file, but returns a default value if it fails, logging the error as a warning.
+```json
+["try",
+  ["host", "file/read", "/app/config.json"],
+  ["lambda", ["err"],
+    ["do",
+      ["host", "log/warn", ["@", "Config not found, using default: ", ["get", "err", "message"]]],
+      { "default_setting": true }
+    ]
+  ]
+]
+```
+This prevents unexpected host errors from crashing your entire program.

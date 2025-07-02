@@ -1,0 +1,55 @@
+[
+  "do",
+  ["def", "users", [
+    {"name": "Alice", "age": 25, "department": "Engineering", "salary": 75000},
+    {"name": "Bob", "age": 30, "department": "Sales", "salary": 65000},
+    {"name": "Carol", "age": 28, "department": "Engineering", "salary": 80000},
+    {"name": "David", "age": 35, "department": "Marketing", "salary": 70000},
+    {"name": "Eve", "age": 32, "department": "Engineering", "salary": 85000}
+  ]],
+  
+  ["def", "filter_by_dept", 
+    ["lambda", ["dept", "users"],
+      ["filter", 
+        ["lambda", ["user"], ["=", ["get", "user", "department"], "dept"]], 
+        "users"
+      ]
+    ]
+  ],
+  
+  ["def", "calculate_avg_salary",
+    ["lambda", ["users"],
+      ["if", ["=", ["length", "users"], 0],
+        0,
+        ["/", 
+          ["reduce", 
+            ["lambda", ["sum", "user"], ["+", "sum", ["get", "user", "salary"]]], 
+            "users", 
+            0
+          ],
+          ["length", "users"]
+        ]
+      ]
+    ]
+  ],
+  
+  ["def", "engineers", ["filter_by_dept", "Engineering", "users"]],
+  ["def", "sales", ["filter_by_dept", "Sales", "users"]],
+  
+  {
+    "total_employees": ["length", "users"],
+    "departments": {
+      "engineering": {
+        "count": ["length", "engineers"],
+        "avg_salary": ["calculate_avg_salary", "engineers"],
+        "employees": ["map", ["lambda", ["u"], ["get", "u", "name"]], "engineers"]
+      },
+      "sales": {
+        "count": ["length", "sales"], 
+        "avg_salary": ["calculate_avg_salary", "sales"],
+        "employees": ["map", ["lambda", ["u"], ["get", "u", "name"]], "sales"]
+      }
+    },
+    "company_avg_salary": ["calculate_avg_salary", "users"]
+  }
+]

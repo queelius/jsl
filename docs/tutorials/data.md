@@ -237,16 +237,20 @@ JSL supports all JSON data types:
   ["filter", "valid_contact?", "contacts"]]
 ```
 
-## Using Templates with Data
+## Dynamic Object Construction with Data
 
-### Step 1: Email Template
+### Step 1: Email Object Structure
 
 ```json
-["def", "email_template", {
-  "to": "@recipient_email",
-  "subject": "Welcome @recipient_name!",
-  "body": "Hello @recipient_name, welcome to our service!"
-}]
+["def", "create_email", 
+  ["lambda", ["recipient_email", "recipient_name"],
+    {
+      "@to": "recipient_email",
+      "@subject": ["str-concat", "@Welcome ", "recipient_name", "@!"],
+      "@body": ["str-concat", "@Hello ", "recipient_name", "@, welcome to our service!"]
+    }
+  ]
+]
 ```
 
 ### Step 2: Generate Emails for All Contacts
@@ -255,10 +259,10 @@ JSL supports all JSON data types:
 ["def", "generate_welcome_emails",
   ["map", 
     ["lambda", ["contact"],
-      ["template", "email_template", {
-        "recipient_email": ["get", "contact", "email"],
-        "recipient_name": ["get", "contact", "name"]
-      }]], 
+      ["create_email",
+        ["get", "contact", "@email"],
+        ["get", "contact", "@name"]
+      ]], 
     "contacts"]]
 ```
 
@@ -298,7 +302,7 @@ Work with student grade data:
 
 ## Next Steps
 
-- Learn about [JSON templates](../language/templates.md) for dynamic data generation
+- Learn about [JSON Objects](../language/objects.md) as first-class data structures
 - Explore [functions](functions.md) for data processing
 - Try [distributed computing](../architecture/distributed.md) with data
 
