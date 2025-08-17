@@ -7,8 +7,12 @@ __pycache__/
 .ipynb_checkpoints/
 # Ignore Python virtual environments
 .env
+.venv/
+venv/
+env/
 # Ignore coverage reports
 .coverage
+htmlcov/
 # Ignore build directories
 build/
 # Ignore distribution directories
@@ -25,3 +29,5 @@ Thumbs.db
 .idea/
 # Ignore Python bytecode files
 *.pyo
+# Ignore pytest cache
+.pytest_cache/

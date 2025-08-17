@@ -197,16 +197,6 @@ class HostDispatcher:
             raise JSLError(f"Host command '{command}' failed: {e}")
 
 
-# Backward compatibility
-class StepsExhausted(ResourceExhausted):
-    """Raised when evaluation step limit is exceeded."""
-    def __init__(self, message: str, partial_result: Any = None, remaining_expr: Any = None, env: Any = None):
-        super().__init__(message)
-        self.partial_result = partial_result
-        self.remaining_expr = remaining_expr
-        self.env = env
-
-
 class Evaluator:
     """
     The core JSL evaluator - the "engine" of the language.
@@ -217,17 +207,9 @@ class Evaluator:
     """
     
     def __init__(self, host_dispatcher: Optional[HostDispatcher] = None, 
-                 max_steps: Optional[int] = None,
                  resource_limits: Optional[ResourceLimits] = None):
         self.host = host_dispatcher or HostDispatcher()
-        
-        # Backward compatibility for max_steps
-        if max_steps is not None and resource_limits is None:
-            resource_limits = ResourceLimits(max_gas=max_steps)
-        
         self.resources = ResourceBudget(resource_limits) if resource_limits else None
-        self.max_steps = max_steps  # Keep for backward compat
-        self.steps_used = 0  # Keep for backward compat
     
     def eval(self, expr: JSLExpression, env: Env) -> JSLValue:
         """
@@ -258,17 +240,6 @@ class Evaluator:
                 e.remaining_expr = expr
                 e.env = env
                 raise
-        
-        # Backward compatibility: simple step counting
-        elif self.max_steps is not None:
-            self.steps_used += 1
-            if self.steps_used > self.max_steps:
-                raise StepsExhausted(
-                    f"Step limit {self.max_steps} exceeded",
-                    partial_result=None,
-                    remaining_expr=expr,
-                    env=env
-                )
         
         # Literals: numbers, booleans, null, objects
         if isinstance(expr, (int, float, bool)) or expr is None:
