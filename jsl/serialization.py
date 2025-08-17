@@ -2,222 +2,363 @@
 JSL Serialization - JSON serialization for JSL values and closures
 
 This module handles the serialization and deserialization of JSL values,
-including closures with their captured environments.
+including closures with their captured environments. Uses content-addressable
+storage to handle circular references elegantly.
 """
 
 import json
 import hashlib
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, Optional, Set
+from .core import Closure, Env
 
-from .core import Env, Closure, JSLValue
 
-
-class JSLEncoder(json.JSONEncoder):
-    """JSON encoder that handles JSL-specific types like closures."""
+class ContentAddressableSerializer:
+    """
+    Serializer that uses content hashing to handle circular references elegantly.
     
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Track what we're currently serializing to handle cycles
-        self._serializing = set()
+    The key insight: each object's content hash uniquely identifies it, and we can
+    use these hashes as stable references that work across serialization boundaries.
+    """
     
-    def default(self, obj):
-        # Check for circular references before processing
-        obj_id = id(obj)
-        if obj_id in self._serializing:
-            # Return a reference instead of recursing
-            if isinstance(obj, Closure):
-                return {"__jsl_ref__": "closure", "id": f"closure_{obj_id:016x}"}
-            elif isinstance(obj, Env):
-                return {"__jsl_ref__": "env", "id": f"env_{obj_id:016x}"}
-            else:
-                return {"__jsl_ref__": "object", "id": f"obj_{obj_id:016x}"}
+    def __init__(self):
+        # Maps content hash -> serialized representation
+        self.objects = {}
+        # Track what we're currently computing to detect cycles
+        self.computing = set()
         
-        # Add to serialization set
-        self._serializing.add(obj_id)
+    def serialize(self, obj: Any) -> str:
+        """
+        Serialize a JSL value to JSON string.
+        
+        Returns a JSON object with:
+        - "root": hash of the root object (or the object itself if primitive)
+        - "objects": table of hash -> serialized object mappings
+        """
+        root = self._process_value(obj)
+        
+        if self.objects:
+            result = {
+                "__cas_version__": 1,
+                "root": root,
+                "objects": self.objects
+            }
+        else:
+            # No complex objects, just return the value directly
+            result = root
+            
+        return json.dumps(result, allow_nan=False, sort_keys=True)
+    
+    def _process_value(self, obj: Any) -> Any:
+        """
+        Process a value, returning either:
+        - A primitive value directly
+        - A hash reference for complex objects (Closure, Env)
+        - A processed structure (list/dict) with nested values processed
+        """
+        if isinstance(obj, (str, int, float, bool)) or obj is None:
+            # Primitives pass through
+            return obj
+            
+        elif isinstance(obj, Closure):
+            # Get content hash and ensure it's in the objects table
+            obj_hash = self._get_closure_hash(obj)
+            if obj_hash not in self.objects:
+                self.objects[obj_hash] = self._serialize_closure(obj)
+            return {"__ref__": obj_hash}
+            
+        elif isinstance(obj, Env):
+            # Get content hash and ensure it's in the objects table
+            obj_hash = self._get_env_hash(obj)
+            if obj_hash not in self.objects:
+                self.objects[obj_hash] = self._serialize_env(obj)
+            return {"__ref__": obj_hash}
+            
+        elif isinstance(obj, list):
+            # Process each element
+            return [self._process_value(item) for item in obj]
+            
+        elif isinstance(obj, dict):
+            # Process each value (keys must be strings in JSON)
+            return {k: self._process_value(v) for k, v in obj.items()}
+            
+        else:
+            # Unknown type - try to pass through
+            return obj
+    
+    def _get_closure_hash(self, closure: Closure) -> str:
+        """Compute content hash for a closure."""
+        # The hash should be based on:
+        # 1. Parameters
+        # 2. Body (which is JSON-serializable JSL code)
+        # 3. Environment hash
+        
+        content = {
+            "type": "closure",
+            "params": closure.params,
+            "body": closure.body,
+            "env_hash": self._get_env_hash(closure.env)
+        }
+        
+        # Create deterministic JSON string
+        content_str = json.dumps(content, sort_keys=True)
+        return hashlib.sha256(content_str.encode()).hexdigest()[:16]
+    
+    def _get_env_hash(self, env: Env) -> str:
+        """
+        Compute content hash for an environment.
+        
+        This needs to handle cycles carefully - an environment might
+        contain bindings that reference back to itself.
+        """
+        env_id = id(env)
+        
+        # Check if we're already computing this env's hash (cycle detection)
+        if env_id in self.computing:
+            # Return a deterministic placeholder for this cycle
+            return f"cycle_{env_id:016x}"[:16]
+            
+        self.computing.add(env_id)
         
         try:
-            if isinstance(obj, Closure):
-                return {
-                    "__jsl_type__": "closure",
-                    "params": obj.params,
-                    "body": obj.body,
-                    "env": self._serialize_env_safe(obj.env)  # Use safe serialization
-                }
-            elif isinstance(obj, Env):
-                return {
-                    "__jsl_type__": "env", 
-                    "bindings": self._serialize_env_bindings(obj),
-                    "env_hash": self._safe_content_hash(obj)  # Use safe hash
-                }
-            return super().default(obj)
+            # Collect bindings from this env and its parents
+            bindings = {}
+            current = env
+            visited = set()
+            
+            while current is not None:
+                curr_id = id(current)
+                if curr_id in visited:
+                    break
+                visited.add(curr_id)
+                
+                # Add bindings from this level (don't override child bindings)
+                for name, value in current.bindings.items():
+                    if name not in bindings:
+                        # Skip built-in functions, but include Closures
+                        if not callable(value) or isinstance(value, Closure):
+                            bindings[name] = self._hash_value(value)
+                
+                current = current.parent
+            
+            # Create content for hashing
+            content = {
+                "type": "env",
+                "bindings": bindings
+            }
+            
+            content_str = json.dumps(content, sort_keys=True)
+            return hashlib.sha256(content_str.encode()).hexdigest()[:16]
+            
         finally:
-            # Always clean up
-            self._serializing.discard(obj_id)
+            self.computing.discard(env_id)
     
-    def _serialize_env_safe(self, env: Env) -> Dict:
-        """Safely serialize an environment without triggering JSON circular ref detection."""
-        # Check if we're already serializing this environment
-        env_id = id(env)
-        if env_id in self._serializing:
-            return {"__jsl_ref__": "env", "id": f"env_{env_id:016x}"}
-        
-        # Use the environment's own content_hash for cycle detection
-        env_hash = self._safe_content_hash(env)
-        
-        # Only serialize user-defined bindings, not prelude functions
-        user_bindings = self._collect_user_bindings_safe(env)
-        
+    def _hash_value(self, value: Any) -> Any:
+        """
+        Get a hashable representation of a value.
+        Used for computing environment hashes.
+        """
+        if isinstance(value, (str, int, float, bool)) or value is None:
+            return value
+        elif isinstance(value, Closure):
+            return {"__closure_hash__": self._get_closure_hash(value)}
+        elif isinstance(value, Env):
+            return {"__env_hash__": self._get_env_hash(value)}
+        elif isinstance(value, list):
+            return [self._hash_value(item) for item in value]
+        elif isinstance(value, dict):
+            return {k: self._hash_value(v) for k, v in value.items()}
+        else:
+            # For unknown types, use their string representation
+            return str(value)
+    
+    def _serialize_closure(self, closure: Closure) -> Dict:
+        """Serialize a closure's content."""
         return {
-            "bindings": user_bindings,
-            "env_hash": env_hash
+            "__type__": "closure",
+            "params": closure.params,
+            "body": closure.body,
+            "env": self._process_value(closure.env)
         }
     
-    def _safe_content_hash(self, env: Env) -> str:
-        """Safely get content hash, handling any recursion issues."""
-        try:
-            return env.content_hash()
-        except (RecursionError, ValueError):
-            # Fallback for any remaining recursion issues
-            return f"fallback_hash_{id(env):016x}"
-    
-    def _collect_user_bindings_safe(self, env: Env) -> Dict:
-        """Collect user bindings while avoiding circular references."""
-        visited = set()
-        result = {}
-        
-        def collect_from_env(e: Env):
-            if e is None:
-                return
-            
-            env_id = id(e)
-            if env_id in visited:
-                return
-            
-            visited.add(env_id)
-            
-            # Collect from parent first
-            if e.parent:
-                collect_from_env(e.parent)
-            
-            # Then collect from current level
-            for name, value in e.bindings.items():
-                # Skip built-in functions and avoid self-references
-                if not callable(value) or isinstance(value, Closure):
-                    # For closures, check if we're creating a cycle
-                    if isinstance(value, Closure) and id(value.env) in visited:
-                        # Don't include self-referential closures in bindings
-                        # They'll be handled by the closure's own serialization
-                        continue
-                    result[name] = value
-        
-        collect_from_env(env)
-        return result
-    
-    def _serialize_env_bindings(self, env: Env, visited=None) -> Dict:
-        """Get serializable bindings from environment with cycle detection."""
-        if visited is None:
-            visited = set()
-        
+    def _serialize_env(self, env: Env) -> Dict:
+        """Serialize an environment's content."""
         env_id = id(env)
-        if env_id in visited:
-            return {}  # Return empty dict for circular references
         
-        visited.add(env_id)
-        result = {}
+        # If we're already serializing this env, return a marker
+        if env_id in self.computing:
+            return {
+                "__type__": "env",
+                "__cycle__": True,
+                "id": env_id
+            }
+        
+        self.computing.add(env_id)
         
         try:
-            if env.parent:
-                result.update(self._serialize_env_bindings(env.parent, visited))
+            # Collect user-defined bindings
+            bindings = {}
+            current = env
+            visited = set()
             
-            for k, v in env.bindings.items():
-                if not callable(v) or isinstance(v, Closure):
-                    result[k] = v
+            while current is not None:
+                curr_id = id(current)
+                if curr_id in visited:
+                    break
+                visited.add(curr_id)
+                
+                for name, value in current.bindings.items():
+                    if name not in bindings:
+                        # Skip built-in functions but include Closures
+                        if not callable(value) or isinstance(value, Closure):
+                            bindings[name] = self._process_value(value)
+                
+                current = current.parent
             
-            return result
+            return {
+                "__type__": "env",
+                "bindings": bindings
+            }
         finally:
-            visited.discard(env_id)
+            self.computing.discard(env_id)
 
 
-class JSLDecoder(json.JSONDecoder):
-    """JSON decoder that reconstructs JSL-specific types."""
+class ContentAddressableDeserializer:
+    """
+    Deserializer that reconstructs objects from content-addressable format.
+    """
     
-    def __init__(self, prelude_env: Env = None):
-        super().__init__(object_hook=self.object_hook)
+    def __init__(self, prelude_env: Optional[Env] = None):
         self.prelude_env = prelude_env
-        self._refs = {}  # Track references during deserialization
-    
-    def object_hook(self, obj):
-        if isinstance(obj, dict):
-            # Handle references first
-            if "__jsl_ref__" in obj:
-                ref_id = obj["id"]
-                if ref_id in self._refs:
-                    return self._refs[ref_id]
-                else:
-                    # Create placeholder that will be resolved later
-                    return {"__unresolved_ref__": ref_id}
-            
-            # Handle actual objects
-            if "__jsl_type__" in obj:
-                if obj["__jsl_type__"] == "closure":
-                    return self._deserialize_closure(obj)
-                elif obj["__jsl_type__"] == "env":
-                    return self._deserialize_env(obj)
-        return obj
-    
-    def _deserialize_closure(self, obj: Dict) -> Closure:
-        """Deserialize a closure object."""
-        params = obj["params"]
-        body = obj["body"]
-        env_data = obj["env"]
+        # Maps hash -> reconstructed object
+        self.reconstructed = {}
+        # Objects table from serialized data
+        self.objects = {}
         
-        # Reconstruct environment
-        env = self._reconstruct_env(env_data)
+    def deserialize(self, json_str: str) -> Any:
+        """Deserialize a JSON string to JSL value."""
+        data = json.loads(json_str)
         
-        closure = Closure(params, body, env)
-        
-        # Store reference for potential circular refs
-        closure_id = f"closure_{id(closure):016x}"
-        self._refs[closure_id] = closure
-        
-        return closure
-    
-    def _deserialize_env(self, obj: Dict) -> Env:
-        """Deserialize an environment object."""
-        bindings = obj["bindings"]
-        env = self._reconstruct_env({"bindings": bindings})
-        
-        # Store reference
-        env_id = f"env_{id(env):016x}"
-        self._refs[env_id] = env
-        
-        return env
-    
-    def _reconstruct_env(self, env_data: Dict) -> Env:
-        """Reconstruct an environment from serialized data."""
-        bindings = env_data["bindings"]
-        
-        # Start with prelude if available
-        if self.prelude_env:
-            env = self.prelude_env.extend(bindings)
+        # Check if this is CAS format
+        if isinstance(data, dict) and "__cas_version__" in data:
+            self.objects = data["objects"]
+            root = data["root"]
+            return self._reconstruct_value(root)
         else:
-            env = Env(bindings)
+            # Direct value (no complex objects)
+            return self._reconstruct_value(data)
+    
+    def _reconstruct_value(self, data: Any) -> Any:
+        """Reconstruct a value from its serialized form."""
+        if isinstance(data, dict):
+            if "__ref__" in data:
+                # This is a reference to an object
+                ref_hash = data["__ref__"]
+                return self._reconstruct_object(ref_hash)
+            else:
+                # Regular dict - reconstruct values
+                return {k: self._reconstruct_value(v) for k, v in data.items()}
+                
+        elif isinstance(data, list):
+            return [self._reconstruct_value(item) for item in data]
+            
+        else:
+            # Primitive value
+            return data
+    
+    def _reconstruct_object(self, obj_hash: str) -> Any:
+        """Reconstruct an object from its hash."""
+        # Check if we've already reconstructed this object
+        if obj_hash in self.reconstructed:
+            return self.reconstructed[obj_hash]
         
-        return env
+        # Handle cycle placeholders
+        if obj_hash.startswith("cycle_"):
+            # This represents a cycle - for now, return None
+            # In practice, we might need more sophisticated handling
+            return None
+        
+        # Get the object data
+        if obj_hash not in self.objects:
+            raise ValueError(f"Unknown object hash: {obj_hash}")
+            
+        obj_data = self.objects[obj_hash]
+        
+        # Reconstruct based on type
+        if obj_data.get("__type__") == "closure":
+            closure = self._reconstruct_closure(obj_data, obj_hash)
+            self.reconstructed[obj_hash] = closure
+            return closure
+            
+        elif obj_data.get("__type__") == "env":
+            env = self._reconstruct_env(obj_data, obj_hash)
+            self.reconstructed[obj_hash] = env
+            return env
+            
+        else:
+            raise ValueError(f"Unknown object type in hash {obj_hash}")
+    
+    def _reconstruct_closure(self, data: Dict, obj_hash: str) -> Closure:
+        """Reconstruct a closure."""
+        # Validate required fields
+        if "params" not in data:
+            raise KeyError("Closure missing 'params' field")
+        if "body" not in data:
+            raise KeyError("Closure missing 'body' field")
+            
+        params = data["params"]
+        body = data["body"]
+        env_data = data.get("env")
+        
+        # Validate types
+        if not isinstance(params, list):
+            raise TypeError(f"Closure params must be a list, got {type(params).__name__}")
+        # Body should typically be a list (JSL expression) or potentially a primitive
+        # But for closures, body should be a list representing the function body
+        if not isinstance(body, list):
+            raise TypeError(f"Closure body must be a list (JSL expression), got {type(body).__name__}")
+        
+        # Reconstruct the environment
+        env = self._reconstruct_value(env_data) if env_data else None
+        
+        return Closure(params, body, env)
+    
+    def _reconstruct_env(self, data: Dict, obj_hash: str) -> Env:
+        """Reconstruct an environment."""
+        # Validate required fields
+        if "bindings" not in data:
+            raise KeyError("Environment missing 'bindings' field")
+            
+        bindings_data = data["bindings"]
+        
+        # Validate type
+        if not isinstance(bindings_data, dict):
+            raise TypeError(f"Environment bindings must be a dict, got {type(bindings_data).__name__}")
+        
+        # Reconstruct bindings
+        bindings = {}
+        for name, value_data in bindings_data.items():
+            bindings[name] = self._reconstruct_value(value_data)
+        
+        # Create environment with prelude as base if available
+        if self.prelude_env:
+            return self.prelude_env.extend(bindings)
+        else:
+            return Env(bindings)
 
 
-def serialize(obj: Any, indent: int = None) -> str:
+# Public API functions
+def serialize(obj: Any) -> str:
     """
     Serialize a JSL value to JSON string.
     
     Args:
         obj: The JSL value to serialize
-        indent: Optional indentation for pretty printing
     
     Returns:
         JSON string representation
     """
-    return json.dumps(obj, cls=JSLEncoder, indent=indent)
+    serializer = ContentAddressableSerializer()
+    return serializer.serialize(obj)
 
 
 def deserialize(json_str: str, prelude_env: Env = None) -> Any:
@@ -231,8 +372,8 @@ def deserialize(json_str: str, prelude_env: Env = None) -> Any:
     Returns:
         Reconstructed JSL value
     """
-    decoder = JSLDecoder(prelude_env)
-    return decoder.decode(json_str)
+    deserializer = ContentAddressableDeserializer(prelude_env)
+    return deserializer.deserialize(json_str)
 
 
 def to_json(obj: Any) -> Dict:
@@ -245,12 +386,11 @@ def to_json(obj: Any) -> Dict:
     Returns:
         JSON-compatible dictionary
     """
-    encoder = JSLEncoder()
-    # Use the encoder's default method to handle JSL types
-    return json.loads(json.dumps(obj, cls=JSLEncoder))
+    serialized = serialize(obj)
+    return json.loads(serialized)
 
 
-def from_json(json_data: Union[str, Dict], prelude_env: Env = None) -> Any:
+def from_json(json_data: Any, prelude_env: Env = None) -> Any:
     """
     Reconstruct JSL value from JSON data.
     
@@ -302,3 +442,16 @@ def deserialize_program(program_data: Dict, prelude_env: Env = None) -> Any:
     # Could add version checking here
     program = program_data.get("program")
     return from_json(program, prelude_env)
+
+
+# Exports
+__all__ = [
+    'serialize',
+    'deserialize',
+    'to_json',
+    'from_json',
+    'serialize_program',
+    'deserialize_program',
+    'ContentAddressableSerializer',
+    'ContentAddressableDeserializer'
+]

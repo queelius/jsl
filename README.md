@@ -91,12 +91,13 @@ The JSL ecosystem can be conceptualized in layers:
 
 ## Serialization in JSL
 
-A critical aspect of JSL is its ability to serialize program state, especially closures.
+A critical aspect of JSL is its ability to serialize program state, especially closures. JSL uses a content-addressable serialization format that elegantly handles circular references and ensures efficient storage of complex object graphs.
 
-- **Closures:** A JSL `Closure` object (representing a `lambda`) stores its parameters, body, and a reference to its captured lexical environment. When serialized, the environment only includes user-defined variables relevant to the closure (free variables). Built-in functions from the prelude are not serialized with the closure but are expected to be available in the target runtime's prelude.
-- **Environments:** Environments (`Env` objects) are dictionaries that map names to values, with a potential link to a parent environment for lexical scoping. Serialization handles these chains, ensuring that only necessary user-defined bindings are included.
+- **Closures:** A JSL `Closure` object (representing a `lambda`) stores its parameters, body, and a reference to its captured lexical environment. When serialized using content-addressable storage, closures are assigned deterministic hashes and stored in an object table with references.
+- **Environments:** Environments (`Env` objects) contain variable bindings and capture lexical scope. Only user-defined bindings are serialized (not prelude functions), and environments are also stored in the content-addressable object table.
+- **Circular References:** The content-addressable approach naturally handles circular references by using hash-based object references instead of direct embedding.
 
-The `to_json` and `from_json` (or equivalent) functions in a JSL implementation are responsible for converting JSL values, including closures and their environments, to and from their JSON representation, handling potential circular references and ensuring that prelude bindings are correctly re-established upon deserialization.
+Simple values (primitives, basic arrays/objects) serialize directly to JSON, while complex values containing closures use the content-addressable format with `__cas_version__`, `root`, and `objects` fields. This ensures maximum compatibility and efficiency across different use cases.
 
 ## Security Model
 

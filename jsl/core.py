@@ -8,6 +8,7 @@ for JSL, a network-native functional programming language.
 from typing import Any, Dict, List, Optional, Union, Callable
 from dataclasses import dataclass
 import json
+from .resources import ResourceBudget, ResourceLimits, GasCost, ResourceExhausted
 import hashlib
 
 
@@ -117,7 +118,13 @@ class Env:
                 "bindings": self._serialize_bindings(),
                 "parent_hash": self.parent.content_hash() if self.parent else None
             }
-            content = json.dumps(canonical, sort_keys=True)
+            # Convert to string - handle special cases
+            try:
+                content = json.dumps(canonical, sort_keys=True)
+            except (TypeError, ValueError):
+                # If we can't serialize (due to complex objects), use a fallback
+                # This can happen when bindings contain data structures with Closures
+                content = str(sorted(canonical.get("bindings", {}).keys())) + str(canonical.get("parent_hash"))
             return hashlib.sha256(content.encode()).hexdigest()[:16]
             
         finally:
@@ -141,10 +148,26 @@ class Env:
                     "env_hash": v.env.content_hash()  # ← Cycles handled here
                 }
             elif not callable(v):
-                result[k] = v
+                # For content_hash purposes, just use a placeholder for complex objects
+                # The actual serialization will be handled by JSLEncoder
+                if self._contains_closures(v):
+                    result[k] = {"type": "complex", "id": id(v)}
+                else:
+                    result[k] = v
             else:
                 result[k] = {"type": "builtin", "name": k}
         return result
+    
+    def _contains_closures(self, value: Any) -> bool:
+        """Check if a value contains any Closures."""
+        if isinstance(value, Closure):
+            return True
+        elif isinstance(value, list):
+            return any(self._contains_closures(item) for item in value)
+        elif isinstance(value, dict):
+            return any(self._contains_closures(v) for v in value.values())
+        else:
+            return False
 
 
 class HostDispatcher:
@@ -174,6 +197,16 @@ class HostDispatcher:
             raise JSLError(f"Host command '{command}' failed: {e}")
 
 
+# Backward compatibility
+class StepsExhausted(ResourceExhausted):
+    """Raised when evaluation step limit is exceeded."""
+    def __init__(self, message: str, partial_result: Any = None, remaining_expr: Any = None, env: Any = None):
+        super().__init__(message)
+        self.partial_result = partial_result
+        self.remaining_expr = remaining_expr
+        self.env = env
+
+
 class Evaluator:
     """
     The core JSL evaluator - the "engine" of the language.
@@ -183,8 +216,18 @@ class Evaluator:
     dispatcher.
     """
     
-    def __init__(self, host_dispatcher: Optional[HostDispatcher] = None):
+    def __init__(self, host_dispatcher: Optional[HostDispatcher] = None, 
+                 max_steps: Optional[int] = None,
+                 resource_limits: Optional[ResourceLimits] = None):
         self.host = host_dispatcher or HostDispatcher()
+        
+        # Backward compatibility for max_steps
+        if max_steps is not None and resource_limits is None:
+            resource_limits = ResourceLimits(max_gas=max_steps)
+        
+        self.resources = ResourceBudget(resource_limits) if resource_limits else None
+        self.max_steps = max_steps  # Keep for backward compat
+        self.steps_used = 0  # Keep for backward compat
     
     def eval(self, expr: JSLExpression, env: Env) -> JSLValue:
         """
@@ -193,6 +236,40 @@ class Evaluator:
         This is the core of the language - it implements the evaluation
         rules that determine what each JSL construct means.
         """
+        # Resource checking
+        if self.resources:
+            try:
+                # Check time periodically
+                self.resources.check_time()
+                
+                # Consume gas based on expression type
+                if isinstance(expr, (int, float, bool)) or expr is None:
+                    self.resources.consume_gas(GasCost.LITERAL)
+                elif isinstance(expr, str):
+                    if expr.startswith("@"):
+                        self.resources.consume_gas(GasCost.LITERAL)
+                    else:
+                        self.resources.consume_gas(GasCost.VARIABLE)
+                elif isinstance(expr, dict):
+                    self.resources.consume_gas(GasCost.DICT_CREATE + 
+                                              len(expr) * GasCost.DICT_PER_ITEM)
+            except ResourceExhausted as e:
+                # Add context for resumption
+                e.remaining_expr = expr
+                e.env = env
+                raise
+        
+        # Backward compatibility: simple step counting
+        elif self.max_steps is not None:
+            self.steps_used += 1
+            if self.steps_used > self.max_steps:
+                raise StepsExhausted(
+                    f"Step limit {self.max_steps} exceeded",
+                    partial_result=None,
+                    remaining_expr=expr,
+                    env=env
+                )
+        
         # Literals: numbers, booleans, null, objects
         if isinstance(expr, (int, float, bool)) or expr is None:
             return expr
@@ -381,16 +458,24 @@ class Evaluator:
     
     def _eval_function_call(self, lst: List, env: Env) -> JSLValue:
         """Handle regular function calls: [func, arg1, arg2, ...]"""
-        func = self.eval(lst[0], env)
-        args = [self.eval(arg, env) for arg in lst[1:]]
+        if self.resources:
+            self.resources.consume_gas(GasCost.FUNCTION_CALL)
+            self.resources.enter_call()  # Track stack depth
         
-        if isinstance(func, Closure):
-            return func(self, args)
-        elif callable(func):
-            # Built-in function
-            return func(*args)
-        else:
-            raise JSLTypeError(f"Cannot call non-function value: {func}")
+        try:
+            func = self.eval(lst[0], env)
+            args = [self.eval(arg, env) for arg in lst[1:]]
+            
+            if isinstance(func, Closure):
+                return func(self, args)
+            elif callable(func):
+                # Built-in function
+                return func(*args)
+            else:
+                raise JSLTypeError(f"Cannot call non-function value: {func}")
+        finally:
+            if self.resources:
+                self.resources.exit_call()  # Restore stack depth
 
     def _is_truthy(self, value: JSLValue) -> bool:
         """Determine if a value is truthy in JSL."""

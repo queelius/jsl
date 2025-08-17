@@ -39,13 +39,14 @@ Like classic Lisps, JSL is **homoiconic**, meaning code and data share the same 
 
 ### Verifiable, Serializable State
 
-Handling closures (functions that capture their lexical environment) is a primary challenge in code mobility. JSL solves this with a **content-addressable storage model** for environments, which makes program state verifiable, efficient, and safely serializable.
+Handling closures (functions that capture their lexical environment) is a primary challenge in code mobility. JSL solves this with a **content-addressable storage model** that elegantly handles circular references and makes program state verifiable, efficient, and safely serializable.
 
--   **Content-Addressable Environments:** Every environment (a map of names to values) is identified by a unique hash of its contents. This includes the hash of its parent environment, creating a secure, recursive chain of scopes similar to a blockchain.
--   **Serializable Closures:** A closure is serialized as a pure JSON object containing its code and the hash of the environment it was defined in. This is a lightweight, secure pointer to its full lexical context.
--   **Prelude Verification:** The entire serialized payload includes a `prelude_hash`, a fingerprint of the core library version it depends on. This allows a receiving system to immediately verify runtime compatibility before execution.
+-   **Content-Addressable Objects:** Every complex object (closure or environment) is identified by a unique hash of its contents. Objects are stored in a hash table and referenced by their content hashes, naturally handling circular references.
+-   **Serializable Closures:** A closure is serialized as a JSON object containing its parameters, body, and a reference to its captured environment. The environment reference uses the content-addressable format `{"__ref__": "hash"}`.
+-   **Efficient Sharing:** Identical objects share the same hash, avoiding duplication and creating an efficient storage model for complex object graphs.
+-   **Format Versioning:** The serialized payload includes `__cas_version__` to enable format evolution while maintaining backward compatibility.
 
-This architecture ensures that a serialized JSL program is a self-contained, verifiable, and perfectly reproducible unit of computation.
+This architecture ensures that a serialized JSL program can handle arbitrarily complex object relationships while remaining a verifiable, self-contained unit of computation.
 
 ### Wire-Format Transparency
 

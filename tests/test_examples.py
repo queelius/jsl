@@ -45,10 +45,10 @@ class TestJSLExamples(unittest.TestCase):
           ["def", "total", ["reduce", "sum", "numbers", 0]],
           
           {
-            "original": "numbers",
-            "squared": "squared", 
-            "evens": "evens",
-            "total": "total"
+            "@original": "numbers",
+            "@squared": "squared", 
+            "@evens": "evens",
+            "@total": "total"
           }
         ]
         '''
@@ -88,11 +88,11 @@ class TestJSLExamples(unittest.TestCase):
         """Test data processing example."""
         program = '''
         ["do",
-          ["def", "users", [
-            {"name": "@Alice", "age": 25, "department": "@Engineering"},
-            {"name": "@Bob", "age": 30, "department": "@Sales"},
-            {"name": "@Carol", "age": 28, "department": "@Engineering"},
-            {"name": "@David", "age": 35, "department": "@Marketing"}
+          ["def", "users", ["list",
+            {"@name": "@Alice", "@age": 25, "@department": "@Engineering"},
+            {"@name": "@Bob", "@age": 30, "@department": "@Sales"},
+            {"@name": "@Carol", "@age": 28, "@department": "@Engineering"},
+            {"@name": "@David", "@age": 35, "@department": "@Marketing"}
           ]],
           
           ["def", "get_engineers", 
@@ -114,11 +114,11 @@ class TestJSLExamples(unittest.TestCase):
           ["def", "engineer_ages", ["get_ages", "engineers"]],
           
           {
-            "total_users": ["length", "users"],
-            "engineers": "engineers",
-            "engineer_count": ["length", "engineers"], 
-            "engineer_ages": "engineer_ages",
-            "avg_engineer_age": ["/", ["reduce", "+", "engineer_ages", 0], ["length", "engineer_ages"]]
+            "@total_users": ["length", "users"],
+            "@engineers": "engineers",
+            "@engineer_count": ["length", "engineers"], 
+            "@engineer_ages": "engineer_ages",
+            "@avg_engineer_age": ["/", ["reduce", "+", "engineer_ages", 0], ["length", "engineer_ages"]]
           }
         ]
         '''
@@ -135,14 +135,14 @@ class TestJSLExamples(unittest.TestCase):
         program = '''
         ["do",
           ["def", "nested_data", {
-            "level1": {
-              "level2": {
-                "values": [1, 2, 3],
-                "metadata": {"count": 3, "type": "@numbers"}
+            "@level1": {
+              "@level2": {
+                "@values": ["list", 1, 2, 3],
+                "@metadata": {"@count": 3, "@type": "@numbers"}
               },
-              "other": [4, 5, 6]
+              "@other": ["list", 4, 5, 6]
             },
-            "summary": {"total_items": 6}
+            "@summary": {"@total_items": 6}
           }],
           
           ["def", "extract_values",
@@ -157,10 +157,10 @@ class TestJSLExamples(unittest.TestCase):
           ["def", "all_values", ["extract_values", "nested_data"]],
           
           {
-            "data": "nested_data",
-            "extracted": "all_values",
-            "sum": ["reduce", "+", "all_values", 0],
-            "max": ["reduce", "max", "all_values"]
+            "@data": "nested_data",
+            "@extracted": "all_values",
+            "@sum": ["reduce", "+", "all_values", 0],
+            "@max": ["reduce", "max", "all_values"]
           }
         ]
         '''
@@ -180,12 +180,12 @@ class TestJSLExamples(unittest.TestCase):
           ["def", "long_words", ["filter", ["lambda", ["w"], [">", ["str-length", "w"], 4]], "words"]],
           
           {
-            "original": "text",
-            "word_count": ["length", "words"],
-            "words": "words",
-            "word_lengths": "word_lengths",
-            "long_words": "long_words",
-            "longest_word": ["reduce", 
+            "@original": "text",
+            "@word_count": ["length", "words"],
+            "@words": "words",
+            "@word_lengths": "word_lengths",
+            "@long_words": "long_words",
+            "@longest_word": ["reduce", 
               ["lambda", ["a", "b"], 
                 ["if", [">", ["str-length", "a"], ["str-length", "b"]], "a", "b"]
               ], 
@@ -218,16 +218,16 @@ class TestJSLExamples(unittest.TestCase):
             ]
           ],
           
-          ["def", "numbers", [-3, -2, -1, 0, 1, 2, 3, 4]],
+          ["def", "numbers", ["@", [-3, -2, -1, 0, 1, 2, 3, 4]]],
           ["def", "classifications", ["map", "classify_number", "numbers"]],
           
           {
-            "numbers": "numbers",
-            "classifications": "classifications",
-            "stats": {
-              "positive": ["length", ["filter", ["lambda", ["n"], [">", "n", 0]], "numbers"]],
-              "negative": ["length", ["filter", ["lambda", ["n"], ["<", "n", 0]], "numbers"]],
-              "zero": ["length", ["filter", ["lambda", ["n"], ["=", "n", 0]], "numbers"]]
+            "@numbers": "numbers",
+            "@classifications": "classifications",
+            "@stats": {
+              "@positive": ["length", ["filter", ["lambda", ["n"], [">", "n", 0]], "numbers"]],
+              "@negative": ["length", ["filter", ["lambda", ["n"], ["<", "n", 0]], "numbers"]],
+              "@zero": ["length", ["filter", ["lambda", ["n"], ["=", "n", 0]], "numbers"]]
             }
           }
         ]
@@ -276,7 +276,7 @@ class TestJSLHostInteraction(unittest.TestCase):
         ["do",
           ["host", "@log", "@Starting calculation"],
           ["def", "result", ["host", "@multiply", 6, 7]],
-          ["host", "@log", ["str-concat", "@Result: ", "result"]],
+          ["host", "@log", ["str-concat", "@Result: ", ["json-stringify", "result"]]],
           "result"
         ]
         '''

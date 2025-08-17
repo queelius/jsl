@@ -247,6 +247,10 @@ class ExpressionBuilder:
         """Create object: {key: value, ...}"""
         return FluentExpression({f"@{k}": _unwrap(v) for k, v in kwargs.items()})
     
+    def string(self, value: str):
+        """Create string literal: '@value'"""
+        return FluentExpression(f"@{value}")
+    
     def map(self, func, collection):
         """Map function over collection."""
         return FluentExpression(["map", _unwrap(func), _unwrap(collection)])
@@ -287,11 +291,9 @@ def _unwrap(value: Any) -> Any:
     """Unwrap FluentExpression objects to their JSL representation."""
     if isinstance(value, FluentExpression):
         return value.to_jsl()
-    elif isinstance(value, str) and not value.startswith('@'):
-        # String literals need @ prefix in JSL unless they're variable names
-        # This is a heuristic - in real usage, users should be explicit
-        return value
     else:
+        # Don't make assumptions about string handling - let users be explicit
+        # with literal() function or @ prefix when needed
         return value
 
 
@@ -302,12 +304,22 @@ V = VariableBuilder()
 
 # Convenience functions
 def literal(value: Any) -> FluentExpression:
-    """Create a literal value expression."""
+    """
+    Create a literal value expression (quoted).
+    
+    This prevents evaluation of the value and treats it as literal data.
+    
+    Examples:
+        literal("hello") -> "@hello" (string literal)
+        literal([1, 2, 3]) -> ["@", [1, 2, 3]] (list literal)
+        literal(42) -> 42 (numbers are already literal)
+    """
     if isinstance(value, str):
         return FluentExpression(f"@{value}")
-    elif isinstance(value, list):
+    elif isinstance(value, (list, dict)):
         return FluentExpression(["@", value])
     else:
+        # Numbers, booleans, null are already literals
         return FluentExpression(value)
 
 

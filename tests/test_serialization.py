@@ -13,7 +13,7 @@ from jsl import (
     to_json, from_json, Closure, Env
 )
 from jsl.serialization import (
-    JSLEncoder, JSLDecoder, serialize_program, deserialize_program
+    serialize_program, deserialize_program
 )
 from jsl.core import JSLError, JSLTypeError
 
@@ -83,21 +83,6 @@ class TestBasicSerialization(unittest.TestCase):
                 deserialized = deserialize(serialized)
                 self.assertEqual(value, deserialized)
     
-    def test_serialize_with_indentation(self):
-        """Test pretty-printed serialization."""
-        data = {"nested": {"list": [1, 2, 3], "value": "test"}}
-        
-        # Without indentation
-        compact = serialize(data)
-        self.assertNotIn('\n', compact)
-        
-        # With indentation
-        pretty = serialize(data, indent=2)
-        self.assertIn('\n', pretty)
-        self.assertIn('  ', pretty)  # Should have proper indentation
-        
-        # Both should deserialize to same value
-        self.assertEqual(deserialize(compact), deserialize(pretty))
 
 
 class TestClosureSerialization(unittest.TestCase):
@@ -232,8 +217,8 @@ class TestEnvironmentSerialization(unittest.TestCase):
         program = '''
         ["do",
           ["def", "x", 10],
-          ["def", "y", "hello"],
-          ["def", "z", [1, 2, 3]],
+          ["def", "y", "@hello"],
+          ["def", "z", ["@", [1, 2, 3]]],
           ["lambda", ["a"], ["+", "a", "x"]]
         ]
         '''
@@ -242,19 +227,42 @@ class TestEnvironmentSerialization(unittest.TestCase):
         serialized = serialize(closure)
         data = json.loads(serialized)
         
-        # Should have environment data
-        self.assertIn("env", data)
-        env_data = data["env"]
-        self.assertIn("bindings", env_data)
-        
-        # Should contain captured variables
-        bindings = env_data["bindings"]
-        self.assertIn("x", bindings)
-        self.assertIn("y", bindings)
-        self.assertIn("z", bindings)
-        self.assertEqual(bindings["x"], 10)
-        self.assertEqual(bindings["y"], "hello")
-        self.assertEqual(bindings["z"], [1, 2, 3])
+        # For CAS format, check the structure is correct
+        if "__cas_version__" in data:
+            # CAS format - env is in the objects table
+            self.assertIn("objects", data)
+            self.assertIn("root", data)
+            
+            # Find the closure object and check it has an env reference
+            root_ref = data["root"]["__ref__"]
+            closure_obj = data["objects"][root_ref]
+            self.assertIn("env", closure_obj)
+            
+            # Find the env object and check bindings
+            env_ref = closure_obj["env"]["__ref__"]
+            env_obj = data["objects"][env_ref]
+            self.assertIn("bindings", env_obj)
+            
+            bindings = env_obj["bindings"]
+            self.assertIn("x", bindings)
+            self.assertIn("y", bindings)
+            self.assertIn("z", bindings)
+            self.assertEqual(bindings["x"], 10)
+            self.assertEqual(bindings["y"], "hello")
+            self.assertEqual(bindings["z"], [1, 2, 3])
+        else:
+            # Direct format (shouldn't happen for closures, but handle it)
+            self.assertIn("env", data)
+            env_data = data["env"]
+            self.assertIn("bindings", env_data)
+            
+            bindings = env_data["bindings"]
+            self.assertIn("x", bindings)
+            self.assertIn("y", bindings)
+            self.assertIn("z", bindings)
+            self.assertEqual(bindings["x"], 10)
+            self.assertEqual(bindings["y"], "hello")
+            self.assertEqual(bindings["z"], [1, 2, 3])
     
     def test_nested_environment_serialization(self):
         """Test serialization of nested environments."""
@@ -281,7 +289,7 @@ class TestEnvironmentSerialization(unittest.TestCase):
           ["def", "shared_var", 42],
           ["def", "func1", ["lambda", ["x"], ["+", "x", "shared_var"]]],
           ["def", "func2", ["lambda", ["y"], ["*", "y", "shared_var"]]],
-          ["@", ["func1", "func2"]]
+          ["list", "func1", "func2"]
         ]
         '''
         result = eval_expression(program, self.env)
@@ -314,7 +322,7 @@ class TestComplexDataStructures(unittest.TestCase):
               ["lambda", ["x"], ["*", "x", 2]],
               ["lambda", ["y"], ["+", "y", 1]]
             ]],
-            "@unquoted_lambdas": [
+            "@unquoted_lambdas": ["list",
               ["lambda", ["x"], ["*", "x", 2]],
               ["lambda", ["y"], ["+", "y", 1]]
             ]
@@ -348,7 +356,7 @@ class TestComplexDataStructures(unittest.TestCase):
           ["def", "func1", ["lambda", ["x"], ["*", "x", 2]]],
           ["def", "func2", ["lambda", ["y"], ["+", "y", 1]]],
           ["def", "data", {
-            "@functions": ["@", ["func1", "func2"]],
+            "@functions": ["list", "func1", "func2"],
             "@values": ["@", [1, 2, 3, 4, 5]],
             "@metadata": {"@version": 1, "@type": "@computation"}
           }],
@@ -416,23 +424,18 @@ class TestComplexDataStructures(unittest.TestCase):
         # Other data should be preserved
         other_data = deserialized["other"]
         self.assertEqual(len(other_data), 2)
-        self.assertEqual(other_data[0]["name"], "item1")
-        self.assertEqual(other_data[1]["value"], 200)
+        self.assertEqual(other_data[0]["@name"], "@item1")
+        self.assertEqual(other_data[1]["@value"], 200)
     
     def test_circular_references_in_data(self):
         """Test handling of circular references in data structures."""
-        # Note: Pure JSON doesn't support circular refs, but we should handle gracefully
+        # Note: Pure data structures with circular refs can't be serialized
         data = {"a": 1}
         data["self"] = data  # Circular reference
         
-        # Should either handle gracefully or raise appropriate error
-        try:
-            serialized = serialize(data)
-            # If it succeeds, should be able to deserialize
-            deserialized = deserialize(serialized)
-        except (ValueError, TypeError) as e:
-            # Expected behavior for circular references
-            self.assertIn("circular", str(e).lower())
+        # Should raise RecursionError or similar for pure data circular references
+        with self.assertRaises((RecursionError, ValueError, TypeError)) as ctx:
+            serialize(data)
 
 
 class TestErrorHandling(unittest.TestCase):
@@ -483,112 +486,66 @@ class TestErrorHandling(unittest.TestCase):
     
     def test_malformed_closure_data(self):
         """Test deserialization of malformed closure data."""
+        # For CAS format, malformed data in objects table
         malformed_cases = [
             # Missing required fields
-            '{"__jsl_type__": "closure"}',
-            '{"__jsl_type__": "closure", "params": ["x"]}',
-            '{"__jsl_type__": "closure", "body": ["+", "x", 1]}',
-            
+            {
+                "__cas_version__": 1,
+                "root": {"__ref__": "test"},
+                "objects": {"test": {"__type__": "closure"}}  # Missing params and body
+            },
+            {
+                "__cas_version__": 1,
+                "root": {"__ref__": "test"},
+                "objects": {"test": {"__type__": "closure", "params": ["x"]}}  # Missing body
+            },
+            {
+                "__cas_version__": 1,
+                "root": {"__ref__": "test"},
+                "objects": {"test": {"__type__": "closure", "body": ["+", "x", 1]}}  # Missing params
+            },
             # Invalid field types
-            '{"__jsl_type__": "closure", "params": "not_a_list", "body": ["+", "x", 1], "env": {}}',
-            '{"__jsl_type__": "closure", "params": ["x"], "body": "not_a_list", "env": {}}',
+            {
+                "__cas_version__": 1,
+                "root": {"__ref__": "test"},
+                "objects": {"test": {"__type__": "closure", "params": "not_a_list", "body": ["+", "x", 1], "env": None}}
+            },
+            {
+                "__cas_version__": 1,
+                "root": {"__ref__": "test"},
+                "objects": {"test": {"__type__": "closure", "params": ["x"], "body": "not_a_list", "env": None}}
+            },
         ]
         
-        for malformed_json in malformed_cases:
-            with self.subTest(json_str=malformed_json):
+        for malformed_data in malformed_cases:
+            with self.subTest(data=malformed_data):
                 with self.assertRaises((KeyError, TypeError, AttributeError)):
-                    deserialize(malformed_json, make_prelude())
+                    deserialize(json.dumps(malformed_data), make_prelude())
     
     def test_environment_reconstruction_errors(self):
         """Test errors in environment reconstruction."""
-        # Create closure data with invalid environment
-        invalid_env_data = {
-            "__jsl_type__": "closure",
-            "params": ["x"],
-            "body": ["+", "x", 1],
-            "env": {
-                "bindings": "not_a_dict"  # Should be dict
+        # For CAS format, create invalid env object in the objects table
+        invalid_cas_data = {
+            "__cas_version__": 1,
+            "root": {"__ref__": "test_closure"},
+            "objects": {
+                "test_closure": {
+                    "__type__": "closure",
+                    "params": ["x"],
+                    "body": ["+", "x", 1],
+                    "env": {"__ref__": "test_env"}
+                },
+                "test_env": {
+                    "__type__": "env",
+                    "bindings": "not_a_dict"  # Should be dict
+                }
             }
         }
         
-        with self.assertRaises((TypeError, AttributeError)):
-            deserialize(json.dumps(invalid_env_data), make_prelude())
+        with self.assertRaises((TypeError, AttributeError, ValueError)):
+            deserialize(json.dumps(invalid_cas_data), make_prelude())
 
 
-class TestEncoderDecoder(unittest.TestCase):
-    """Test JSLEncoder and JSLDecoder classes directly."""
-    
-    def setUp(self):
-        """Set up test environment."""
-        self.env = make_prelude()
-        self.encoder = JSLEncoder()
-        self.decoder = JSLDecoder(self.env)
-    
-    def test_encoder_custom_types(self):
-        """Test encoder handling of custom JSL types."""
-        # Create a closure
-        closure_expr = '["lambda", ["x"], ["*", "x", "x"]]'
-        closure = eval_expression(closure_expr, self.env)
-        
-        # Test encoder directly
-        encoded = self.encoder.default(closure)
-        
-        self.assertIsInstance(encoded, dict)
-        self.assertEqual(encoded["__jsl_type__"], "closure")
-        self.assertIn("params", encoded)
-        self.assertIn("body", encoded)
-        self.assertIn("env", encoded)
-    
-    def test_decoder_object_hook(self):
-        """Test decoder object hook functionality."""
-        # Create closure data manually
-        closure_data = {
-            "__jsl_type__": "closure",
-            "params": ["x"],
-            "body": ["*", "x", "x"],
-            "env": {
-                "bindings": {},
-                "env_hash": "test_hash"
-            }
-        }
-        
-        # Test object hook directly
-        result = self.decoder.object_hook(closure_data)
-        
-        self.assertIsInstance(result, Closure)
-        self.assertEqual(result.params, ["x"])
-        self.assertEqual(result.body, ["*", "x", "x"])
-    
-    def test_encoder_inheritance(self):
-        """Test that encoder properly inherits from JSONEncoder."""
-        # Should handle standard JSON types normally
-        standard_data = {"list": [1, 2, 3], "string": "test", "number": 42}
-        
-        encoded = json.dumps(standard_data, cls=JSLEncoder)
-        decoded = json.loads(encoded)
-        
-        self.assertEqual(decoded, standard_data)
-    
-    def test_decoder_without_prelude(self):
-        """Test decoder behavior without prelude environment."""
-        decoder_no_prelude = JSLDecoder(None)
-        
-        closure_data = {
-            "__jsl_type__": "closure",
-            "params": ["x"],
-            "body": ["*", "x", "x"],
-            "env": {
-                "bindings": {"captured_var": 42},
-                "env_hash": "test_hash"
-            }
-        }
-        
-        json_str = json.dumps(closure_data)
-        result = decoder_no_prelude.decode(json_str)
-        
-        self.assertIsInstance(result, Closure)
-        # Should still work, just without prelude functions
-        self.assertIsNotNone(result.env)
 
 
 class TestProgramSerialization(unittest.TestCase):
@@ -744,12 +701,12 @@ class TestPerformanceAndEdgeCases(unittest.TestCase):
         """Test handling of special float values."""
         import math
         
-        # Note: JSON doesn't support inf/nan, so these should raise errors
+        # We use strict JSON, so inf/nan should raise errors
         special_values = [float('inf'), float('-inf'), float('nan')]
         
         for value in special_values:
             with self.subTest(value=value):
-                with self.assertRaises((ValueError, OverflowError)):
+                with self.assertRaises(ValueError):
                     serialize(value)
     
     def test_empty_structures(self):
@@ -788,9 +745,14 @@ class TestFileSystemIntegration(unittest.TestCase):
         data = {"message": "Hello, file system!", "numbers": [1, 2, 3]}
         file_path = os.path.join(self.temp_dir, "test_data.json")
         
-        # Serialize to file
+        # Serialize to file (without indent parameter)
+        serialized = serialize(data)
+        
+        # Pretty print manually if needed
+        pretty_json = json.dumps(json.loads(serialized), indent=2)
+        
         with open(file_path, 'w') as f:
-            f.write(serialize(data, indent=2))
+            f.write(pretty_json)
         
         # Read back and deserialize
         with open(file_path, 'r') as f:
@@ -810,9 +772,14 @@ class TestFileSystemIntegration(unittest.TestCase):
         closure = eval_expression(program, self.env)
         file_path = os.path.join(self.temp_dir, "closure.json")
         
-        # Serialize to file
+        # Serialize to file (without indent parameter)
+        serialized = serialize(closure)
+        
+        # Pretty print manually if needed
+        pretty_json = json.dumps(json.loads(serialized), indent=2)
+        
         with open(file_path, 'w') as f:
-            f.write(serialize(closure, indent=2))
+            f.write(pretty_json)
         
         # Read back and deserialize
         with open(file_path, 'r') as f:

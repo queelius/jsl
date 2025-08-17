@@ -178,73 +178,86 @@ class TestJSLRunner:
             self.runner.get_variable("local_var")
     
     def test_define_function_helper(self):
-        """Test define_function helper method."""
-        self.runner.define_function("double", ["x"], ["*", "x", 2])
+        """Test define_function using execute with def and lambda."""
+        self.runner.execute(["def", "double", ["lambda", ["x"], ["*", "x", 2]]])
         result = self.runner.execute(["double", 5])
         assert result == 10
     
     def test_conditional_helper(self):
-        """Test conditional helper method."""
-        result = self.runner.conditional([">", 5, 3], "@greater", "@lesser")
+        """Test conditional using execute with if."""
+        result = self.runner.execute(["if", [">", 5, 3], "@greater", "@lesser"])
         assert result == "greater"
     
     def test_let_binding_helper(self):
-        """Test let_binding helper method."""
-        result = self.runner.let_binding({"x": 10, "y": 20}, ["+", "x", "y"])
+        """Test let binding using execute."""
+        result = self.runner.execute(["let", [["x", 10], ["y", 20]], ["+", "x", "y"]])
         assert result == 30
     
     def test_do_sequence_helper(self):
-        """Test do_sequence helper method."""
-        result = self.runner.do_sequence(
+        """Test do sequence using execute."""
+        result = self.runner.execute(["do",
             ["def", "a", 1],
             ["def", "b", 2], 
             ["+", "a", "b"]
-        )
+        ])
         assert result == 3
     
     def test_quote_helper(self):
-        """Test quote helper method."""
-        result = self.runner.quote(["+", 1, 2])
+        """Test quote using execute."""
+        result = self.runner.execute(["@", ["+", 1, 2]])
         assert result == ["+", 1, 2]
     
     def test_host_command_helper(self):
-        """Test host_command helper method."""
+        """Test host command using execute."""
         # Mock host dispatcher
         mock_handler = Mock(return_value="mocked_result")
         self.runner.add_host_handler("test", mock_handler)
         
         # Use proper quoted string arguments
-        result = self.runner.host_command("@test", "@arg1", "@arg2")
+        result = self.runner.execute(["host", "@test", "@arg1", "@arg2"])
         assert result == "mocked_result"
         mock_handler.assert_called_once()
     
     def test_special_forms_introspection(self):
-        """Test special forms introspection methods."""
-        forms = self.runner.get_special_forms()
-        expected_forms = ["def", "lambda", "if", "let", "do", "quote", "@", "try", "host"]
-        assert all(form in forms for form in expected_forms)
+        """Test that special forms work correctly."""
+        # Test basic special forms by using them
+        # def
+        self.runner.execute(["def", "test_var", 123])
+        assert self.runner.get_variable("test_var") == 123
         
-        # Test validation
-        assert self.runner.validate_special_form("def", ["x", 42])
-        assert not self.runner.validate_special_form("def", ["x"])  # Missing value
-        assert not self.runner.validate_special_form("def", [123, 42])  # Non-string name
+        # lambda
+        result = self.runner.execute([["lambda", ["x"], ["*", "x", 2]], 5])
+        assert result == 10
         
-        # Test help
-        help_text = self.runner.get_special_form_help("def")
-        assert "def" in help_text.lower()
-        assert "define" in help_text.lower()
+        # if
+        result = self.runner.execute(["if", True, "@yes", "@no"])
+        assert result == "yes"
+        
+        # let
+        result = self.runner.execute(["let", [["a", 5]], "a"])
+        assert result == 5
+        
+        # do
+        result = self.runner.execute(["do", 1, 2, 3])
+        assert result == 3
+        
+        # quote (@)
+        result = self.runner.execute(["@", ["not", "evaluated"]])
+        assert result == ["not", "evaluated"]
     
     def test_explain_evaluation(self):
-        """Test evaluation explanation."""
-        explanation = self.runner.explain_evaluation(["def", "x", 42])
-        assert "def" in explanation
-        assert "define" in explanation.lower()
+        """Test that evaluation works for different expression types."""
+        # Test def
+        self.runner.execute(["def", "x", 42])
+        assert self.runner.get_variable("x") == 42
         
-        explanation = self.runner.explain_evaluation(["+", 1, 2])
-        assert "function call" in explanation.lower()
+        # Test function call
+        result = self.runner.execute(["+", 1, 2])
+        assert result == 3
         
-        explanation = self.runner.explain_evaluation(42)
-        assert "literal" in explanation.lower()
+        # Test literal
+        result = self.runner.execute(42)
+        assert result == 42
     
     def test_performance_profiling(self):
         """Test performance profiling functionality."""
@@ -254,9 +267,26 @@ class TestJSLRunner:
         self.runner.execute(["+", 1, 2])
         
         stats = self.runner.get_performance_stats()
-        assert "execution_time_ms" in stats
-        assert isinstance(stats["execution_time_ms"], (int, float))
-        assert stats["execution_time_ms"] >= 0
+        # Check for new metric names
+        assert "total_time_ms" in stats or "eval_time_ms" in stats
+        assert "call_count" in stats
+        assert stats["call_count"] == 1
+        
+        # Execute another expression
+        self.runner.execute(["*", 3, 4])
+        stats = self.runner.get_performance_stats()
+        assert stats["call_count"] == 2
+        
+        # Test reset
+        self.runner.reset_performance_stats()
+        stats = self.runner.get_performance_stats()
+        assert stats == {}
+        
+        # Test disable
+        self.runner.disable_profiling()
+        self.runner.execute(["+", 5, 6])
+        stats = self.runner.get_performance_stats()
+        assert stats == {}
     
     def test_host_handler_security(self):
         """Test host handler security restrictions."""

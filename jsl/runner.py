@@ -11,13 +11,16 @@ import time
 from contextlib import contextmanager
 from typing import Any, Dict, List, Optional, Union
 
-from .core import Evaluator, Env, HostDispatcher, JSLValue, JSLExpression, Closure
+from .core import Evaluator, Env, HostDispatcher, JSLValue, JSLExpression, Closure, StepsExhausted
 from .prelude import make_prelude
 
 
 class JSLRuntimeError(Exception):
     """Runtime error during JSL execution."""
-    pass
+    def __init__(self, message: str, remaining_expr=None, env=None):
+        super().__init__(message)
+        self.remaining_expr = remaining_expr
+        self.env = env
 
 
 class JSLSyntaxError(Exception):
@@ -68,8 +71,9 @@ class JSLRunner:
         # Set up base environment
         self.base_environment = make_prelude()
         
-        # Set up evaluator
-        self.evaluator = Evaluator(self.host_dispatcher)
+        # Set up evaluator with optional step limit
+        max_steps = self.config.get('max_steps') if self.config else None
+        self.evaluator = Evaluator(self.host_dispatcher, max_steps)
         
         # Performance tracking
         self._profiling_enabled = False
@@ -80,14 +84,30 @@ class JSLRunner:
     
     def _apply_config(self):
         """Apply configuration settings."""
-        # Apply security settings
-        if self.security.get('allowed_host_commands'):
-            # Filter host commands based on allowed list
-            pass
+        # Apply recursion depth limit if supported
+        max_depth = self.config.get('max_recursion_depth', 1000)
+        if hasattr(self.evaluator, 'max_recursion_depth'):
+            self.evaluator.max_recursion_depth = max_depth
+        
+        # Apply security settings for host commands
+        allowed_commands = self.security.get('allowed_host_commands')
+        if allowed_commands is not None:
+            # Wrap the host dispatcher to restrict commands
+            original_dispatch = self.host_dispatcher.dispatch
+            
+            def restricted_dispatch(command, args):
+                if command not in allowed_commands:
+                    raise JSLRuntimeError(f"Host command '{command}' not allowed by security policy")
+                return original_dispatch(command, args)
+            
+            self.host_dispatcher.dispatch = restricted_dispatch
         
         if self.security.get('sandbox_mode', False):
-            # Enable sandbox mode
-            pass
+            # In sandbox mode, disable all host commands unless explicitly allowed
+            if allowed_commands is None:
+                def no_host_dispatch(command, args):
+                    raise JSLRuntimeError(f"Host commands disabled in sandbox mode")
+                self.host_dispatcher.dispatch = no_host_dispatch
     
     def execute(self, expression: Union[str, JSLExpression]) -> JSLValue:
         """
@@ -108,22 +128,57 @@ class JSLRunner:
         try:
             # Parse expression if it's a string
             if isinstance(expression, str):
+                parse_start = time.time() if self._profiling_enabled else None
                 try:
                     expression = json.loads(expression)
                 except json.JSONDecodeError as e:
                     raise JSLSyntaxError(f"Invalid JSON in expression: {e}")
+                
+                if self._profiling_enabled and parse_start:
+                    self._performance_stats['parse_time_ms'] = (time.time() - parse_start) * 1000
             
             # Execute the expression
-            result = self.evaluator.eval(expression, self.base_environment)
+            eval_start = time.time() if self._profiling_enabled else None
             
-            # Record performance stats
-            if self._profiling_enabled and start_time:
-                execution_time = (time.time() - start_time) * 1000
-                self._performance_stats['execution_time_ms'] = execution_time
+            # Reset step counter for this execution
+            if self.evaluator.max_steps is not None:
+                self.evaluator.steps_used = 0
             
-            return result
+            try:
+                result = self.evaluator.eval(expression, self.base_environment)
+                
+                # Record performance stats
+                if self._profiling_enabled:
+                    if eval_start:
+                        self._performance_stats['eval_time_ms'] = (time.time() - eval_start) * 1000
+                    if start_time:
+                        self._performance_stats['total_time_ms'] = (time.time() - start_time) * 1000
+                    if self.evaluator.max_steps is not None:
+                        self._performance_stats['steps_used'] = self.evaluator.steps_used
+                    
+                    # Track call count
+                    self._performance_stats['call_count'] = self._performance_stats.get('call_count', 0) + 1
+                
+                return result
+                
+            except StepsExhausted as e:
+                # Record step exhaustion in stats
+                if self._profiling_enabled:
+                    self._performance_stats['steps_exhausted'] = True
+                    self._performance_stats['steps_used'] = self.evaluator.steps_used
+                
+                # Re-raise with context for potential resumption
+                raise JSLRuntimeError(
+                    f"Step limit exceeded after {self.evaluator.steps_used} steps",
+                    remaining_expr=e.remaining_expr,
+                    env=e.env
+                ) from e
             
         except Exception as e:
+            if self._profiling_enabled and start_time:
+                self._performance_stats['error_time_ms'] = (time.time() - start_time) * 1000
+                self._performance_stats['error_count'] = self._performance_stats.get('error_count', 0) + 1
+            
             if isinstance(e, (JSLSyntaxError, JSLRuntimeError)):
                 raise
             else:
@@ -199,226 +254,60 @@ class JSLRunner:
         self._profiling_enabled = True
         self._performance_stats = {}
     
+    def disable_profiling(self) -> None:
+        """Disable performance profiling."""
+        self._profiling_enabled = False
+    
+    def reset_performance_stats(self) -> None:
+        """Reset performance statistics."""
+        self._performance_stats = {}
+    
     def get_performance_stats(self) -> Dict[str, Any]:
         """
         Get performance statistics.
         
         Returns:
-            Dictionary with performance metrics
+            Dictionary with performance metrics including:
+            - total_time_ms: Total execution time
+            - parse_time_ms: Time spent parsing JSON
+            - eval_time_ms: Time spent evaluating
+            - call_count: Number of execute() calls
+            - error_count: Number of errors encountered
+            - steps_used: Number of evaluation steps used (if step limit is set)
+            - steps_exhausted: True if step limit was hit
         """
         return self._performance_stats.copy()
     
-    def define_function(self, name: str, params: List[str], body: JSLExpression) -> None:
+    def resume(self, expression: JSLExpression, env: Optional[Env] = None, additional_steps: Optional[int] = None) -> JSLValue:
         """
-        Define a function using the lambda special form.
+        Resume execution from where it was interrupted by step limit.
         
         Args:
-            name: Function name
-            params: Parameter names
-            body: Function body expression
-        """
-        lambda_expr = ["lambda", params, body]
-        self.define(name, self.execute(lambda_expr))
-    
-    def create_lambda(self, params: List[str], body: JSLExpression) -> JSLValue:
-        """
-        Create a lambda function.
-        
-        Args:
-            params: Parameter names
-            body: Function body expression
+            expression: The remaining expression to evaluate
+            env: The environment at interruption (if available)
+            additional_steps: Additional steps to allow (if not set, uses original limit)
             
         Returns:
-            Function closure
+            The result of continuing evaluation
         """
-        return self.execute(["lambda", params, body])
-    
-    def conditional(self, condition: JSLExpression, then_expr: JSLExpression, else_expr: JSLExpression = None) -> JSLValue:
-        """
-        Execute conditional expression.
+        # Use provided environment or base environment
+        resume_env = env if env is not None else self.base_environment
         
-        Args:
-            condition: Condition to evaluate
-            then_expr: Expression to evaluate if condition is truthy
-            else_expr: Expression to evaluate if condition is falsy
-            
-        Returns:
-            Result of the appropriate branch
-        """
-        if else_expr is None:
-            else_expr = None
-        return self.execute(["if", condition, then_expr, else_expr])
-    
-    def let_binding(self, bindings: Dict[str, JSLExpression], body: JSLExpression) -> JSLValue:
-        """
-        Execute expression with local bindings.
-        
-        Args:
-            bindings: Dictionary of variable names to expressions
-            body: Expression to evaluate with bindings
-            
-        Returns:
-            Result of body expression
-        """
-        binding_list = [[name, expr] for name, expr in bindings.items()]
-        return self.execute(["let", binding_list, body])
-    
-    def do_sequence(self, *expressions: JSLExpression) -> JSLValue:
-        """
-        Execute expressions in sequence.
-        
-        Args:
-            *expressions: Expressions to execute in order
-            
-        Returns:
-            Result of the last expression
-        """
-        return self.execute(["do"] + list(expressions))
-    
-    def quote(self, expression: JSLExpression) -> JSLValue:
-        """
-        Quote an expression (prevent evaluation).
-        
-        Args:
-            expression: Expression to quote
-            
-        Returns:
-            The expression as literal data
-        """
-        return self.execute(["quote", expression])
-    
-    def try_catch(self, body: JSLExpression, handler: JSLExpression) -> JSLValue:
-        """
-        Execute expression with error handling.
-        
-        Args:
-            body: Expression to execute
-            handler: Handler function for errors
-            
-        Returns:
-            Result of body or handler
-        """
-        return self.execute(["try", body, handler])
-    
-    def host_command(self, command: str, *args: Any) -> JSLValue:
-        """
-        Execute a host command.
-        
-        Args:
-            command: Host command name
-            *args: Command arguments
-            
-        Returns:
-            Result from host command
-        """
-        return self.execute(["host", command] + list(args))
-    
-    def evaluate_special_form(self, form: str, *args: JSLExpression) -> JSLValue:
-        """
-        Evaluate a special form directly.
-        
-        Args:
-            form: Special form name (def, lambda, if, let, do, quote, try, host)
-            *args: Special form arguments
-            
-        Returns:
-            Result of special form evaluation
-        """
-        return self.execute([form] + list(args))
-    
-    def get_special_forms(self) -> List[str]:
-        """
-        Get list of supported special forms.
-        
-        Returns:
-            List of special form names
-        """
-        return ["def", "lambda", "if", "let", "do", "quote", "@", "try", "host"]
-    
-    def validate_special_form(self, form: str, args: List[JSLExpression]) -> bool:
-        """
-        Validate special form syntax.
-        
-        Args:
-            form: Special form name
-            args: Arguments to the special form
-            
-        Returns:
-            True if valid, False otherwise
-        """
-        validations = {
-            "def": lambda a: len(a) == 2 and isinstance(a[0], str),
-            "lambda": lambda a: len(a) == 2 and isinstance(a[0], list),
-            "if": lambda a: len(a) in [2, 3],
-            "let": lambda a: len(a) == 2 and isinstance(a[0], list),
-            "do": lambda a: len(a) >= 1,
-            "quote": lambda a: len(a) == 1,
-            "@": lambda a: len(a) == 1,
-            "try": lambda a: len(a) == 2,
-            "host": lambda a: len(a) >= 1
-        }
-        
-        if form not in validations:
-            return False
+        # Temporarily adjust step limit if requested
+        original_max = self.evaluator.max_steps
+        if additional_steps is not None:
+            self.evaluator.max_steps = self.evaluator.steps_used + additional_steps
         
         try:
-            return validations[form](args)
-        except:
-            return False
+            result = self.evaluator.eval(expression, resume_env)
+            return result
+        finally:
+            # Restore original limit
+            self.evaluator.max_steps = original_max
     
-    def get_special_form_help(self, form: str) -> str:
-        """
-        Get help text for a special form.
-        
-        Args:
-            form: Special form name
-            
-        Returns:
-            Help text describing the special form
-        """
-        help_text = {
-            "def": "def - Define a variable: ['def', 'name', value_expr]",
-            "lambda": "lambda - Create function: ['lambda', ['param1', 'param2'], body_expr]", 
-            "if": "if - Conditional: ['if', condition, then_expr, else_expr]",
-            "let": "let - Local bindings: ['let', [['var1', val1], ['var2', val2]], body_expr]",
-            "do": "do - Sequential execution: ['do', expr1, expr2, ...]",
-            "quote": "quote - Prevent evaluation: ['quote', expr] or ['@', expr]",
-            "@": "@ - Shorthand quote: ['@', expr] same as ['quote', expr]",
-            "try": "try - Error handling: ['try', body_expr, handler_expr]",
-            "host": "host - Host command: ['host', 'command', arg1, arg2, ...]"
-        }
-        
-        return help_text.get(form, f"Unknown special form: {form}")
+    # These convenience methods are removed as they just wrap execute()
+    # Users should use the fluent API or direct execute() calls instead
     
-    def explain_evaluation(self, expression: JSLExpression) -> str:
-        """
-        Explain how an expression would be evaluated.
-        
-        Args:
-            expression: Expression to explain
-            
-        Returns:
-            Explanation of evaluation steps
-        """
-        if not isinstance(expression, list) or len(expression) == 0:
-            return f"Literal value: {expression}"
-        
-        form = expression[0]
-        if form in self.get_special_forms():
-            explanations = {
-                "def": "Define variable - evaluates value and binds to name",
-                "lambda": "Create function - captures current environment as closure",
-                "if": "Conditional - evaluates condition, then one branch only",
-                "let": "Local binding - creates temporary scope with new variables",
-                "do": "Sequential - evaluates all expressions, returns last result",
-                "quote": "Quote - returns expression without evaluation",
-                "@": "Quote shorthand - returns expression without evaluation", 
-                "try": "Error handling - evaluates body, calls handler on error",
-                "host": "Host command - evaluates args and sends to host system"
-            }
-            return f"Special form '{form}': {explanations.get(form, 'Unknown')}"
-        else:
-            return f"Function call - evaluates '{form}' and all arguments, then calls function"
         
 
 # Backward compatibility functions
@@ -440,7 +329,9 @@ def run_program(
     """
     runner = JSLRunner()
     if host_dispatcher:
+        # Replace both references to the host dispatcher
         runner.host_dispatcher = host_dispatcher
+        runner.evaluator.host = host_dispatcher
     if environment:
         runner.base_environment = environment
     
@@ -465,7 +356,9 @@ def eval_expression(
     """
     runner = JSLRunner()
     if host_dispatcher:
+        # Replace both references to the host dispatcher
         runner.host_dispatcher = host_dispatcher
+        runner.evaluator.host = host_dispatcher
     if environment:
         runner.base_environment = environment
     
