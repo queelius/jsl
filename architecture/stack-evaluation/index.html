@@ -1265,6 +1265,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#resumable-execution-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resumable Execution State
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#testing" class="md-nav__link">
     <span class="md-ellipsis">
       Testing
@@ -2153,6 +2162,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#resumable-execution-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resumable Execution State
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#testing" class="md-nav__link">
     <span class="md-ellipsis">
       Testing
@@ -2234,6 +2252,9 @@
 <li>
 <p><strong>Clear execution model</strong>: Each instruction is atomic and predictable.</p>
 </li>
+<li>
+<p><strong>JSON all the way down</strong>: Even the paused execution state (stack, PC, environment) is pure JSON - no binary formats, no special serialization.</p>
+</li>
 </ol>
 <h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
 <h3 id="compilation-pipeline">Compilation Pipeline<a class="headerlink" href="#compilation-pipeline" title="Permanent link">&para;</a></h3>
@@ -2304,24 +2325,89 @@
 - No parsing ambiguity
 - Direct execution without compilation
 - Trivial serialization</p>
+<h2 id="resumable-execution-state">Resumable Execution State<a class="headerlink" href="#resumable-execution-state" title="Permanent link">&para;</a></h2>
+<p>The stack evaluator can pause and resume execution at any point. The paused state is pure JSON:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&quot;stack&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">],</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nt">&quot;pc&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">&quot;instructions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;+&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;*&quot;</span><span class="p">],</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="nt">&quot;resource_checkpoint&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">&quot;gas_used&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">150</span><span class="p">,</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">&quot;steps_taken&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">  </span><span class="nt">&quot;user_env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="nt">&quot;my-func&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;closure&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">      </span><span class="nt">&quot;params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">],</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">      </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;n&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">],</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;x&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">}</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="p">}</span>
+</code></pre></div>
+<p>This represents:
+- <strong>stack</strong>: Current operand stack values
+- <strong>pc</strong>: Program counter (next instruction to execute)
+- <strong>instructions</strong>: The JPN bytecode being executed
+- <strong>resource_checkpoint</strong>: Optional resource tracking state
+- <strong>user_env</strong>: User-defined variables and functions (not the prelude)</p>
+<p>The separation between user environment and prelude means:
+- User-defined state travels with the paused execution
+- The prelude (built-in functions) exists on every JSL host
+- State can be stored, transmitted, and resumed anywhere
+- Everything remains pure JSON - no binary formats or special serialization</p>
+<p>Example resumable execution with user-defined functions:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Define a user function</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">evaluator</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="s1">&#39;double&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;closure&#39;</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="s1">&#39;params&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="s1">&#39;body&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="s1">&#39;env&#39;</span><span class="p">:</span> <span class="p">{}</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="p">}</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="c1"># Compile program that uses it</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="n">jpn</span> <span class="o">=</span> <span class="n">compile_to_postfix</span><span class="p">([</span><span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="mi">21</span><span class="p">])</span>  <span class="c1"># =&gt; [21, 1, &#39;double&#39;]</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="c1"># Start execution with limited steps</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="n">result</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">eval_partial</span><span class="p">(</span><span class="n">jpn</span><span class="p">,</span> <span class="n">max_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="k">if</span> <span class="n">state</span><span class="p">:</span>  <span class="c1"># Execution paused</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>    <span class="c1"># State includes user-defined &#39;double&#39; function</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>    <span class="c1"># Everything is pure JSON - can be stored/transmitted</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>    <span class="n">json_state</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a>    <span class="c1"># Later, possibly on a different machine</span>
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>    <span class="c1"># Create fresh evaluator with only prelude</span>
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>    <span class="n">fresh_evaluator</span> <span class="o">=</span> <span class="n">StackEvaluator</span><span class="p">(</span><span class="n">env</span><span class="o">=</span><span class="n">prelude</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a>
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a>    <span class="c1"># Restore state (including user environment)</span>
+<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a>    <span class="n">restored_state</span> <span class="o">=</span> <span class="n">StackState</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_state</span><span class="p">))</span>
+<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>
+<a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a>    <span class="c1"># Resume execution - &#39;double&#39; function is available!</span>
+<a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a>    <span class="n">final_result</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fresh_evaluator</span><span class="o">.</span><span class="n">eval_partial</span><span class="p">(</span><span class="n">jpn</span><span class="p">,</span> <span class="n">max_steps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">restored_state</span><span class="p">)</span>
+<a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a>    <span class="c1"># final_result = 42</span>
+</code></pre></div></p>
+<p>No binary formats, no special protocols - just JSON! User-defined functions travel with the paused state.</p>
 <h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">&para;</a></h2>
 <p>The same test suite runs on both evaluators, proving functional equivalence:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># tests/test_both_evaluators.py</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">RecursiveEvaluator</span><span class="p">,</span> <span class="n">StackEvaluator</span><span class="p">])</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">evaluator</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span><span class="p">()</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_arithmetic</span><span class="p">(</span><span class="n">evaluator</span><span class="p">):</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="k">assert</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">eval</span><span class="p">([</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="o">==</span> <span class="mi">5</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="c1"># This test runs twice - once per evaluator!</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># tests/test_both_evaluators.py</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="n">RecursiveEvaluator</span><span class="p">,</span> <span class="n">StackEvaluator</span><span class="p">])</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">def</span><span class="w"> </span><span class="nf">evaluator</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span><span class="p">()</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_arithmetic</span><span class="p">(</span><span class="n">evaluator</span><span class="p">):</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="k">assert</span> <span class="n">evaluator</span><span class="o">.</span><span class="n">eval</span><span class="p">([</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="o">==</span> <span class="mi">5</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    <span class="c1"># This test runs twice - once per evaluator!</span>
 </code></pre></div>
 <h2 id="future-work">Future Work<a class="headerlink" href="#future-work" title="Permanent link">&para;</a></h2>
 <ol>
+<li><strong>Unify with recursive evaluator</strong>: Use the same Env and Closure classes for consistency</li>
 <li><strong>Optimize postfix</strong>: Dead code elimination, constant folding</li>
 <li><strong>JIT compilation</strong>: Compile hot paths to native code</li>
 <li><strong>Streaming evaluation</strong>: Process postfix as it arrives over network</li>
 <li><strong>Parallel execution</strong>: Some postfix sequences can run in parallel</li>
-<li><strong>Add special forms</strong>: Implement if, let, lambda in stack evaluator</li>
+<li><strong>Tail call optimization</strong>: Detect and optimize tail-recursive calls</li>
 </ol>
 <h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
 <p>Stack-based evaluation provides a production-ready alternative to recursive evaluation, with better resumption, optimization opportunities, and network characteristics. The postfix representation can serve as JSL's "bytecode" - the actual computational format, with S-expressions as the human-friendly source language.</p>
