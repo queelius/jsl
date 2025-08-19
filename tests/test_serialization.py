@@ -38,7 +38,8 @@ class TestBasicSerialization(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment."""
-        self.env = make_prelude()
+        prelude = make_prelude()
+        self.env = prelude.extend({})
     
     def test_serialize_primitives(self):
         """Test serialization of primitive values."""
@@ -105,7 +106,8 @@ class TestClosureSerialization(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment."""
-        self.env = make_prelude()
+        prelude = make_prelude()
+        self.env = prelude.extend({})
     
     def test_simple_closure_serialization(self):
         """Test serialization of simple closures."""
@@ -224,7 +226,8 @@ class TestEnvironmentSerialization(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment."""
-        self.env = make_prelude()
+        prelude = make_prelude()
+        self.env = prelude.extend({})
     
     def test_environment_serialization(self):
         """Test serialization of environments."""
@@ -326,7 +329,8 @@ class TestComplexDataStructures(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment."""
-        self.env = make_prelude()
+        prelude = make_prelude()
+        self.env = prelude.extend({})
 
     def test_quoted_vs_unquoted_data(self):
         """Test that quoting prevents evaluation of lambda expressions."""
@@ -568,7 +572,8 @@ class TestProgramSerialization(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment."""
-        self.env = make_prelude()
+        prelude = make_prelude()
+        self.env = prelude.extend({})
     
     def test_serialize_program(self):
         """Test serialize_program function."""
@@ -661,7 +666,8 @@ class TestPerformanceAndEdgeCases(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment."""
-        self.env = make_prelude()
+        prelude = make_prelude()
+        self.env = prelude.extend({})
     
     def test_large_data_structures(self):
         """Test serialization of large data structures."""
@@ -747,7 +753,8 @@ class TestFileSystemIntegration(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment."""
-        self.env = make_prelude()
+        prelude = make_prelude()
+        self.env = prelude.extend({})
         self.temp_dir = tempfile.mkdtemp()
     
     def tearDown(self):

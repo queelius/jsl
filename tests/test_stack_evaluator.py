@@ -257,8 +257,9 @@ class TestUserEnvironmentResumption:
     
     def setup_method(self):
         """Set up test components."""
-        prelude_env = make_prelude()
-        self.evaluator = StackEvaluator(env=prelude_env)
+        prelude = make_prelude()
+        env = prelude.extend({})  # Extend to make modifiable
+        self.evaluator = StackEvaluator(env=env)
     
     def test_resume_with_user_function(self):
         """Test resuming execution with a user-defined function."""
@@ -280,7 +281,8 @@ class TestUserEnvironmentResumption:
         
         # Create fresh evaluator and resume
         fresh_prelude = make_prelude()
-        fresh_evaluator = StackEvaluator(env=fresh_prelude)
+        fresh_env = fresh_prelude.extend({})  # Extend to make modifiable
+        fresh_evaluator = StackEvaluator(env=fresh_env)
         
         # Resume execution
         final_result, final_state = fresh_evaluator.eval_partial(
@@ -314,7 +316,8 @@ class TestUserEnvironmentResumption:
         
         # Create fresh evaluator and resume
         fresh_prelude = make_prelude()
-        fresh_evaluator = StackEvaluator(env=fresh_prelude)
+        fresh_env = fresh_prelude.extend({})  # Extend to make modifiable
+        fresh_evaluator = StackEvaluator(env=fresh_env)
         
         # Resume execution
         final_result, final_state = fresh_evaluator.eval_partial(
@@ -350,7 +353,8 @@ class TestUserEnvironmentResumption:
         # Deserialize state
         restored_dict = json.loads(json_str)
         fresh_prelude = make_prelude()
-        restored_state = StackState.from_dict(restored_dict, fresh_prelude)
+        fresh_env = fresh_prelude.extend({})  # Extend to make modifiable
+        restored_state = StackState.from_dict(restored_dict, fresh_env)
         
         # Create fresh evaluator and resume with restored state
         fresh_evaluator = StackEvaluator(env=fresh_prelude)

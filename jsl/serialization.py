@@ -273,9 +273,28 @@ class ContentAddressableDeserializer:
         
         # Handle cycle placeholders
         if obj_hash.startswith("cycle_"):
-            # This represents a cycle - for now, return None
-            # In practice, we might need more sophisticated handling
-            return None
+            # This represents a cycle to an object we're already reconstructing
+            # Try to find the corresponding object in our objects table
+            # The cycle hash format is "cycle_" + hex object id
+            
+            # Look through objects for one that might match this cycle
+            for hash_key, obj_data in self.objects.items():
+                if obj_data.get("__cycle__"):
+                    # This is the cycle marker itself, skip it
+                    continue
+                # Check if this could be the referenced object
+                # For now, if we have an env being reconstructed, return it
+                if hash_key in self.reconstructed:
+                    obj = self.reconstructed[hash_key]
+                    if isinstance(obj, Env):
+                        return obj
+            
+            # If we can't find it, return prelude env as safe fallback
+            if self.prelude_env:
+                return self.prelude_env
+            else:
+                from .prelude import make_prelude
+                return make_prelude()
         
         # Get the object data
         if obj_hash not in self.objects:
@@ -318,7 +337,15 @@ class ContentAddressableDeserializer:
             raise TypeError(f"Closure body must be a list (JSL expression), got {type(body).__name__}")
         
         # Reconstruct the environment
-        env = self._reconstruct_value(env_data) if env_data else None
+        if env_data:
+            env = self._reconstruct_value(env_data)
+        else:
+            # Closures always need an environment - use prelude as fallback
+            if self.prelude_env:
+                env = self.prelude_env
+            else:
+                from .prelude import make_prelude
+                env = make_prelude()
         
         return Closure(params, body, env)
     
@@ -326,13 +353,19 @@ class ContentAddressableDeserializer:
         """Reconstruct an environment."""
         # Check if this is a cycle marker
         if data.get("__cycle__"):
-            # This is a cycle - for now return an empty env
-            # The real solution would involve creating a placeholder
-            # and fixing it up later, but this works for simple cases
+            # This is a cycle - check if we're already reconstructing this env
+            original_id = data.get("id")
+            if original_id:
+                # Look for an env we're already reconstructing with this ID
+                for cached_hash, cached_obj in self.reconstructed.items():
+                    if isinstance(cached_obj, Env) and cached_hash.endswith(str(original_id)):
+                        return cached_obj
+            # Fallback to prelude if we can't find the original
             if self.prelude_env:
                 return self.prelude_env
             else:
-                return Env({})
+                from .prelude import make_prelude
+                return make_prelude()
         
         # Validate required fields
         if "bindings" not in data:
@@ -344,16 +377,23 @@ class ContentAddressableDeserializer:
         if not isinstance(bindings_data, dict):
             raise TypeError(f"Environment bindings must be a dict, got {type(bindings_data).__name__}")
         
-        # Reconstruct bindings
+        # Create the Env object immediately and cache it (to handle cycles)
+        # Start with prelude as base if available
+        if self.prelude_env:
+            env = self.prelude_env.extend({})  # Empty extension for now
+        else:
+            env = Env({})  # Empty bindings for now
+        self.reconstructed[obj_hash] = env
+        
+        # Reconstruct bindings and update the env
         bindings = {}
         for name, value_data in bindings_data.items():
             bindings[name] = self._reconstruct_value(value_data)
         
-        # Create environment with prelude as base if available
-        if self.prelude_env:
-            return self.prelude_env.extend(bindings)
-        else:
-            return Env(bindings)
+        # Update the env's bindings directly
+        env.bindings.update(bindings)
+        
+        return env
 
 
 # Public API functions

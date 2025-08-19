@@ -14,7 +14,8 @@ class TestJSLObjectConstruction(unittest.TestCase):
     
     def setUp(self):
         """Set up test environment."""
-        self.env = make_prelude()
+        prelude = make_prelude()
+        self.env = prelude.extend({})  # Extend to make modifiable
     
     def eval(self, expr_str):
         """Helper to evaluate JSL expression from string."""

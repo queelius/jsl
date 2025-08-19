@@ -404,14 +404,13 @@ class SpecialFormEvaluator:
             # Apply handler function to the error
             params = handler_func.params
             body = handler_func.body
-            closure_env = handler_func.env if handler_func.env is not None else env
             
             # Check arity
             if len(params) != 1:
                 raise ValueError(f"'try' handler must take exactly 1 argument, got {len(params)}")
             
             # Create new environment with error bound
-            new_env = closure_env.extend({params[0]: error_obj})
+            new_env = handler_func.env.extend({params[0]: error_obj})
             
             # Evaluate handler body
             handler_body_jpn = compile_to_postfix(body)
@@ -577,13 +576,12 @@ class SpecialFormEvaluator:
                             # Apply the closure
                             params = func.params
                             body = func.body
-                            closure_env = func.env if func.env is not None else env
                             
                             if len(params) != 1:
                                 raise ValueError(f"Transform apply function must take 1 argument, got {len(params)}")
                             
                             # Create new environment with parameter bound
-                            new_env = closure_env.extend({params[0]: item[field]})
+                            new_env = func.env.extend({params[0]: item[field]})
                             
                             # Evaluate function body
                             body_jpn = compile_to_postfix(body)

@@ -79,8 +79,10 @@ class JSLRunner:
         # Set up host dispatcher
         self.host_dispatcher = HostDispatcher()
         
-        # Set up base environment
-        self.base_environment = make_prelude()
+        # Set up base environment - keep prelude separate
+        self.prelude = make_prelude()
+        # Working environment extends the prelude (can be modified)
+        self.base_environment = self.prelude.extend({})
         
         # Set up resource limits
         if resource_limits is None and self.config:
@@ -349,7 +351,8 @@ class JSLRunner:
         Yields:
             ExecutionContext: New execution context
         """
-        # Create new environment extending the base environment
+        # Create new environment extending the current base environment
+        # This allows access to variables defined in the parent context
         new_env = self.base_environment.extend({})        
         context = ExecutionContext(new_env)
         
@@ -494,4 +497,6 @@ def create_repl_environment() -> Env:
     Returns:
         A fresh environment with the prelude loaded
     """
-    return make_prelude()
+    prelude = make_prelude()
+    # Return an extended environment that can be modified
+    return prelude.extend({})

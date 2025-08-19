@@ -292,9 +292,7 @@ class StackEvaluator:
                             raise ValueError(f"Arity mismatch: closure expects {len(func.params)} args, got {len(args)}")
                         
                         # Create new environment extending the closure's captured environment
-                        # If closure.env is None (deserialization issue), use current env
-                        closure_env = func.env if func.env is not None else self.env
-                        call_env = closure_env.extend(dict(zip(func.params, args)))
+                        call_env = func.env.extend(dict(zip(func.params, args)))
                         
                         # Import compiler here to avoid circular dependency
                         from .compiler import compile_to_postfix
@@ -368,9 +366,7 @@ class StackEvaluator:
                                 raise ValueError(f"Arity mismatch: {operator} expects {len(func.params)} args, got {len(args)}")
                             
                             # Create new environment extending the closure's captured environment
-                            # If closure.env is None (deserialization issue), use current env
-                            closure_env = func.env if func.env is not None else self.env
-                            call_env = closure_env.extend(dict(zip(func.params, args)))
+                            call_env = func.env.extend(dict(zip(func.params, args)))
                             
                             # Import compiler here to avoid circular dependency
                             from .compiler import compile_to_postfix
@@ -550,9 +546,7 @@ class StackEvaluator:
                                 raise ValueError(f"Arity mismatch: {operator} expects {len(func.params)} args, got {len(args)}")
                             
                             # Create new environment extending the closure's captured environment
-                            # If closure.env is None (deserialization issue), use current env
-                            closure_env = func.env if func.env is not None else self.env
-                            call_env = closure_env.extend(dict(zip(func.params, args)))
+                            call_env = func.env.extend(dict(zip(func.params, args)))
                             
                             # Import compiler here to avoid circular dependency
                             from .compiler import compile_to_postfix

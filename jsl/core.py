@@ -55,6 +55,34 @@ class Closure:
         # Create new environment extending the closure's captured environment
         call_env = self.env.extend(dict(zip(self.params, args)))
         return evaluator.eval(self.body, call_env)
+    
+    def deepcopy(self, env: Optional['Env'] = None) -> 'Closure':
+        """
+        Create a deep copy of this closure.
+        
+        Args:
+            env: Optional environment to use for the copy. If not provided,
+                 deep copies the closure's environment.
+        """
+        # Deep copy the body
+        def copy_expr(expr):
+            if isinstance(expr, list):
+                return [copy_expr(item) for item in expr]
+            elif isinstance(expr, dict):
+                return {k: copy_expr(v) for k, v in expr.items()}
+            else:
+                return expr
+        
+        new_body = copy_expr(self.body)
+        new_params = self.params[:]  # Copy params list
+        
+        # Use provided env or deep copy the closure's env
+        if env is not None:
+            new_env = env
+        else:
+            new_env = self.env.deepcopy() if self.env else None
+        
+        return Closure(new_params, new_body, new_env)
 
 
 class Env:
@@ -69,6 +97,10 @@ class Env:
     def __init__(self, bindings: Optional[Dict[str, Any]] = None, parent: Optional['Env'] = None):
         self.bindings = bindings or {}
         self.parent = parent
+        # Prelude metadata (set by make_prelude)
+        self._prelude_id = None
+        self._prelude_version = None
+        self._is_prelude = False
     
     def get(self, name: str) -> Any:
         """Look up a variable in this environment or its parents."""
@@ -88,13 +120,119 @@ class Env:
         else:
             return False
     
+    def __eq__(self, other: Any) -> bool:
+        """Check if two environments are equal."""
+        if not isinstance(other, Env):
+            return False
+        
+        # Check prelude compatibility
+        if self._is_prelude and other._is_prelude:
+            # Both are preludes - compare by ID
+            return self._prelude_id == other._prelude_id
+        elif self._is_prelude or other._is_prelude:
+            # One is prelude, other isn't - not equal
+            return False
+        
+        # Get all bindings from both environments (including parents)
+        self_bindings = self.to_dict()
+        other_bindings = other.to_dict()
+        
+        # Check if they have the same keys
+        if set(self_bindings.keys()) != set(other_bindings.keys()):
+            return False
+        
+        # Check if all values are equal
+        for key in self_bindings:
+            self_val = self_bindings[key]
+            other_val = other_bindings[key]
+            
+            # Special handling for Closures - compare structure not identity
+            if isinstance(self_val, Closure) and isinstance(other_val, Closure):
+                if not self._closures_equal(self_val, other_val):
+                    return False
+            elif callable(self_val) and callable(other_val):
+                # For callable functions (like prelude), just check they're both callable
+                # Can't really compare lambdas/functions for equality in Python
+                continue
+            elif self_val != other_val:
+                return False
+        
+        return True
+    
+    def _closures_equal(self, c1: 'Closure', c2: 'Closure') -> bool:
+        """Check if two closures are structurally equal."""
+        # Compare params and body
+        if c1.params != c2.params or c1.body != c2.body:
+            return False
+        
+        # For environments, we need to be careful about cycles
+        # Just check that they have the same bindings available
+        c1_bindings = c1.env.to_dict() if c1.env else {}
+        c2_bindings = c2.env.to_dict() if c2.env else {}
+        
+        # Compare keys
+        if set(c1_bindings.keys()) != set(c2_bindings.keys()):
+            return False
+        
+        # For now, don't recurse into closure environments to avoid infinite loops
+        # Just verify they have the same structure
+        return True
+    
     def define(self, name: str, value: Any) -> None:
         """Define a variable in this environment."""
+        # Prevent modification of immutable preludes
+        if self._is_prelude:
+            raise JSLError("Cannot modify prelude environment. Use extend() to create a new environment.")
         self.bindings[name] = value
     
     def extend(self, new_bindings: Dict[str, Any]) -> 'Env':
         """Create a new environment that extends this one with additional bindings."""
         return Env(new_bindings, parent=self)
+    
+    def deepcopy(self) -> 'Env':
+        """Create a deep copy of this environment, including all parents."""
+        # First, gather all bindings from this env and parents
+        all_bindings = self.to_dict()
+        
+        # Create a mapping of old closures to new closures to handle cycles
+        closure_map = {}
+        
+        # Create new environment with copied bindings
+        new_env = Env()
+        
+        # Copy prelude metadata if present
+        new_env._prelude_id = self._prelude_id
+        new_env._prelude_version = self._prelude_version
+        new_env._is_prelude = self._is_prelude
+        
+        # First pass: copy non-closure values
+        for name, value in all_bindings.items():
+            if not isinstance(value, Closure):
+                # For non-closures, just copy the value
+                if isinstance(value, (list, dict)):
+                    import copy
+                    new_env.bindings[name] = copy.deepcopy(value)
+                else:
+                    new_env.bindings[name] = value
+        
+        # Second pass: copy closures with updated env references
+        for name, value in all_bindings.items():
+            if isinstance(value, Closure):
+                # Deep copy the closure with the new environment
+                new_closure = value.deepcopy(env=new_env)
+                new_env.bindings[name] = new_closure
+                closure_map[id(value)] = new_closure
+        
+        return new_env
+    
+    def _deepcopy_expr(self, expr: Any) -> Any:
+        """Deep copy a JSL expression."""
+        if isinstance(expr, list):
+            return [self._deepcopy_expr(item) for item in expr]
+        elif isinstance(expr, dict):
+            return {k: self._deepcopy_expr(v) for k, v in expr.items()}
+        else:
+            return expr
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert environment bindings to a dictionary (for serialization)."""

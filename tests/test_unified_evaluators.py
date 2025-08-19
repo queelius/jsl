@@ -33,7 +33,8 @@ class RecursiveEvaluatorAdapter(EvaluatorAdapter):
     
     def __init__(self):
         self.evaluator = Evaluator()
-        self.env = make_prelude()
+        prelude = make_prelude()
+        self.env = prelude.extend({})  # Extend to make modifiable
     
     def eval(self, expr: Any) -> Any:
         """Evaluate using recursive evaluator."""
@@ -54,7 +55,7 @@ class StackEvaluatorAdapter(EvaluatorAdapter):
     
     def __init__(self):
         prelude = make_prelude()
-        self.env = prelude
+        self.env = prelude.extend({})  # Extend to make modifiable
         self.evaluator = StackEvaluator(env=self.env)
     
     def eval(self, expr: Any) -> Any:

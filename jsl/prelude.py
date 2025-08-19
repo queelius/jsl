@@ -9,8 +9,12 @@ of the language.
 import math
 import json
 import re
+import hashlib
 from typing import Any, List, Dict, Union, Callable
 from .core import Env, JSLValue
+
+# Prelude version - increment when prelude changes
+PRELUDE_VERSION = "1.0.0"
 
 
 def make_prelude() -> Env:
@@ -151,7 +155,37 @@ def make_prelude() -> Env:
         "e": math.e,
     }
     
-    return Env(prelude_bindings)
+    # Create the prelude environment
+    env = Env(prelude_bindings)
+    
+    # Generate prelude ID based on version and function names
+    # This helps detect prelude compatibility issues
+    func_names = sorted([k for k in prelude_bindings.keys() if not k.startswith('_')])
+    prelude_content = f"v{PRELUDE_VERSION}:{','.join(func_names)}"
+    prelude_id = hashlib.sha256(prelude_content.encode()).hexdigest()[:16]
+    
+    # Attach metadata to the environment
+    env._prelude_id = prelude_id
+    env._prelude_version = PRELUDE_VERSION
+    env._is_prelude = True
+    
+    return env
+
+
+def check_prelude_compatibility(env1: Env, env2: Env) -> tuple[bool, str]:
+    """
+    Check if two environments have compatible preludes.
+    
+    Returns:
+        Tuple of (compatible, message)
+    """
+    if not hasattr(env1, '_prelude_id') or not hasattr(env2, '_prelude_id'):
+        return (True, "No prelude metadata to compare")
+    
+    if env1._prelude_id == env2._prelude_id:
+        return (True, f"Preludes match (v{env1._prelude_version})")
+    else:
+        return (False, f"Prelude mismatch: v{env1._prelude_version} vs v{env2._prelude_version}")
 
 
 # Arithmetic functions

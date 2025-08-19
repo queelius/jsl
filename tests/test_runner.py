@@ -317,7 +317,8 @@ class TestExecutionContext:
     def test_context_variable_operations(self):
         """Test variable operations in context."""
         from jsl.prelude import make_prelude
-        env = make_prelude()
+        prelude = make_prelude()
+        env = prelude.extend({})  # Extend to make modifiable
         context = ExecutionContext(env)
         
         context.define("test_var", 42)
@@ -346,8 +347,8 @@ class TestLegacyFunctions:
         
         # Test with custom environment
         from jsl.prelude import make_prelude
-        env = make_prelude()
-        env.define("x", 100)
+        prelude = make_prelude()
+        env = prelude.extend({"x": 100})
         result = eval_expression(["*", "x", 2], environment=env)
         assert result == 200
     
