@@ -1,5 +1,11 @@
 # JSL TODO List
 
+## Critical Issues
+- [ ] **CRITICAL**: Fix deeply nested environment serialization/deserialization
+  - test_deeply_nested_environments in test_cycle_serialization.py fails intermittently
+  - Closures not properly preserving their captured environment through serialization
+  - This is a fundamental issue that needs to be addressed urgently
+
 ## Immediate Fixes
 - [ ] Fix the last failing test in test_runner.py related to lambda functions
 - [ ] Add regex matching support (`str-matches` function)
