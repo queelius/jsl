@@ -4,6 +4,16 @@
 
 JSL is a Lisp-like functional programming language designed from the ground up for network transmission and distributed computing. Unlike traditional languages that treat serialization as an afterthought, JSL makes wire-format compatibility a first-class design principle.
 
+## 📊 Version 0.2.0 Highlights
+
+- **Dual Evaluation Engines**: Both recursive and stack-based evaluators for different performance and resumption characteristics
+- **JPN (JSL Postfix Notation)**: Compiled stack-based bytecode format for efficient execution
+- **Query & Transform Operations**: Powerful declarative data manipulation with `where` and `transform` special forms
+- **Resource Management**: Comprehensive gas/step metering for safe distributed execution
+- **Path Navigation**: Deep JSON/object access with `get-path`, `set-path`, and `has-path`
+- **Regex Support**: Pattern matching with `str-matches`, `str-replace`, and `str-find-all`
+- **Group By**: Collection grouping and aggregation operations
+
 ## 🚀 Quick Start
 
 ### Installation
@@ -14,22 +24,43 @@ pip install jsl-lang
 
 ### Your First JSL Program
 
-```python
-from jsl import eval_expression
+JSL supports both JSON array syntax and more readable Lisp-style syntax:
 
-# Simple arithmetic
-result = eval_expression('["+", 1, 2, 3]')
+```python
+from jsl import JSLRunner
+
+runner = JSLRunner()
+
+# JSON array syntax (network-native format)
+result = runner.execute('["+", 1, 2, 3]')
+print(result)  # Output: 6
+
+# Lisp-style syntax (human-friendly)
+result = runner.execute('(+ 1 2 3)')
 print(result)  # Output: 6
 
 # Define and call a function
 program = '''
-["do",
-  ["def", "square", ["lambda", ["x"], ["*", "x", "x"]]],
-  ["square", 5]
-]
+(do
+  (def square (lambda (x) (* x x)))
+  (square 5))
 '''
-result = eval_expression(program)
+result = runner.execute(program)
 print(result)  # Output: 25
+
+# Query and transform data
+runner.execute('(def data [@
+  {"name": "Alice", "age": 30, "role": "admin"}
+  {"name": "Bob", "age": 25, "role": "user"}
+])')
+
+# Filter with where
+admins = runner.execute('(where data (= role "admin"))')
+print(admins)  # [{"name": "Alice", "age": 30, "role": "admin"}]
+
+# Transform with pick
+names = runner.execute('(transform data (pick "@name"))')
+print(names)  # [{"name": "Alice"}, {"name": "Bob"}]
 ```
 
 ### Command Line Interface
@@ -65,29 +96,96 @@ JSL draws inspiration from several key concepts in computer science and programm
 - **Functional Programming:** JSL encourages a functional programming style, emphasizing immutability, first-class functions, and expressions over statements.
 - **Separation of Pure Computation and Effects:** The core JSL interpreter deals with pure computation. Interactions with the external world (I/O, system calls) are managed via the JSL Host Interaction Protocol ([JHIP.md](JHIP.md)), where effects are requested as data.
 
+## Syntax Options
+
+JSL offers two syntactic representations that compile to the same internal format:
+
+### JSON Array Syntax (Network-Native)
+```json
+["do",
+  ["def", "factorial", 
+    ["lambda", ["n"],
+      ["if", ["<=", "n", 1],
+        1,
+        ["*", "n", ["factorial", ["-", "n", 1]]]]]],
+  ["factorial", 5]]
+```
+
+### Lisp-Style Syntax (Human-Friendly)
+```lisp
+(do
+  (def factorial 
+    (lambda (n)
+      (if (<= n 1)
+        1
+        (* n (factorial (- n 1))))))
+  (factorial 5))
+```
+
+Both syntaxes support:
+- **String literals:** `"@hello"` becomes `"hello"`
+- **Quote operator:** `[@` or `(@` prevents evaluation
+- **Field references:** In `where`/`transform`, fields automatically bind
+
 ## Key Features
 
-- **Universal JSON Representation:** Simplifies storage, transmission, and interoperability.
-- **Portable Code:** JSL programs and closures can be executed in any compliant JSL runtime.
-- **Secure by Design:** The host environment controls access to sensitive operations. Transmitted code itself does not carry executable native instructions.
-- **Inspectable and Auditable:** Since code and effect requests are data (JSON), they can be easily logged, inspected, and audited.
-- **Extensible Prelude:** Core functionalities are provided by a "prelude" environment, which can be customized or extended by the host.
+- **Universal JSON Representation:** Simplifies storage, transmission, and interoperability
+- **Dual Evaluation Engines:** Choose between recursive (simpler) or stack-based (resumable) execution
+- **Resumable Computation:** Pause execution at any point and resume later, even on different machines
+- **Resource Management:** Built-in gas metering and step limiting for safe distributed execution
+- **Portable Code:** JSL programs and closures can be executed in any compliant JSL runtime
+- **Secure by Design:** Host environment controls all capabilities; no arbitrary code execution
+- **Inspectable and Auditable:** Code and effects are data (JSON), easily logged and analyzed
+- **Powerful Query Operations:** Built-in `where` and `transform` for declarative data manipulation
+- **Serializable Closures:** Functions with captured environments can be transmitted over networks
+- **Extensible Prelude:** Core functions can be customized or extended by the host
 
 ## Architecture Overview
 
-The JSL ecosystem can be conceptualized in layers:
+JSL features a sophisticated multi-layer architecture with dual evaluation engines:
+
+### Evaluation Engines
+
+JSL provides two complementary evaluation strategies:
+
+1. **Recursive Evaluator:** Traditional tree-walking interpreter with direct AST evaluation
+   - Natural implementation of language semantics
+   - Excellent for development and debugging
+   - Direct closure representation with `Closure` objects
+
+2. **Stack-Based Evaluator:** Compiles to JPN (JSL Postfix Notation) bytecode
+   - Efficient resumable execution for distributed computing
+   - Natural step/gas metering for resource control
+   - Dict-based closure representation for JSON serialization
+   - Enables pause/resume across network boundaries
+
+### System Layers
 
 1. **Wire Layer (JSON):** The universal representation for JSL programs, data, and serialized closures. This is what gets transmitted over networks or stored in databases.
-2. **JSL Runtime/Interpreter:**
-  
-   - **Parser:** Converts JSON into internal JSL abstract syntax.
-   - **Evaluator:** Executes JSL code based on its semantics. This includes handling special forms (`def`, `lambda`, `if`, `do`, `host`, etc.) and function applications.
-   - **Environment Manager:** Manages lexical environments and scope resolution.
 
-3. **Prelude Layer:** A foundational environment provided by the host runtime. It contains built-in functions and constants (e.g., arithmetic operations, list manipulation functions). The prelude itself is not serialized with user code, as its elements are not typically JSL values but rather a part of the host's runtime environment.
-4. **User Code Layer:** JSL programs and libraries written by developers. These are fully serializable.
-5. **Host Interaction Layer (JHIP):** When a JSL program evaluates a `["host", ...]` form, it generates a JHIP request. The host system processes this request and returns a JHIP response. See [JHIP.md](JHIP.md) for details. These are not part of the JSL core but are essential for interaction with the host environment and external systems and can be used to facilitate side effects like I/O operations, network requests, etc. These could have been included in the prelude, as prelude functions, as the prelude is not serialized with user code either, but the prelude provides a set of built-in functions that are expected to be available in any host environment implementing the JSL runtime, while JHIP is a protocol for interaction with the host environment that may vary between implementations.
-6. **Host Environment:** The runtime that executes JSL code, manages resources, and enforces security policies. It interprets JHIP requests and provides the necessary capabilities for side-effecting operations.
+2. **Compilation Layer:**
+   - **Parser:** Converts JSON/Lisp syntax into internal JSL abstract syntax
+   - **Compiler:** Transforms S-expressions to JPN (postfix notation) for stack evaluation
+   - **Decompiler:** Reconstructs S-expressions from JPN for debugging
+
+3. **JSL Runtime/Interpreter:**
+   - **Evaluator:** Executes JSL code (recursive or stack-based)
+   - **Special Forms:** Core language constructs (`def`, `lambda`, `if`, `do`, `where`, `transform`, etc.)
+   - **Environment Manager:** Manages lexical environments and scope resolution
+   - **Resource Manager:** Tracks gas/step consumption for safe execution
+
+4. **Prelude Layer:** A foundational environment provided by the host runtime containing:
+   - Arithmetic operations (`+`, `-`, `*`, `/`, etc.)
+   - List manipulation (`cons`, `first`, `rest`, `map`, `filter`, etc.)
+   - String operations (`str-concat`, `str-matches`, `str-replace`, etc.)
+   - JSON/object operations (`get`, `get-path`, `set-path`, etc.)
+   - Query operations (`pluck`, `index-by`, `group-by`, etc.)
+
+5. **User Code Layer:** JSL programs and libraries written by developers. These are fully serializable.
+
+6. **Host Interaction Layer (JHIP):** When a JSL program evaluates a `["host", ...]` form, it generates a JHIP request for side effects. See [JHIP.md](JHIP.md) for details.
+
+7. **Host Environment:** The runtime that executes JSL code, manages resources, and enforces security policies.
 
 ## Serialization in JSL
 
@@ -108,21 +206,179 @@ JSL's security model is primarily based on capability restriction and effect rei
 - **Sandboxing:** JSL programs run within the confines of the JSL interpreter and the capabilities granted by the host.
 - **Inspectable Effects:** Because side-effect requests are JSON data, they can be audited, logged, or even transformed by the host before execution.
 
+## Query and Transform Operations
+
+JSL provides powerful declarative operations for data manipulation:
+
+### Where (Filtering)
+Filter collections based on conditions with automatic field binding:
+
+```jsl
+; Filter users by role
+(where users (= role "admin"))
+
+; Complex conditions
+(where products (and (> price 100) (= category "electronics")))
+```
+
+### Transform (Data Shaping)
+Reshape data with operations like `pick`, `omit`, and `assign`:
+
+```jsl
+; Pick specific fields
+(transform users (pick "name" "email"))
+
+; Add computed field
+(transform products (assign "discounted" (* price 0.9)))
+
+; Remove sensitive fields
+(transform users (omit "password" "ssn"))
+```
+
+### Composition
+Operations naturally compose for complex data pipelines:
+
+```jsl
+(pluck 
+  (transform 
+    (where products (> price 50))
+    (pick "name" "price"))
+  "name")
+```
+
+## Resource Management
+
+JSL includes comprehensive resource management for safe distributed execution:
+
+- **Gas Metering:** Track computational cost of operations
+- **Step Limiting:** Bound execution steps to prevent infinite loops
+- **Resumable Execution:** Pause and resume computation across network boundaries
+- **Fair Scheduling:** Allocate resources fairly among concurrent programs
+
+```python
+from jsl import JSLRunner
+
+# Execute with resource limits
+runner = JSLRunner(config={
+    "max_steps": 1000,
+    "max_gas": 10000
+})
+
+# Execution pauses if limits exceeded
+result, state = runner.execute_partial(program)
+if state:  # Computation paused
+    # Can resume later, possibly on different machine
+    final_result = runner.resume(state)
+```
+
 ## Use Cases
 
 JSL's design makes it suitable for a variety of applications:
 
-- **Distributed Computing:** Safely send computations to where the data resides.
-- **Edge Computing:** Dynamically deploy and update logic on edge devices.
-- **Serverless Functions / FaaS:** Represent functions as JSON, simplifying deployment and management.
-- **Workflow Automation:** Define complex workflows as JSL programs.
-- **Code as Configuration:** Use JSL to define dynamic and executable configurations.
-- **Microservice Communication:** Share functional components or request executable logic between services.
-- **Database Stored Procedures:** Store and execute application logic within a database in a portable format.
-- **Plugin Systems:** Allow users to extend applications with sandboxed, serializable plugins.
+- **Distributed Computing:** Safely send computations to where the data resides with resumable execution
+- **Data Processing Pipelines:** Build complex ETL workflows with query/transform operations
+- **Edge Computing:** Dynamically deploy and update logic on edge devices with resource limits
+- **Serverless Functions / FaaS:** Represent functions as JSON with automatic gas metering
+- **API Query Languages:** Provide safe, expressive query capabilities for REST/GraphQL APIs
+- **Workflow Automation:** Define complex workflows as JSL programs with step-by-step execution
+- **Code as Configuration:** Use JSL to define dynamic and executable configurations
+- **Microservice Communication:** Share functional components or request executable logic between services
+- **Database Stored Procedures:** Store and execute application logic within a database in a portable format
+- **Plugin Systems:** Allow users to extend applications with sandboxed, resource-limited plugins
+- **Smart Contracts:** Build verifiable computations with deterministic evaluation and gas metering
+
+## JPN (JSL Postfix Notation)
+
+JPN is JSL's compiled bytecode format, designed for efficient stack-based evaluation:
+
+### Compilation Example
+
+```python
+from jsl.compiler import compile_to_postfix
+
+# S-expression
+expr = ["*", ["+", 2, 3], 4]
+
+# Compiles to postfix
+jpn = compile_to_postfix(expr)
+# Result: [2, 3, "+", 4, "*"]
+
+# Complex example with special forms
+expr = ["if", ["=", "x", 5], "yes", "no"]
+jpn = compile_to_postfix(expr)
+# Result includes special opcodes for control flow
+```
+
+### Benefits of JPN
+
+1. **Linear Execution:** No tree traversal, just sequential instruction processing
+2. **Natural Resumption:** Stack state captures exact execution point
+3. **Efficient Serialization:** Flat array structure vs nested trees
+4. **Cache-Friendly:** Sequential memory access patterns
+5. **Simple VM:** Stack machine requires minimal interpreter complexity
+
+### Stack Evaluator Features
+
+```python
+from jsl.stack_evaluator import StackEvaluator
+
+evaluator = StackEvaluator()
+
+# Partial evaluation with step limits
+result, state = evaluator.eval_partial(jpn, max_steps=100)
+
+if state:  # Execution paused
+    # State includes: program counter, stack, environment
+    # Can be serialized and sent over network
+    serialized_state = state.to_dict()
+    
+    # Resume on same or different machine
+    final_result = evaluator.eval_partial(jpn, state=state)
+```
+
+## Development
+
+### Running Tests
+
+```bash
+# Run all tests
+make test
+
+# Run specific test file
+make test-file TEST_FILE=tests/test_core.py
+
+# Run with coverage
+make test-coverage
+```
+
+### Testing Strategy
+
+JSL uses comprehensive testing including:
+- **Unified evaluator tests:** Ensure both evaluators produce identical results
+- **Property-based testing:** Verify invariants across random inputs
+- **Resource limit testing:** Validate gas metering and step limiting
+- **Serialization round-trips:** Ensure programs survive network transmission
+
+### Building Documentation
+
+```bash
+# Build and serve documentation locally
+make docs  # Available at http://localhost:8000
+
+# Build only
+make docs-build
+```
 
 ## JSL Host Interaction Protocol (JHIP)
 
 For JSL programs to interact with their host environment (e.g., to perform I/O or other side-effecting operations), JSL uses the JSL Host Interaction Protocol (JHIP). JHIP defines how JSL requests these operations as JSON messages and how the host responds.
 
 For detailed information, please see [JHIP.md](JHIP.md).
+
+## Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## License
+
+JSL is released under the MIT License. See [LICENSE](LICENSE) for details.
