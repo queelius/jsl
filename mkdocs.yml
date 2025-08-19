@@ -28,6 +28,9 @@ nav:
     - Objects: language/objects.md
     - Templates: language/templates.md
     - Prelude: language/prelude.md
+    - Query Operations: language/query-operations.md
+    - Transform Operations: language/transform-operations.md
+    - Path Navigation: language/path-navigation.md
   - Tutorials:
     - First Program: tutorials/first-program.md
     - Functions: tutorials/functions.md
@@ -49,12 +52,22 @@ nav:
     - Simple: examples/simple.md
     - Practical: examples/practical.md
     - Advanced: examples/advanced.md
+    - Query & Transform: examples/query-transform.md
+    - Group By: examples/group-by.md
   - API Reference:
     - Core: api/core.md
     - Evaluator: api/evaluator.md
-    - Serialization: api/serialization.md
     - Runner: api/runner.md
+    - Serialization: api/serialization.md
     - Fluent API: api/fluent.md
+    - Stack Evaluator: api/stack-evaluator.md
+    - Compiler: api/compiler.md
+  - Integrations:
+    - Overview: integrations/overview.md
+    - FastAPI: integrations/fastapi.md
+    - MCP: integrations/mcp.md
+    - Jupyter: integrations/jupyter.md
+  - Changelog: changelog.md
 
 plugins:
   - search
