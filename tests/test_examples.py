@@ -37,7 +37,7 @@ class TestJSLExamples(unittest.TestCase):
         ["do",
           ["def", "numbers", ["@", [1, 2, 3, 4, 5]]],
           ["def", "square", ["lambda", ["x"], ["*", "x", "x"]]],
-          ["def", "is_even", ["lambda", ["x"], ["=", ["%", "x", 2], 0]]],
+          ["def", "is_even", ["lambda", ["x"], ["=", ["mod", "x", 2], 0]]],
           ["def", "sum", ["lambda", ["a", "b"], ["+", "a", "b"]]],
           
           ["def", "squared", ["map", "square", "numbers"]],
@@ -211,8 +211,8 @@ class TestJSLExamples(unittest.TestCase):
               ["if", ["=", "n", 0],
                 "@zero",
                 ["if", [">", "n", 0],
-                  ["if", ["=", ["%", "n", 2], 0], "@positive-even", "@positive-odd"],
-                  ["if", ["=", ["%", "n", 2], 0], "@negative-even", "@negative-odd"]
+                  ["if", ["=", ["mod", "n", 2], 0], "@positive-even", "@positive-odd"],
+                  ["if", ["=", ["mod", "n", 2], 0], "@negative-even", "@negative-odd"]
                 ]
               ]
             ]

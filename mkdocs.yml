@@ -21,10 +21,12 @@ nav:
   - Getting Started: getting-started.md
   - Language Guide:
     - Overview: language/overview.md
+    - Specification: language/specification.md
     - Syntax and Semantics: language/semantics.md
     - Environments: language/environments.md
     - Special Forms: language/special-forms.md
     - Objects: language/objects.md
+    - Templates: language/templates.md
     - Prelude: language/prelude.md
   - Tutorials:
     - First Program: tutorials/first-program.md
@@ -35,6 +37,9 @@ nav:
     - Host Commands: jhip/host-commands.md
   - Architecture:
     - Philosophy: architecture/philosophy.md
+    - Abstract Machine: architecture/abstract-machine.md
+    - Stack Evaluation: architecture/stack-evaluation.md
+    - Performance: architecture/performance.md
     - Runtime: architecture/runtime.md
     - Security: architecture/security.md
     - Network Transparency: architecture/network.md

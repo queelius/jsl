@@ -190,9 +190,7 @@ class ResourceLimits:
 
 class ResourceExhausted(Exception):
     """Base exception for resource exhaustion."""
-    def __init__(self, message: str, checkpoint: Optional[Dict] = None):
-        super().__init__(message)
-        self.checkpoint = checkpoint
+    pass
 
 
 class GasExhausted(ResourceExhausted):
@@ -240,7 +238,7 @@ class ResourceBudget:
         # Current usage
         self.gas_used = 0
         self.memory_used = 0
-        self.start_time = time.monotonic()
+        self.start_time = time.monotonic()  # Start tracking time from creation
         self.stack_depth = 0
         
         # For tracking collections
@@ -264,8 +262,7 @@ class ResourceBudget:
         if self.gas_used > self.limits.max_gas:
             raise GasExhausted(
                 f"Gas limit {self.limits.max_gas} exceeded "
-                f"(used {self.gas_used}) at {operation}",
-                checkpoint=self.checkpoint()
+                f"(used {self.gas_used}) at {operation}"
             )
     
     def consume_host_gas(self, operation: str):
@@ -296,8 +293,7 @@ class ResourceBudget:
         if self.memory_used > self.limits.max_memory:
             raise MemoryExhausted(
                 f"Memory limit {self.limits.max_memory} exceeded "
-                f"(used {self.memory_used}): {description}",
-                checkpoint=self.checkpoint()
+                f"(used {self.memory_used}): {description}"
             )
     
     def check_time(self):
@@ -315,7 +311,6 @@ class ResourceBudget:
             raise TimeExhausted(
                 f"Time limit {self.limits.max_time_ms}ms exceeded "
                 f"(elapsed {elapsed_ms:.1f}ms)",
-                checkpoint=self.checkpoint()
             )
     
     def enter_call(self):
@@ -330,7 +325,6 @@ class ResourceBudget:
             self.stack_depth > self.limits.max_stack_depth):
             raise StackOverflow(
                 f"Stack depth {self.limits.max_stack_depth} exceeded",
-                checkpoint=self.checkpoint()
             )
     
     def exit_call(self):
@@ -350,7 +344,6 @@ class ResourceBudget:
         if self.limits.max_collection_size and size > self.limits.max_collection_size:
             raise MemoryExhausted(
                 f"Collection size {size} exceeds limit {self.limits.max_collection_size}",
-                checkpoint=self.checkpoint()
             )
     
     def check_string_length(self, length: int):
@@ -366,8 +359,42 @@ class ResourceBudget:
         if self.limits.max_string_length and length > self.limits.max_string_length:
             raise MemoryExhausted(
                 f"String length {length} exceeds limit {self.limits.max_string_length}",
-                checkpoint=self.checkpoint()
             )
+    
+    def check_result(self, result: Any) -> None:
+        """
+        Check resource constraints for a computed result.
+        
+        This centralizes checking for collection sizes, string lengths, etc.
+        
+        Args:
+            result: The result value to check
+        """
+        if result is None:
+            return
+        
+        if isinstance(result, list):
+            self.check_collection_size(len(result))
+            # Track memory for the list
+            self.allocate_memory(
+                len(result) * 8,  # Rough estimate: 8 bytes per element
+                f"list of size {len(result)}"
+            )
+        elif isinstance(result, str):
+            self.check_string_length(len(result))
+            # Track memory for the string
+            self.allocate_memory(
+                len(result) * 2,  # 2 bytes per character for Unicode
+                f"string of length {len(result)}"
+            )
+        elif isinstance(result, dict):
+            self.check_collection_size(len(result))
+            # Track memory for the dict
+            self.allocate_memory(
+                len(result) * 24,  # Rough estimate for dict overhead
+                f"dict of size {len(result)}"
+            )
+        # For other types, we don't need special checking
     
     def checkpoint(self) -> Dict[str, Any]:
         """

@@ -8,7 +8,7 @@ for JSL, a network-native functional programming language.
 from typing import Any, Dict, List, Optional, Union, Callable
 from dataclasses import dataclass
 import json
-from .resources import ResourceBudget, ResourceLimits, GasCost, ResourceExhausted
+from .resources import ResourceBudget, ResourceLimits, GasCost, HostGasPolicy
 import hashlib
 
 
@@ -199,47 +199,51 @@ class HostDispatcher:
 
 class Evaluator:
     """
-    The core JSL evaluator - the "engine" of the language.
+    The core JSL evaluator - recursive evaluation engine.
     
-    This class implements the evaluation rules for JSL expressions.
-    It handles special forms and delegates host interactions to the
-    dispatcher.
+    This is a clean, elegant reference implementation that uses traditional 
+    recursive tree-walking to evaluate S-expressions. It serves as the
+    specification for JSL's semantics.
+    
+    Characteristics:
+    - Simple and easy to understand
+    - Direct mapping from S-expressions to evaluation
+    - Perfect for learning and testing JSL semantics
+    - Limited by Python's recursion depth for deep expressions
+    
+    For production use with resumption and better performance, use the 
+    stack-based evaluator which compiles to JPN (JSL Postfix Notation).
     """
     
     def __init__(self, host_dispatcher: Optional[HostDispatcher] = None, 
-                 resource_limits: Optional[ResourceLimits] = None):
+                 resource_limits: Optional[ResourceLimits] = None,
+                 host_gas_policy: Optional['HostGasPolicy'] = None):
         self.host = host_dispatcher or HostDispatcher()
-        self.resources = ResourceBudget(resource_limits) if resource_limits else None
+        self.resources = ResourceBudget(resource_limits, host_gas_policy) if resource_limits else None
     
     def eval(self, expr: JSLExpression, env: Env) -> JSLValue:
         """
         Evaluate a JSL expression in the given environment.
         
-        This is the core of the language - it implements the evaluation
-        rules that determine what each JSL construct means.
+        This is a pure recursive evaluator without resumption support.
+        For resumable evaluation, use the stack-based evaluator.
         """
         # Resource checking
         if self.resources:
-            try:
-                # Check time periodically
-                self.resources.check_time()
-                
-                # Consume gas based on expression type
-                if isinstance(expr, (int, float, bool)) or expr is None:
+            # Check time periodically
+            self.resources.check_time()
+            
+            # Consume gas based on expression type
+            if isinstance(expr, (int, float, bool)) or expr is None:
+                self.resources.consume_gas(GasCost.LITERAL)
+            elif isinstance(expr, str):
+                if expr.startswith("@"):
                     self.resources.consume_gas(GasCost.LITERAL)
-                elif isinstance(expr, str):
-                    if expr.startswith("@"):
-                        self.resources.consume_gas(GasCost.LITERAL)
-                    else:
-                        self.resources.consume_gas(GasCost.VARIABLE)
-                elif isinstance(expr, dict):
-                    self.resources.consume_gas(GasCost.DICT_CREATE + 
-                                              len(expr) * GasCost.DICT_PER_ITEM)
-            except ResourceExhausted as e:
-                # Add context for resumption
-                e.remaining_expr = expr
-                e.env = env
-                raise
+                else:
+                    self.resources.consume_gas(GasCost.VARIABLE)
+            elif isinstance(expr, dict):
+                self.resources.consume_gas(GasCost.DICT_CREATE + 
+                                          len(expr) * GasCost.DICT_PER_ITEM)
         
         # Literals: numbers, booleans, null, objects
         if isinstance(expr, (int, float, bool)) or expr is None:
@@ -287,6 +291,10 @@ class Evaluator:
         if not lst:
             return lst  # Empty list evaluates to itself
         
+        # Check collection size limit
+        if self.resources:
+            self.resources.check_collection_size(len(lst))
+        
         operator = lst[0]
         
         # Special forms have unique evaluation rules
@@ -304,6 +312,10 @@ class Evaluator:
             return self._eval_quote(lst, env)
         elif operator == "try":
             return self._eval_try(lst, env)
+        elif operator == "where":
+            return self._eval_where(lst, env)
+        elif operator == "transform":
+            return self._eval_transform(lst, env)
         elif operator == "host":
             return self._eval_host(lst, env)
         else:
@@ -388,7 +400,13 @@ class Evaluator:
         if len(lst) != 2:
             raise JSLError("'quote' requires exactly 1 argument")
         
-        return lst[1]  # Return the argument without evaluating it
+        result = lst[1]  # Return the argument without evaluating it
+        
+        # Check resources for quoted data
+        if self.resources:
+            self.resources.check_result(result)
+        
+        return result
     
     def _eval_try(self, lst: List, env: Env) -> JSLValue:
         """Handle 'try' special form: ["try", body, handler]"""
@@ -413,6 +431,153 @@ class Evaluator:
             
             return handler_func(self, [error_obj])
     
+    def _eval_where(self, lst: List, env: Env) -> JSLValue:
+        """
+        Evaluate where form: ["where", collection, condition]
+        
+        Filters collection by evaluating condition for each item.
+        The condition is evaluated with item's fields bound in the environment.
+        """
+        if len(lst) != 3:
+            raise ValueError("where requires exactly 2 arguments: collection and condition")
+        
+        # Evaluate the collection
+        collection = self.eval(lst[1], env)
+        condition_expr = lst[2]
+        
+        # Handle both list and dict collections
+        if isinstance(collection, dict):
+            items = list(collection.values())
+        elif isinstance(collection, list):
+            items = collection
+        else:
+            raise TypeError(f"where requires a list or dict, got {type(collection).__name__}")
+        
+        # Filter items
+        result = []
+        for item in items:
+            # Extend environment with item's fields (if it's a dict)
+            if isinstance(item, dict):
+                # Simply extend the environment with all fields from the item
+                extended_env = env.extend(item)
+            else:
+                # For non-dict items, bind 'it' to the item
+                extended_env = env.extend({'it': item})
+            
+            # Evaluate condition in extended environment using standard eval
+            try:
+                if self.eval(condition_expr, extended_env):
+                    result.append(item)
+            except:
+                # If condition evaluation fails, skip the item
+                pass
+        
+        return result
+    
+    def _eval_transform(self, lst: List, env: Env) -> JSLValue:
+        """
+        Evaluate transform form: ["transform", data, operation1, operation2, ...]
+        
+        Applies a sequence of transformation operations to data.
+        Each operation is evaluated with the item's fields in scope.
+        """
+        if len(lst) < 3:
+            raise ValueError("transform requires at least data and one operation")
+        
+        # Evaluate the data
+        data = self.eval(lst[1], env)
+        
+        # Get the operations
+        operations = lst[2:]
+        
+        # Handle both single objects and collections
+        is_collection = isinstance(data, list)
+        items = data if is_collection else [data]
+        
+        # Apply each operation in sequence
+        for operation_expr in operations:
+            new_items = []
+            for item in items:
+                # Extend environment with item's fields
+                if isinstance(item, dict):
+                    extended_env = env.extend(item)
+                else:
+                    extended_env = env.extend({'it': item})
+                
+                # Evaluate the operation to get the actual operation list
+                operation = self.eval(operation_expr, extended_env)
+                
+                # Apply the operation
+                if not isinstance(operation, list) or len(operation) < 2:
+                    raise ValueError("Transform operation must be a list with at least 2 elements")
+                
+                op_type = operation[0]
+                result = item.copy() if isinstance(item, dict) else {}
+                
+                if op_type == "assign":
+                    if len(operation) != 3:
+                        raise ValueError("'assign' requires field and value")
+                    field = operation[1]
+                    value = operation[2]
+                    # Field can be a string literal or evaluated from env
+                    if not isinstance(field, str):
+                        field = str(field) if field is not None else "null"
+                    result[field] = value
+                    
+                elif op_type == "pick":
+                    fields = operation[1:]
+                    result = {k: v for k, v in item.items() if k in fields} if isinstance(item, dict) else {}
+                    
+                elif op_type == "omit":
+                    fields = operation[1:]
+                    if isinstance(item, dict):
+                        result = item.copy()
+                        for field in fields:
+                            result.pop(field, None)
+                    
+                elif op_type == "rename":
+                    if len(operation) != 3:
+                        raise ValueError("'rename' requires old_field and new_field")
+                    old_field, new_field = operation[1], operation[2]
+                    if isinstance(item, dict) and old_field in item:
+                        result = item.copy()
+                        result[new_field] = result.pop(old_field)
+                    
+                elif op_type == "default":
+                    if len(operation) != 3:
+                        raise ValueError("'default' requires field and value")
+                    field = operation[1]
+                    value = operation[2]
+                    if isinstance(item, dict):
+                        result = item.copy()
+                        if field not in result:
+                            result[field] = value
+                    
+                elif op_type == "apply":
+                    if len(operation) != 3:
+                        raise ValueError("'apply' requires field and function")
+                    field = operation[1]
+                    func_expr = operation[2]
+                    if isinstance(item, dict) and field in item:
+                        result = item.copy()
+                        # Evaluate the function in the extended environment
+                        func = self.eval(func_expr, extended_env)
+                        # Apply the function
+                        if isinstance(func, Closure):
+                            result[field] = func(self, [item[field]])
+                        elif callable(func):
+                            result[field] = func(item[field])
+                        else:
+                            raise TypeError(f"Cannot apply non-function: {type(func).__name__}")
+                else:
+                    raise ValueError(f"Unknown transform operation: {op_type}")
+                
+                new_items.append(result)
+            
+            items = new_items
+        
+        return items if is_collection else items[0]
+    
     def _eval_host(self, lst: List, env: Env) -> JSLValue:
         """Handle 'host' special form: ["host", command, arg1, ...]"""
         if len(lst) < 2:
@@ -425,11 +590,19 @@ class Evaluator:
         if not isinstance(command, str):
             raise JSLTypeError("Host command must be a string")
         
+        # Consume gas for host operation based on namespace
+        # The command should have @ prefix for namespace-aware costing
+        if self.resources:
+            # Add @ prefix if not present for gas policy lookup
+            gas_command = command if command.startswith('@') else f"@{command}"
+            self.resources.consume_host_gas(gas_command)
+        
         return self.host.dispatch(command, args)
     
     def _eval_function_call(self, lst: List, env: Env) -> JSLValue:
         """Handle regular function calls: [func, arg1, arg2, ...]"""
         if self.resources:
+            self.resources.check_time()  # Check time limit periodically
             self.resources.consume_gas(GasCost.FUNCTION_CALL)
             self.resources.enter_call()  # Track stack depth
         
@@ -438,12 +611,18 @@ class Evaluator:
             args = [self.eval(arg, env) for arg in lst[1:]]
             
             if isinstance(func, Closure):
-                return func(self, args)
+                result = func(self, args)
             elif callable(func):
                 # Built-in function
-                return func(*args)
+                result = func(*args)
             else:
                 raise JSLTypeError(f"Cannot call non-function value: {func}")
+            
+            # Check resources for the result
+            if self.resources:
+                self.resources.check_result(result)
+            
+            return result
         finally:
             if self.resources:
                 self.resources.exit_call()  # Restore stack depth

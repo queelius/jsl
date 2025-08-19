@@ -1,5 +1,9 @@
 """
 Comprehensive test suite for JSL serialization functionality.
+
+NOTE: These tests are specific to the recursive evaluator implementation
+which uses Closure objects. The stack evaluator has its own serialization
+tests in test_stack_serialization.py.
 """
 
 import unittest
@@ -8,14 +12,25 @@ import tempfile
 import os
 from unittest.mock import patch, MagicMock
 
+# These tests require the recursive evaluator
+# The serialization module is designed for Closure objects from recursive evaluator
 from jsl import (
-    make_prelude, eval_expression, serialize, deserialize, 
+    make_prelude, serialize, deserialize, 
     to_json, from_json, Closure, Env
 )
 from jsl.serialization import (
     serialize_program, deserialize_program
 )
-from jsl.core import JSLError, JSLTypeError
+from jsl.core import JSLError, JSLTypeError, Evaluator
+
+# Use recursive evaluator directly for these tests
+def eval_expression(expr, env):
+    """Helper that uses recursive evaluator directly."""
+    evaluator = Evaluator()
+    if isinstance(expr, str):
+        import json
+        expr = json.loads(expr)
+    return evaluator.eval(expr, env)
 
 
 class TestBasicSerialization(unittest.TestCase):

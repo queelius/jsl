@@ -478,7 +478,7 @@ class TestIntegrationWithRunner:
         assert result == 6
         
         # Variable operations
-        runner.define("x", 10)
+        runner.execute(["def", "x", 10])
         expr = V.x * 2
         result = runner.execute(expr.to_jsl())
         assert result == 20

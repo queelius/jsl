@@ -14,6 +14,8 @@ from typing import Any, Dict, List, Optional, Union
 from .core import Evaluator, Env, HostDispatcher, JSLValue, JSLExpression, Closure
 from .resources import ResourceLimits, ResourceBudget, HostGasPolicy, ResourceExhausted
 from .prelude import make_prelude
+from .compiler import compile_to_postfix, decompile_from_postfix
+from .stack_evaluator import StackEvaluator
 
 
 class JSLRuntimeError(Exception):
@@ -58,7 +60,8 @@ class JSLRunner:
     def __init__(self, config: Optional[Dict[str, Any]] = None, 
                  security: Optional[Dict[str, Any]] = None,
                  resource_limits: Optional[ResourceLimits] = None,
-                 host_gas_policy: Optional[HostGasPolicy] = None):
+                 host_gas_policy: Optional[HostGasPolicy] = None,
+                 use_recursive_evaluator: bool = False):
         """
         Initialize JSL runner.
         
@@ -67,9 +70,11 @@ class JSLRunner:
             security: Security settings (allowed commands, sandbox mode, etc.)
             resource_limits: Resource limits for execution
             host_gas_policy: Gas cost policy for host operations
+            use_recursive_evaluator: If True, use recursive evaluator instead of stack (default: False)
         """
         self.config = config or {}
         self.security = security or {}
+        self.use_recursive_evaluator = use_recursive_evaluator
         
         # Set up host dispatcher
         self.host_dispatcher = HostDispatcher()
@@ -89,11 +94,31 @@ class JSLRunner:
                 max_string_length=self.config.get('max_string_length')
             )
         
-        # Set up evaluator with resource limits
-        self.evaluator = Evaluator(
-            self.host_dispatcher, 
-            resource_limits=resource_limits
-        )
+        # Set up evaluators
+        if use_recursive_evaluator:
+            # Recursive evaluator as reference implementation
+            self.recursive_evaluator = Evaluator(
+                self.host_dispatcher, 
+                resource_limits=resource_limits,
+                host_gas_policy=host_gas_policy
+            )
+            self.stack_evaluator = None
+        else:
+            # Stack evaluator is the default for production use
+            # Create resource budget if we have limits
+            budget = None
+            if resource_limits:
+                from .resources import ResourceBudget
+                budget = ResourceBudget(resource_limits, host_gas_policy)
+            self.stack_evaluator = StackEvaluator(
+                env=self.base_environment.to_dict(),
+                resource_budget=budget,
+                host_dispatcher=self.host_dispatcher
+            )
+            self.recursive_evaluator = None
+        
+        # Keep backward compatibility - evaluator points to the active one
+        self.evaluator = self.recursive_evaluator if use_recursive_evaluator else self.stack_evaluator
         
         # Store for reference
         self.resource_limits = resource_limits
@@ -108,10 +133,11 @@ class JSLRunner:
     
     def _apply_config(self):
         """Apply configuration settings."""
-        # Apply recursion depth limit if supported
-        max_depth = self.config.get('max_recursion_depth', 1000)
-        if hasattr(self.evaluator, 'max_recursion_depth'):
-            self.evaluator.max_recursion_depth = max_depth
+        # Apply recursion depth limit if supported (only for recursive evaluator)
+        if self.use_recursive_evaluator:
+            max_depth = self.config.get('max_recursion_depth', 1000)
+            if hasattr(self.recursive_evaluator, 'max_recursion_depth'):
+                self.recursive_evaluator.max_recursion_depth = max_depth
         
         # Apply security settings for host commands
         allowed_commands = self.security.get('allowed_host_commands')
@@ -133,12 +159,79 @@ class JSLRunner:
                     raise JSLRuntimeError(f"Host commands disabled in sandbox mode")
                 self.host_dispatcher.dispatch = no_host_dispatch
     
+    def _detect_format(self, expression: Any) -> str:
+        """
+        Detect the format of the input expression.
+        
+        Returns:
+            'lisp': S-expression Lisp style (string with parens)
+            'json': S-expression JSON style (JSON array)
+            'jpn': JPN postfix compiled style
+        """
+        # If it's a string, check if it's Lisp-style
+        if isinstance(expression, str):
+            stripped = expression.strip()
+            if stripped.startswith('(') and stripped.endswith(')'):
+                return 'lisp'
+            # Otherwise assume JSON (will error if not valid)
+            return 'json'
+        else:
+            # Already parsed, detect format
+            return self._detect_parsed_format(expression)
+    
+    def _detect_parsed_format(self, expression: Any) -> str:
+        """
+        Detect format of a parsed expression.
+        
+        JPN format characteristics:
+        - Flat list (no nested lists except at top level)
+        - Contains integers that aren't at the start (arities)
+        - Pattern: [..., int, string, ...] where int is arity
+        
+        JSON S-expression characteristics:
+        - First element is typically a string (operator)
+        - May contain nested lists
+        """
+        if not isinstance(expression, list):
+            # Single value, treat as JSON S-expression
+            return 'json'
+        
+        if len(expression) == 0:
+            return 'json'
+        
+        # Check for JPN patterns
+        # JPN has flat structure with [literal/var, ..., arity, op] patterns
+        has_nested = False
+        has_arity_pattern = False
+        
+        for i, elem in enumerate(expression):
+            if isinstance(elem, list):
+                has_nested = True
+            # Check for arity pattern: integer followed by string (operator)
+            if isinstance(elem, int) and i > 0 and i < len(expression) - 1:
+                next_elem = expression[i + 1]
+                if isinstance(next_elem, str) and not next_elem.startswith('@'):
+                    # Found arity-operator pattern
+                    has_arity_pattern = True
+        
+        # JPN should not have nested lists and should have arity patterns
+        if not has_nested and has_arity_pattern:
+            return 'jpn'
+        
+        # Default to JSON S-expression
+        return 'json'
+    
     def execute(self, expression: Union[str, JSLExpression]) -> JSLValue:
         """
         Execute a JSL expression.
         
+        Supports multiple input formats:
+        - S-expression Lisp style: "(+ 1 2 3)"
+        - S-expression JSON style: "[\"+\", 1, 2, 3]"
+        - JPN postfix compiled: "[1, 2, 3, 3, \"+\"]"
+        
         Args:
-            expression: JSL expression as JSON string or parsed structure
+            expression: JSL expression as string or parsed structure
             
         Returns:
             The result of evaluating the expression
@@ -150,30 +243,62 @@ class JSLRunner:
         start_time = time.time() if self._profiling_enabled else None
         
         try:
-            # Parse expression if it's a string
-            if isinstance(expression, str):
-                parse_start = time.time() if self._profiling_enabled else None
+            # Detect format and parse accordingly
+            format_type = self._detect_format(expression)
+            parse_start = time.time() if self._profiling_enabled else None
+            
+            if format_type == 'lisp':
+                # Parse Lisp-style S-expressions
+                if isinstance(expression, str):
+                    from .sexp import from_canonical_sexp
+                    expression = from_canonical_sexp(expression)
+                else:
+                    raise JSLSyntaxError("Lisp format detected but expression is not a string")
+            elif isinstance(expression, str):
+                # Try to parse as JSON
                 try:
                     expression = json.loads(expression)
-                except json.JSONDecodeError as e:
-                    raise JSLSyntaxError(f"Invalid JSON in expression: {e}")
-                
-                if self._profiling_enabled and parse_start:
-                    self._performance_stats['parse_time_ms'] = (time.time() - parse_start) * 1000
+                except json.JSONDecodeError:
+                    # If it's a simple identifier (variable name), keep it as-is
+                    # This allows execute("x") to work for variable lookup
+                    if expression.isidentifier() or expression.startswith('@'):
+                        expression = expression
+                    else:
+                        # Invalid JSON that's not a simple identifier
+                        raise JSLSyntaxError(f"Invalid expression: {expression}")
+            
+            # Re-detect format after parsing
+            if isinstance(expression, list):
+                format_type = self._detect_parsed_format(expression)
+            
+            if self._profiling_enabled and parse_start:
+                self._performance_stats['parse_time_ms'] = (time.time() - parse_start) * 1000
+                self._performance_stats['input_format'] = format_type
             
             # Execute the expression
             eval_start = time.time() if self._profiling_enabled else None
             
-            # Reset resource tracking for this execution
-            if self.evaluator.resources:
-                # Create fresh budget for this execution
-                self.evaluator.resources = ResourceBudget(
-                    self.resource_limits,
-                    self.host_gas_policy
-                )
+            # Don't reset resources - they persist across executions
+            # If users want fresh resources, they should create a new Runner
             
             try:
-                result = self.evaluator.eval(expression, self.base_environment)
+                if format_type == 'jpn':
+                    # Already in JPN format, use stack evaluator directly
+                    if self.use_recursive_evaluator:
+                        # Need to decompile JPN back to S-expression for recursive evaluator
+                        expression = decompile_from_postfix(expression)
+                        result = self.recursive_evaluator.eval(expression, self.base_environment)
+                    else:
+                        result = self.stack_evaluator.eval(expression)
+                else:
+                    # S-expression format (json or lisp parsed to json)
+                    if self.use_recursive_evaluator:
+                        # Use recursive evaluator directly
+                        result = self.recursive_evaluator.eval(expression, self.base_environment)
+                    else:
+                        # Compile to JPN and use stack evaluator
+                        jpn = compile_to_postfix(expression)
+                        result = self.stack_evaluator.eval(jpn)
                 
                 # Record performance stats
                 if self._profiling_enabled:
@@ -182,9 +307,9 @@ class JSLRunner:
                     if start_time:
                         self._performance_stats['total_time_ms'] = (time.time() - start_time) * 1000
                     
-                    # Resource usage stats
-                    if self.evaluator.resources:
-                        checkpoint = self.evaluator.resources.checkpoint()
+                    # Resource usage stats (only for recursive evaluator currently)
+                    if self.use_recursive_evaluator and self.recursive_evaluator.resources:
+                        checkpoint = self.recursive_evaluator.resources.checkpoint()
                         self._performance_stats['gas_used'] = checkpoint.get('gas_used', 0)
                         self._performance_stats['memory_used'] = checkpoint.get('memory_used', 0)
                         self._performance_stats['stack_depth_max'] = checkpoint.get('stack_depth', 0)
@@ -197,56 +322,28 @@ class JSLRunner:
             except ResourceExhausted as e:
                 # Record resource exhaustion in stats
                 if self._profiling_enabled:
-                    if self.evaluator.resources:
-                        checkpoint = self.evaluator.resources.checkpoint()
+                    if self.use_recursive_evaluator and self.recursive_evaluator.resources:
+                        checkpoint = self.recursive_evaluator.resources.checkpoint()
                         self._performance_stats['resources_exhausted'] = True
                         self._performance_stats['gas_used'] = checkpoint.get('gas_used', 0)
                         self._performance_stats['memory_used'] = checkpoint.get('memory_used', 0)
                 
-                # Re-raise with context for potential resumption
-                raise JSLRuntimeError(
-                    str(e),
-                    remaining_expr=getattr(e, 'remaining_expr', None),
-                    env=getattr(e, 'env', None)
-                ) from e
+                # Re-raise directly - ResourceExhausted is already informative
+                # The evaluator will have already set remaining_expr and env if needed
+                raise
             
         except Exception as e:
             if self._profiling_enabled and start_time:
                 self._performance_stats['error_time_ms'] = (time.time() - start_time) * 1000
                 self._performance_stats['error_count'] = self._performance_stats.get('error_count', 0) + 1
             
-            if isinstance(e, (JSLSyntaxError, JSLRuntimeError)):
+            if isinstance(e, (JSLSyntaxError, JSLRuntimeError, ResourceExhausted)):
                 raise
             else:
                 raise JSLRuntimeError(f"Execution failed: {e}")
     
-    def define(self, name: str, value: Any) -> None:
-        """
-        Define a variable in the base environment.
-        
-        Args:
-            name: Variable name
-            value: Variable value
-        """
-        self.base_environment.define(name, value)
-    
-    def get_variable(self, name: str) -> Any:
-        """
-        Get a variable from the base environment.
-        
-        Args:
-            name: Variable name
-            
-        Returns:
-            Variable value
-            
-        Raises:
-            JSLRuntimeError: If variable is not defined
-        """
-        try:
-            return self.base_environment.get(name)
-        except KeyError:
-            raise JSLRuntimeError(f"Undefined variable: {name}")
+    # Removed define() - use execute(["def", name, value]) instead
+    # Removed get_variable() - use execute(name) instead
     
     @contextmanager
     def new_environment(self):
@@ -256,13 +353,35 @@ class JSLRunner:
         Yields:
             ExecutionContext: New execution context
         """
-        # Create new environment extending the base
-        new_env = self.base_environment.extend({})
+        # For recursive evaluator, create extended environment
+        # For stack evaluator, we need to copy the current state
+        if self.use_recursive_evaluator:
+            # Create new environment extending the base
+            new_env = self.base_environment.extend({})
+        else:
+            # For stack evaluator, need to preserve current state
+            # Copy the current environment (includes all definitions)
+            if self.stack_evaluator:
+                current_env_dict = self.stack_evaluator.env.copy()
+            else:
+                current_env_dict = self.base_environment.to_dict()
+            
+            # Create new Env from the current state
+            new_env = Env(current_env_dict)
+        
         context = ExecutionContext(new_env)
         
-        # Create temporary runner for this context
-        temp_runner = JSLRunner(self.config, self.security)
+        # Create temporary runner for this context with same configuration
+        temp_runner = JSLRunner(
+            self.config, 
+            self.security,
+            use_recursive_evaluator=self.use_recursive_evaluator
+        )
         temp_runner.base_environment = new_env
+        
+        # If using stack evaluator, update its environment
+        if temp_runner.stack_evaluator:
+            temp_runner.stack_evaluator.env = new_env.to_dict()
         
         try:
             yield temp_runner
@@ -314,43 +433,10 @@ class JSLRunner:
         """
         return self._performance_stats.copy()
     
-    def resume(self, expression: JSLExpression, env: Optional[Env] = None, additional_gas: Optional[int] = None) -> JSLValue:
-        """
-        Resume execution from where it was interrupted by resource limits.
-        
-        Args:
-            expression: The remaining expression to evaluate
-            env: The environment at interruption (if available)
-            additional_gas: Additional gas to allow (if not set, uses original limit)
-            
-        Returns:
-            The result of continuing evaluation
-        """
-        # Use provided environment or base environment
-        resume_env = env if env is not None else self.base_environment
-        
-        # Temporarily adjust gas limit if requested
-        if additional_gas is not None and self.evaluator.resources:
-            # Add more gas to the budget
-            checkpoint = self.evaluator.resources.checkpoint()
-            current_gas = checkpoint.get('gas_used', 0)
-            new_limit = current_gas + additional_gas
-            # Create new resource limits with updated gas
-            new_limits = ResourceLimits(
-                max_gas=new_limit,
-                max_memory=self.resource_limits.max_memory if self.resource_limits else None,
-                max_time_ms=self.resource_limits.max_time_ms if self.resource_limits else None,
-                max_stack_depth=self.resource_limits.max_stack_depth if self.resource_limits else None,
-                max_collection_size=self.resource_limits.max_collection_size if self.resource_limits else None,
-                max_string_length=self.resource_limits.max_string_length if self.resource_limits else None
-            )
-            self.evaluator.resources = ResourceBudget(new_limits, self.host_gas_policy)
-        
-        result = self.evaluator.eval(expression, resume_env)
-        return result
-    
-    # These convenience methods are removed as they just wrap execute()
-    # Users should use the fluent API or direct execute() calls instead
+    # Note: Resumption is not supported in the recursive evaluator.
+    # For resumable execution, use the stack-based evaluator which
+    # compiles to JPN (JSL Postfix Notation) and can serialize its
+    # execution state exactly.
     
         
 
@@ -375,7 +461,11 @@ def run_program(
     if host_dispatcher:
         # Replace both references to the host dispatcher
         runner.host_dispatcher = host_dispatcher
-        runner.evaluator.host = host_dispatcher
+        if runner.use_recursive_evaluator:
+            runner.recursive_evaluator.host = host_dispatcher
+        else:
+            # Stack evaluator also needs the host dispatcher
+            runner.stack_evaluator.host_dispatcher = host_dispatcher
     if environment:
         runner.base_environment = environment
     
@@ -402,9 +492,13 @@ def eval_expression(
     if host_dispatcher:
         # Replace both references to the host dispatcher
         runner.host_dispatcher = host_dispatcher
-        runner.evaluator.host = host_dispatcher
+        if runner.use_recursive_evaluator:
+            runner.recursive_evaluator.host = host_dispatcher
     if environment:
         runner.base_environment = environment
+        # Also update stack evaluator's environment if it exists
+        if runner.stack_evaluator:
+            runner.stack_evaluator.env = environment.to_dict()
     
     return runner.execute(expression)
 

@@ -8,6 +8,7 @@ of the language.
 
 import math
 import json
+import re
 from typing import Any, List, Dict, Union, Callable
 from .core import Env, JSLValue
 
@@ -27,8 +28,8 @@ def make_prelude() -> Env:
         "/": _divide,
         "%": _modulo,
         "abs": abs,
-        "max": max,
-        "min": min,
+        "max": lambda *args: max(args) if args else float('-inf'),
+        "min": lambda *args: min(args) if args else float('inf'),
         "round": round,
         "floor": math.floor,
         "ceil": math.ceil,
@@ -51,6 +52,8 @@ def make_prelude() -> Env:
         "<=": _less_than_or_equal,
         ">": _greater_than,
         ">=": _greater_than_or_equal,
+        "contains": _contains,
+        "matches": _string_matches,
         
         # Logical operations
         "and": _logical_and,
@@ -65,6 +68,10 @@ def make_prelude() -> Env:
         "str-split": _string_split,
         "str-join": _string_join,
         "str-slice": _string_slice,
+        "str-contains": _string_contains,
+        "str-matches": _string_matches,
+        "str-replace": _string_replace,
+        "str-find-all": _string_find_all,
         
         # List operations
         "list": _make_list,
@@ -96,6 +103,27 @@ def make_prelude() -> Env:
         "values": _values,
         "items": _items,
         "merge": _merge,
+        
+        # Path navigation (JSON path operations)
+        "get-path": _get_path,
+        "set-path": _set_path,
+        "has-path": _has_path,
+        "get-safe": _get_safe,
+        "get-default": _get_default,
+        
+        # Query and transformation operations
+        # "where" is now a special form in core.py and stack_special_forms.py
+        # "transform" is now a special form in core.py and stack_special_forms.py
+        # Transform operators - these return operation descriptors for transform
+        "assign": lambda field, value: ["assign", field, value],
+        "pick": lambda *fields: ["pick"] + list(fields),
+        "omit": lambda *fields: ["omit"] + list(fields),
+        "rename": lambda old_field, new_field: ["rename", old_field, new_field],
+        "default": lambda field, value: ["default", field, value],
+        "apply": lambda field, func: ["apply", field, func],
+        # Collection operations
+        "pluck": _pluck,
+        "index-by": _index_by,
         
         # Type checking
         "is-null": lambda x: x is None,
@@ -260,6 +288,65 @@ def _string_slice(string, start, end=None):
     return string[start:end]
 
 
+def _string_contains(string, substring):
+    """Check if string contains substring."""
+    return substring in string
+
+
+def _string_matches(string, pattern, flags=0):
+    """Check if string matches regex pattern.
+    
+    Args:
+        string: The string to match against
+        pattern: The regex pattern
+        flags: Optional regex flags (0 for none, can use sum of re.IGNORECASE=2, re.MULTILINE=8, etc.)
+    
+    Returns:
+        True if the pattern matches, False otherwise
+    """
+    try:
+        return bool(re.search(pattern, string, flags))
+    except re.error as e:
+        raise ValueError(f"Invalid regex pattern: {e}")
+
+
+def _string_replace(string, pattern, replacement, count=0):
+    """Replace regex pattern matches in string.
+    
+    Args:
+        string: The string to process
+        pattern: The regex pattern to find
+        replacement: The replacement string (can include backreferences like \\1)
+        count: Maximum number of replacements (0 for all)
+    
+    Returns:
+        The string with replacements made
+    """
+    try:
+        return re.sub(pattern, replacement, string, count=count)
+    except re.error as e:
+        raise ValueError(f"Invalid regex pattern: {e}")
+
+
+def _string_find_all(string, pattern, flags=0):
+    """Find all regex pattern matches in string.
+    
+    Args:
+        string: The string to search
+        pattern: The regex pattern
+        flags: Optional regex flags
+    
+    Returns:
+        List of all non-overlapping matches
+    """
+    try:
+        matches = re.findall(pattern, string, flags)
+        # Convert tuples to lists since JSL doesn't have tuples
+        return [list(match) if isinstance(match, tuple) else match for match in matches]
+    except re.error as e:
+        raise ValueError(f"Invalid regex pattern: {e}")
+
+
 # List functions
 def _make_list(*args):
     """Create a list from arguments."""
@@ -330,73 +417,75 @@ def _index_of(lst, item):
         return -1
 
 
-# Higher-order functions
-def _map(func, lst):
-    """Apply function to each element in list."""
+# Helper for applying functions (including closure dicts)
+def _apply_function(func, args):
+    """Apply a function (callable or closure dict) to arguments."""
     from .core import Closure, Evaluator
     
     if isinstance(func, Closure):
+        # Recursive evaluator closure
         evaluator = Evaluator()
-        return [func(evaluator, [item]) for item in lst]
+        return func(evaluator, args)
+    elif isinstance(func, dict) and func.get('type') == 'closure':
+        # Stack evaluator closure (dict representation)
+        from .stack_evaluator import StackEvaluator
+        from .compiler import compile_to_postfix
+        
+        params = func['params']
+        body = func['body']
+        closure_env = func.get('env', {})
+        
+        # Check arity
+        if len(args) != len(params):
+            raise ValueError(f"Arity mismatch: expected {len(params)} args, got {len(args)}")
+        
+        # Create new environment
+        new_env = closure_env.copy()
+        for param, arg in zip(params, args):
+            new_env[param] = arg
+        
+        # Compile and evaluate body
+        evaluator = StackEvaluator(env=new_env)
+        body_jpn = compile_to_postfix(body)
+        return evaluator.eval(body_jpn)
+    elif callable(func):
+        # Regular Python callable
+        return func(*args)
     else:
-        return [func(item) for item in lst]
+        raise TypeError(f"Cannot apply non-function: {type(func).__name__}")
+
+# Higher-order functions
+def _map(func, lst):
+    """Apply function to each element in list."""
+    return [_apply_function(func, [item]) for item in lst]
 
 
 def _filter(func, lst):
     """Filter list by predicate function."""
-    from .core import Closure, Evaluator
-    
-    if isinstance(func, Closure):
-        evaluator = Evaluator()
-        return [item for item in lst if func(evaluator, [item])]
-    else:
-        return [item for item in lst if func(item)]
+    return [item for item in lst if _apply_function(func, [item])]
 
 
 def _reduce(func, lst, initial=None):
     """Reduce list to single value using function."""
-    from .core import Closure, Evaluator
-    
     if not lst:
         return initial
     
-    if isinstance(func, Closure):
-        evaluator = Evaluator()
-        if initial is None:
-            result = lst[0]
-            items = lst[1:]
-        else:
-            result = initial
-            items = lst
-        
-        for item in items:
-            result = func(evaluator, [result, item])
-        return result
+    if initial is None:
+        result = lst[0]
+        items = lst[1:]
     else:
-        if initial is None:
-            result = lst[0]
-            items = lst[1:]
-        else:
-            result = initial
-            items = lst
-        
-        for item in items:
-            result = func(result, item)
-        return result
+        result = initial
+        items = lst
+    
+    for item in items:
+        result = _apply_function(func, [result, item])
+    return result
 
 
 def _for_each(func, lst):
     """Apply function to each element for side effects."""
-    from .core import Closure, Evaluator
-    
-    if isinstance(func, Closure):
-        evaluator = Evaluator()
-        for item in lst:
-            func(evaluator, [item])
-    else:
-        for item in lst:
-            func(item)
-    
+    for item in lst:
+        _apply_function(func, [item])
     return None
 
 
@@ -488,6 +577,222 @@ def _merge(*objs):
     return result
 
 
+# Path navigation functions
+def _parse_path(path):
+    """Parse a path string into components.
+    
+    Supports:
+    - Dot notation: "user.address.city"
+    - Array indices: "items.0.name" or "items[0].name"
+    - Wildcards: "users.*.email"
+    """
+    if not isinstance(path, str):
+        return [path]  # Single key access
+    
+    # Handle bracket notation for arrays
+    path = re.sub(r'\[(\d+)\]', r'.\1', path)
+    
+    # Split by dots
+    components = path.split('.')
+    
+    # Convert numeric strings to integers for array access
+    result = []
+    for comp in components:
+        if comp.isdigit():
+            result.append(int(comp))
+        else:
+            result.append(comp)
+    
+    return result
+
+
+def _get_path(obj, path):
+    """Get value from object using deep path.
+    
+    Args:
+        obj: The object to navigate
+        path: Path string like "user.address.city" or "items.0.name"
+    
+    Returns:
+        The value at the path
+    
+    Raises:
+        KeyError or IndexError if path doesn't exist
+    """
+    components = _parse_path(path)
+    current = obj
+    
+    for comp in components:
+        if comp == '*':
+            # Wildcard - return all values
+            if isinstance(current, dict):
+                return list(current.values())
+            elif isinstance(current, list):
+                return current
+            else:
+                raise TypeError(f"Cannot apply wildcard to {type(current).__name__}")
+        elif isinstance(current, dict):
+            if comp not in current:
+                raise KeyError(f"Key '{comp}' not found in path")
+            current = current[comp]
+        elif isinstance(current, list):
+            if not isinstance(comp, int):
+                raise TypeError(f"List index must be integer, got '{comp}'")
+            if comp < 0 or comp >= len(current):
+                raise IndexError(f"Index {comp} out of range")
+            current = current[comp]
+        else:
+            raise TypeError(f"Cannot navigate into {type(current).__name__}")
+    
+    return current
+
+
+def _set_path(obj, path, value):
+    """Set value in object at deep path (returns new object).
+    
+    Args:
+        obj: The object to modify
+        path: Path string like "user.address.city"
+        value: The value to set
+    
+    Returns:
+        New object with value set at path
+    """
+    components = _parse_path(path)
+    
+    if not components:
+        return value
+    
+    # Deep copy the object to avoid mutation
+    import copy
+    result = copy.deepcopy(obj) if obj is not None else {}
+    
+    # Navigate to parent and set the value
+    current = result
+    for comp in components[:-1]:
+        if isinstance(current, dict):
+            if comp not in current:
+                # Auto-create intermediate objects
+                current[comp] = {}
+            current = current[comp]
+        elif isinstance(current, list):
+            if not isinstance(comp, int):
+                raise TypeError(f"List index must be integer, got '{comp}'")
+            if comp < 0 or comp >= len(current):
+                raise IndexError(f"Index {comp} out of range")
+            current = current[comp]
+        else:
+            raise TypeError(f"Cannot navigate into {type(current).__name__}")
+    
+    # Set the final value
+    last_comp = components[-1]
+    if isinstance(current, dict):
+        current[last_comp] = value
+    elif isinstance(current, list):
+        if not isinstance(last_comp, int):
+            raise TypeError(f"List index must be integer, got '{last_comp}'")
+        if last_comp < 0 or last_comp >= len(current):
+            raise IndexError(f"Index {last_comp} out of range")
+        current[last_comp] = value
+    else:
+        raise TypeError(f"Cannot set value in {type(current).__name__}")
+    
+    return result
+
+
+def _has_path(obj, path):
+    """Check if path exists in object.
+    
+    Args:
+        obj: The object to check
+        path: Path string like "user.address.city"
+    
+    Returns:
+        True if path exists, False otherwise
+    """
+    try:
+        _get_path(obj, path)
+        return True
+    except (KeyError, IndexError, TypeError):
+        return False
+
+
+def _get_safe(obj, path, default=None):
+    """Get value from object using path, returning default if path doesn't exist.
+    
+    Args:
+        obj: The object to navigate
+        path: Path string like "user.address.city"
+        default: Value to return if path doesn't exist
+    
+    Returns:
+        The value at the path or default
+    """
+    try:
+        return _get_path(obj, path)
+    except (KeyError, IndexError, TypeError):
+        return default
+
+
+def _get_default(obj, path, default):
+    """Alias for get-safe with explicit default parameter."""
+    return _get_safe(obj, path, default)
+
+
+# Query and transformation operations
+# Note: 'where' is a special form in core.py and stack_special_forms.py
+# It uses the standard JSL evaluator with extended environment
+def _pluck(collection, field):
+    """Extract single field from each item in collection.
+    
+    Args:
+        collection: List of objects
+        field: Field to extract
+    
+    Returns:
+        List of field values
+    """
+    if not isinstance(collection, list):
+        raise TypeError(f"pluck requires a list, got {type(collection).__name__}")
+    
+    result = []
+    for item in collection:
+        if isinstance(item, dict) and field in item:
+            result.append(item[field])
+        elif "." in field:
+            try:
+                result.append(_get_path(item, field))
+            except (KeyError, IndexError, TypeError):
+                result.append(None)
+        else:
+            result.append(None)
+    
+    return result
+
+
+def _index_by(collection, field):
+    """Convert list to keyed object using field values as keys.
+    
+    Args:
+        collection: List of objects
+        field: Field to use as key
+    
+    Returns:
+        Dict with field values as keys
+    """
+    if not isinstance(collection, list):
+        raise TypeError(f"index-by requires a list, got {type(collection).__name__}")
+    
+    result = {}
+    for item in collection:
+        if isinstance(item, dict) and field in item:
+            key = item[field]
+            if isinstance(key, (str, int, float, bool)):
+                result[str(key)] = item
+    
+    return result
+
+
 # Utility functions
 def _range(*args):
     """Create a range of numbers."""
@@ -496,36 +801,21 @@ def _range(*args):
 
 def _sort(lst, key_func=None, reverse=False):
     """Sort a list."""
-    from .core import Closure, Evaluator
-    
-    if key_func and isinstance(key_func, Closure):
-        evaluator = Evaluator()
-        return sorted(lst, key=lambda x: key_func(evaluator, [x]), reverse=reverse)
-    elif key_func:
-        return sorted(lst, key=key_func, reverse=reverse)
+    if key_func:
+        return sorted(lst, key=lambda x: _apply_function(key_func, [x]), reverse=reverse)
     else:
         return sorted(lst, reverse=reverse)
 
 
 def _group_by(key_func, lst):
     """Group list elements by key function."""
-    from .core import Closure, Evaluator
-    
     groups = {}
     
-    if isinstance(key_func, Closure):
-        evaluator = Evaluator()
-        for item in lst:
-            key = key_func(evaluator, [item])
-            if key not in groups:
-                groups[key] = []
-            groups[key].append(item)
-    else:
-        for item in lst:
-            key = key_func(item)
-            if key not in groups:
-                groups[key] = []
-            groups[key].append(item)
+    for item in lst:
+        key = _apply_function(key_func, [item])
+        if key not in groups:
+            groups[key] = []
+        groups[key].append(item)
     
     return groups
 

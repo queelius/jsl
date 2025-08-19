@@ -64,8 +64,8 @@ class TestJSLRunner:
     
     def test_define_and_get_variable(self):
         """Test variable definition and retrieval."""
-        self.runner.define("x", 42)
-        assert self.runner.get_variable("x") == 42
+        self.runner.execute(["def", "x", 42])
+        assert self.runner.execute("x") == 42
         
         # Test using defined variable in expression
         result = self.runner.execute(["*", "x", 2])
@@ -73,13 +73,13 @@ class TestJSLRunner:
         
         # Test undefined variable - should raise JSLRuntimeError (wrapped)
         with pytest.raises((JSLRuntimeError, SymbolNotFoundError)):
-            self.runner.get_variable("undefined_var")
+            self.runner.execute("undefined_var")
     
     def test_lambda_functions(self):
         """Test lambda function creation and execution."""
         # Define a square function
         square = self.runner.execute(["lambda", ["x"], ["*", "x", "x"]])
-        self.runner.define("square", square)
+        self.runner.execute(["def", "square", square])
         
         # Use the function
         result = self.runner.execute(["square", 5])
@@ -103,7 +103,7 @@ class TestJSLRunner:
         
         # Variables should not leak into global scope
         with pytest.raises((JSLRuntimeError, SymbolNotFoundError)):
-            self.runner.get_variable("x")
+            self.runner.execute("x")
     
     def test_do_sequences(self):
         """Test do expressions for sequential execution."""
@@ -127,9 +127,8 @@ class TestJSLRunner:
     
     def test_list_operations(self):
         """Test list creation and operations."""
-        # Create list
-        numbers = self.runner.execute(["@", [1, 2, 3, 4, 5]])
-        self.runner.define("numbers", numbers)
+        # Create list using quote
+        self.runner.execute(["def", "numbers", ["@", [1, 2, 3, 4, 5]]])
         
         # Map over list
         doubled = self.runner.execute([
@@ -166,16 +165,16 @@ class TestJSLRunner:
     
     def test_new_environment_context(self):
         """Test isolated environment contexts."""
-        self.runner.define("global_var", "global")
+        self.runner.execute(["def", "global_var", "@global"])
         
         with self.runner.new_environment() as env_runner:
-            env_runner.define("local_var", "local")
-            assert env_runner.get_variable("global_var") == "global"
-            assert env_runner.get_variable("local_var") == "local"
+            env_runner.execute(["def", "local_var", "@local"])
+            assert env_runner.execute("global_var") == "global"
+            assert env_runner.execute("local_var") == "local"
         
         # Local variable should not exist in main runner
         with pytest.raises((JSLRuntimeError, SymbolNotFoundError)):
-            self.runner.get_variable("local_var")
+            self.runner.execute("local_var")
     
     def test_define_function_helper(self):
         """Test define_function using execute with def and lambda."""
@@ -223,7 +222,7 @@ class TestJSLRunner:
         # Test basic special forms by using them
         # def
         self.runner.execute(["def", "test_var", 123])
-        assert self.runner.get_variable("test_var") == 123
+        assert self.runner.execute("test_var") == 123
         
         # lambda
         result = self.runner.execute([["lambda", ["x"], ["*", "x", 2]], 5])
@@ -249,7 +248,7 @@ class TestJSLRunner:
         """Test that evaluation works for different expression types."""
         # Test def
         self.runner.execute(["def", "x", 42])
-        assert self.runner.get_variable("x") == 42
+        assert self.runner.execute("x") == 42
         
         # Test function call
         result = self.runner.execute(["+", 1, 2])

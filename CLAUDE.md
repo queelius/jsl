@@ -69,6 +69,55 @@ JSL code is JSON arrays where the first element is the operator:
 - `"@literal"` - Literal string value (@ prefix makes it a string literal)
 - `"@/path"` - File paths in host interactions
 
+### CRITICAL: Quoting and String Literal Semantics
+**This is a common source of confusion - pay careful attention:**
+
+1. **In regular JSL expressions:**
+   - `"foo"` = symbol lookup (looks for variable named foo)
+   - `"@foo"` = string literal "foo"
+
+2. **The Quote Operator `["@", ...]` and Its Effects:**
+   - The quote operator returns its argument WITHOUT evaluating it as JSL code
+   - The quoted data is passed as-is to functions that interpret it
+   
+   **Example: Where Conditions**
+   ```json
+   ["where", "products", ["@", ["=", "@price", 50]]]
+   ```
+   - Step 1: JSL evaluates `["@", ["=", "@price", 50]]` → returns literal list `["=", "@price", 50]`
+   - Step 2: This list is passed to the `where` function (implemented in Python)
+   - Step 3: The Python function `_evaluate_where_condition` receives `["=", "@price", 50]`
+   - Step 4: Python code strips @ from "@price" to get "price" as the field name
+   - Step 5: Python looks up item["price"] in each object being filtered
+   
+   **Why we need the quote operator:**
+   - Without quote: `["=", "@price", 50]` would try to evaluate "=" as a variable lookup (error!)
+   - With quote: `["@", ["=", "@price", 50]]` passes the list as data to the where function
+
+3. **Where conditions (S-expression format):**
+   - `["where", "products", ["@", [">", "@price", 50]]]`
+   - The condition must be quoted to prevent JSL evaluation
+   - Inside: `[">", "@price", 50]` - operator first (S-expression style)
+   - `"@price"` = string literal "price" (becomes field name after @ is stripped)
+   - String values need @ too: `["=", "@category", "@tools"]`
+
+4. **Transform operations:**
+   - `["transform", "obj", ["@", ["pick", "@name", "@email"]]]`
+   - The operation is quoted to pass it as data
+   - `"pick"` = operation name (plain string, no @)
+   - `"@name"`, `"@email"` = string literals that become field names "name", "email"
+
+5. **Common mistakes to avoid:**
+   - DON'T: `["@", ["price", ">", 50]]` - "price" without @ would be a symbol lookup if evaluated
+   - DO: `["@", [">", "@price", 50]]` - S-expression format with string literal field
+   - DON'T: `["@", ["@pick", "@name"]]` - "@pick" is wrong (not a string literal here)
+   - DO: `["@", ["pick", "@name"]]` - operation name without @, field with @
+
+6. **Key insight:**
+   - Quoted expressions are DATA passed to Python functions, not JSL code to evaluate
+   - The Python implementations decide how to interpret this data
+   - The @ prefix convention inside quoted data helps distinguish field names from other values
+
 ### Effect System (JHIP)
 All side effects go through the host dispatcher:
 ```json
