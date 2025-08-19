@@ -1,0 +1,2940 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Network-Native Functional Programming Language">
+      
+      
+      
+        <link rel="canonical" href="https://queelius.github.io/jsl/language/special-forms/">
+      
+      
+        <link rel="prev" href="../environments/">
+      
+      
+        <link rel="next" href="../objects/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.17">
+    
+    
+      
+        <title>Special Forms - JSL - JSON Serializable Language</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#jsl-special-forms" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="JSL - JSON Serializable Language" class="md-header__button md-logo" aria-label="JSL - JSON Serializable Language" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            JSL - JSON Serializable Language
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Special Forms
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../overview/" class="md-tabs__link">
+          
+  
+  
+  Language Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/first-program/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../jhip/protocol/" class="md-tabs__link">
+          
+  
+  
+  Host Interaction
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/philosophy/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../examples/simple/" class="md-tabs__link">
+          
+  
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/core/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integrations/overview.md" class="md-tabs__link">
+          
+  
+  
+  Integrations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../changelog.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="JSL - JSON Serializable Language" class="md-nav__button md-logo" aria-label="JSL - JSON Serializable Language" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    JSL - JSON Serializable Language
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Language Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Language Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../specification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Specification
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../semantics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Syntax and Semantics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Environments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Special Forms
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Special Forms
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-special-forms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core Special Forms
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Special Forms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#variable-definition-def" class="md-nav__link">
+    <span class="md-ellipsis">
+      Variable Definition - def
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-definition-lambda" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function Definition - lambda
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditional-evaluation-if" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conditional Evaluation - if
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#local-bindings-let" class="md-nav__link">
+    <span class="md-ellipsis">
+      Local Bindings - let
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-handling-try" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Handling - try
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sequential-evaluation-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sequential Evaluation - do
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quotation-quote-and" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quotation - quote and @
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#host-interaction-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      Host Interaction - host
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-form-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Special Form Properties
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Form Properties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#argument-evaluation-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Argument Evaluation Control
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Interaction
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#meta-programming-with-special-forms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Meta-Programming with Special Forms
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Meta-Programming with Special Forms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#code-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code Generation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dynamic-function-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dynamic Function Creation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#macro-like-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Macro-like Patterns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-special-form-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Special Form Usage
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Special Form Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#combining-special-forms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Combining Special Forms
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-handling-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Handling Patterns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-forms-vs-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Special Forms vs Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Forms vs Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-differences" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Differences
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use-each" class="md-nav__link">
+    <span class="md-ellipsis">
+      When to Use Each
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Notes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#evaluation-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      Evaluation Context
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Considerations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-form-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Special Form Details
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Form Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#host" class="md-nav__link">
+    <span class="md-ellipsis">
+      host
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#json-objects-as-first-class-citizens" class="md-nav__link">
+    <span class="md-ellipsis">
+      JSON Objects as First-Class Citizens
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../objects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Objects
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Templates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prelude/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prelude
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../query-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Query Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../transform-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Transform Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../path-navigation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Path Navigation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/first-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    First Program
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Host Interaction
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Host Interaction
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../jhip/protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    JHIP Protocol
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../jhip/host-commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Host Commands
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Philosophy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/abstract-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Abstract Machine
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/stack-evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Stack Evaluation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Runtime
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Security
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Network Transparency
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/serialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Serialization Design
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/distributed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Distributed Computing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/simple/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simple
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/practical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Practical
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/query-transform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Query & Transform
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/group-by/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Group By
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Core
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/evaluator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Evaluator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Runner
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/serialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Serialization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/fluent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fluent API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/stack-evaluator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Stack Evaluator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/compiler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Compiler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Integrations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            Integrations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/fastapi.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    FastAPI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/mcp.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MCP
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/jupyter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Jupyter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-special-forms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core Special Forms
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Core Special Forms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#variable-definition-def" class="md-nav__link">
+    <span class="md-ellipsis">
+      Variable Definition - def
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#function-definition-lambda" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function Definition - lambda
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#conditional-evaluation-if" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conditional Evaluation - if
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#local-bindings-let" class="md-nav__link">
+    <span class="md-ellipsis">
+      Local Bindings - let
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-handling-try" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Handling - try
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sequential-evaluation-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sequential Evaluation - do
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quotation-quote-and" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quotation - quote and @
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#host-interaction-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      Host Interaction - host
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-form-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Special Form Properties
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Form Properties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#argument-evaluation-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Argument Evaluation Control
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Interaction
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#meta-programming-with-special-forms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Meta-Programming with Special Forms
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Meta-Programming with Special Forms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#code-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code Generation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dynamic-function-creation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dynamic Function Creation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#macro-like-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Macro-like Patterns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-special-form-usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Special Form Usage
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Special Form Usage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#combining-special-forms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Combining Special Forms
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-handling-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Handling Patterns
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-forms-vs-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Special Forms vs Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Forms vs Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-differences" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Differences
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use-each" class="md-nav__link">
+    <span class="md-ellipsis">
+      When to Use Each
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Notes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Notes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#evaluation-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      Evaluation Context
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Considerations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-form-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Special Form Details
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Special Form Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#host" class="md-nav__link">
+    <span class="md-ellipsis">
+      host
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#json-objects-as-first-class-citizens" class="md-nav__link">
+    <span class="md-ellipsis">
+      JSON Objects as First-Class Citizens
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="jsl-special-forms">JSL Special Forms<a class="headerlink" href="#jsl-special-forms" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Special forms are the fundamental building blocks of JSL that have special evaluation rules. Unlike regular function calls, special forms control how their arguments are evaluated and provide the core language constructs for variable binding, control flow, and meta-programming.</p>
+<h2 id="core-special-forms">Core Special Forms<a class="headerlink" href="#core-special-forms" title="Permanent link">&para;</a></h2>
+<h3 id="variable-definition-def">Variable Definition - <code>def</code><a class="headerlink" href="#variable-definition-def" title="Permanent link">&para;</a></h3>
+<p>Binds a value to a variable name in the current environment.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;variable_name&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">value_expressio</span><span class="kc">n</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Evaluation Rules:</strong>
+1. Evaluate <code>value_expression</code> 
+2. Bind the result to <code>variable_name</code> in current environment
+3. Return the bound value</p>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Simple value binding</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">42</span><span class="p">]</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1">// Result: 42, x is now bound to 42</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1">// Expression binding</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;doubled&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">]]</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1">// Result: 84, doubled is now bound to 84</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="c1">// Function binding</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;square&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;n&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;n&quot;</span><span class="p">]]]</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1">// Result: &lt;function&gt;, square is now bound to the function</span>
+</code></pre></div>
+<h3 id="function-definition-lambda">Function Definition - <code>lambda</code><a class="headerlink" href="#function-definition-lambda" title="Permanent link">&para;</a></h3>
+<p>Creates anonymous functions (closures) that capture their lexical environment.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;param1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;param2&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">...</span><span class="p">],</span><span class="w"> </span><span class="err">body_expressio</span><span class="kc">n</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Evaluation Rules:</strong>
+1. Do NOT evaluate parameters (they are binding names)
+2. Do NOT evaluate body (it's evaluated when function is called)
+3. Capture current environment as closure environment
+4. Return function object</p>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// Simple function</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">]]</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1">// Result: &lt;function: x -&gt; x * x&gt;</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1">// Multi-parameter function</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;+&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">]]</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1">// Result: &lt;function: (a, b) -&gt; a + b&gt;</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1">// Function with closure</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;multiplier&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">],</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;multiplier&quot;</span><span class="p">]]]</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="c1">// Result: &lt;function: x -&gt; x * 10&gt; (captures multiplier=10)</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="c1">// Higher-order function</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">]]]</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="c1">// Result: &lt;function: (f, x) -&gt; f(f(x))&gt;</span>
+</code></pre></div>
+<h3 id="conditional-evaluation-if">Conditional Evaluation - <code>if</code><a class="headerlink" href="#conditional-evaluation-if" title="Permanent link">&para;</a></h3>
+<p>Provides conditional branching with lazy evaluation of branches.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">[</span><span class="s2">&quot;if&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">co</span><span class="kc">n</span><span class="err">di</span><span class="kc">t</span><span class="err">io</span><span class="kc">n</span><span class="err">_expressio</span><span class="kc">n</span><span class="p">,</span><span class="w"> </span><span class="kc">t</span><span class="err">he</span><span class="kc">n</span><span class="err">_expressio</span><span class="kc">n</span><span class="p">,</span><span class="w"> </span><span class="err">else_expressio</span><span class="kc">n</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Evaluation Rules:</strong>
+1. Evaluate <code>condition_expression</code>
+2. If truthy, evaluate and return <code>then_expression</code>
+3. If falsy, evaluate and return <code>else_expression</code>
+4. Only one branch is evaluated (lazy evaluation)</p>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1">// Basic conditional</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="p">[</span><span class="s2">&quot;if&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="s2">&quot;positive&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;non-positive&quot;</span><span class="p">]</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1">// Nested conditionals</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">[</span><span class="s2">&quot;if&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;=&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;status&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span><span class="p">],</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="s2">&quot;full_access&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;if&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;=&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;status&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">],</span><span class="w"> </span><span class="s2">&quot;limited_access&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;no_access&quot;</span><span class="p">]]</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="c1">// With side effects (only one branch executes)</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">[</span><span class="s2">&quot;if&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;debug_mode&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;log&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Debug information&quot;</span><span class="p">],</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;log&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Production mode&quot;</span><span class="p">]]</span>
+</code></pre></div>
+<h3 id="local-bindings-let">Local Bindings - <code>let</code><a class="headerlink" href="#local-bindings-let" title="Permanent link">&para;</a></h3>
+<p>Creates temporary, local variable bindings for use within a single expression. This is a cornerstone of functional programming as it avoids mutating the parent environment.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">[</span><span class="s2">&quot;let&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="s2">&quot;var1&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">val</span><span class="mi">1</span><span class="err">_expr</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;var2&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">val</span><span class="mi">2</span><span class="err">_expr</span><span class="p">]],</span><span class="w"> </span><span class="err">body_expr</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Evaluation Rules:</strong>
+1. Create a new, temporary environment that extends the current one.
+2. Evaluate all <code>val_expr</code>s in the original environment.
+3. Bind the results to the <code>var</code> names in the new temporary environment.
+4. Evaluate <code>body_expr</code> in the new environment.
+5. Return the result of <code>body_expr</code>. The temporary environment is then discarded.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1">// Calculate area of a circle without polluting the environment</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="p">[</span><span class="s2">&quot;let&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[[</span><span class="s2">&quot;pi&quot;</span><span class="p">,</span><span class="w"> </span><span class="mf">3.14159</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">]],</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;pi&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;r&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;r&quot;</span><span class="p">]]]</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1">// Result: 314.159 (pi and r are not defined afterwards)</span>
+</code></pre></div></p>
+<h3 id="error-handling-try">Error Handling - <code>try</code><a class="headerlink" href="#error-handling-try" title="Permanent link">&para;</a></h3>
+<p>Provides a mechanism to catch and handle errors that occur during evaluation.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">[</span><span class="s2">&quot;try&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">body_expressio</span><span class="kc">n</span><span class="p">,</span><span class="w"> </span><span class="err">ha</span><span class="kc">n</span><span class="err">dler_expressio</span><span class="kc">n</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Evaluation Rules:</strong>
+1. Evaluate <code>body_expression</code>.
+2. If evaluation succeeds, its result is the result of the <code>try</code> expression. The <code>handler_expression</code> is not evaluated.
+3. If an error occurs during the evaluation of <code>body_expression</code>, the <code>handler_expression</code> is evaluated. The handler should be a function that accepts the error object as its argument. The result of the handler becomes the result of the entire <code>try</code> expression.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">// Safe file reading with a fallback default</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="p">[</span><span class="s2">&quot;try&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;file/read&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;/app/config.json&quot;</span><span class="p">],</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;err&quot;</span><span class="p">],</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">      </span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;log/warn&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;str-concat&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Config not found, using default: &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;err&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;message&quot;</span><span class="p">]]],</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;default_setting&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="p">]</span>
+</code></pre></div></p>
+<h3 id="sequential-evaluation-do">Sequential Evaluation - <code>do</code><a class="headerlink" href="#sequential-evaluation-do" title="Permanent link">&para;</a></h3>
+<p>Evaluates multiple expressions in sequence and returns the result of the final expression.</p>
+<p>While JSL encourages a functional style using <code>let</code> and function composition, <code>do</code> is provided as a pragmatic tool for imperative-style sequencing, especially when dealing with multiple side-effects.</p>
+<blockquote>
+<p><strong>Design Note: Why is there no <code>for</code> or <code>while</code> loop?</strong></p>
+<p>JSL intentionally omits traditional <code>for</code> or <code>while</code> loop special forms. This is a core design decision to encourage a functional approach to collection processing. Instead of imperative looping, you should use the powerful higher-order functions provided in the prelude:
+- <strong><code>map</code></strong>: To transform each element in a list.
+- <strong><code>filter</code></strong>: To select elements from a list.
+- <strong><code>reduce</code></strong>: To aggregate a list into a single value.
+- <strong><code>for_each</code></strong>: To perform a side-effect for each element in a list.</p>
+<p>These functions are safer, more declarative, and more composable than manual loops.</p>
+</blockquote>
+<h3 id="quotation-quote-and">Quotation - <code>quote</code> and <code>@</code><a class="headerlink" href="#quotation-quote-and" title="Permanent link">&para;</a></h3>
+<p>Prevents evaluation of expressions, returning them as literal data.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="p">[</span><span class="s2">&quot;quote&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">expressio</span><span class="kc">n</span><span class="p">]</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">expressio</span><span class="kc">n</span><span class="p">]</span><span class="w">  </span><span class="c1">// Shorthand syntax</span>
+</code></pre></div>
+<p>There  is also a syntactic sugar for quoting simple expressions:</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="p">[</span><span class="s2">&quot;quote&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;hello&quot;</span><span class="p">]</span><span class="w">  </span><span class="c1">// Result: &quot;hello&quot;</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="s2">&quot;@hello&quot;</span><span class="c1">// Result: &quot;hello&quot; (same as above)</span>
+</code></pre></div>
+It is only useful for simple values, as it does not allow for complex expressions, such as:
+<code>["@", ["+", 1, 2]]</code>.</p>
+<p><strong>Evaluation Rules:</strong>
+1. Do NOT evaluate the argument
+2. Return the argument as literal data
+3. Preserves structure without interpretation</p>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1">// Quote simple values</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="p">[</span><span class="s2">&quot;quote&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;hello&quot;</span><span class="p">]</span><span class="w">     </span><span class="c1">// Result: &quot;hello&quot;</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;hello&quot;</span><span class="p">]</span><span class="w">         </span><span class="c1">// Result: &quot;hello&quot; (same as above)</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="c1">// Quote expressions</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="p">[</span><span class="s2">&quot;quote&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;+&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">]]</span><span class="w">  </span><span class="c1">// Result: [&quot;+&quot;, 1, 2] (not 3)</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;+&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">]]</span><span class="w">      </span><span class="c1">// Result: [&quot;+&quot;, 1, 2]</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="c1">// Quote for data structure creation</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Alice&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;age&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">}]</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="c1">// Result: {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 30}</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="c1">// Compare quoted vs unquoted</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;expr&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;+&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;y&quot;</span><span class="p">]]]</span><span class="w">  </span><span class="c1">// Store expression as data</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;result&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;+&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;y&quot;</span><span class="p">]]</span><span class="w">       </span><span class="c1">// Store computed result</span>
+</code></pre></div>
+<h3 id="host-interaction-host">Host Interaction - <code>host</code><a class="headerlink" href="#host-interaction-host" title="Permanent link">&para;</a></h3>
+<p>Provides controlled interaction with the host environment through JHIP.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">comma</span><span class="kc">n</span><span class="err">d_id_expressio</span><span class="kc">n</span><span class="p">,</span><span class="w"> </span><span class="err">arg</span><span class="mi">1</span><span class="err">_expressio</span><span class="kc">n</span><span class="p">,</span><span class="w"> </span><span class="err">...</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Evaluation Rules:</strong>
+1. Evaluate <code>command_id_expression</code> to get command identifier
+2. Evaluate all argument expressions
+3. Send JHIP request to host with command and arguments
+4. Return host response</p>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1">// File operations</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;file/read&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;/path/to/file.txt&quot;</span><span class="p">]</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;file/write&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;/path/to/output.txt&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;content&quot;</span><span class="p">]</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c1">// System commands</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;system/exec&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ls&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-la&quot;</span><span class="p">]]</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="c1">// Network requests</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;http/get&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;https://api.example.com/data&quot;</span><span class="p">]</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="c1">// Time operations</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;time/now&quot;</span><span class="p">]</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;time/format&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;2023-12-01T10:30:00Z&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ISO&quot;</span><span class="p">]</span>
+</code></pre></div>
+<h2 id="special-form-properties">Special Form Properties<a class="headerlink" href="#special-form-properties" title="Permanent link">&para;</a></h2>
+<h3 id="argument-evaluation-control">Argument Evaluation Control<a class="headerlink" href="#argument-evaluation-control" title="Permanent link">&para;</a></h3>
+<p>Unlike regular functions, special forms control when and if their arguments are evaluated:</p>
+<table>
+<thead>
+<tr>
+<th>Special Form</th>
+<th>Evaluation Pattern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>def</code></td>
+<td>Evaluate value, don't evaluate variable name</td>
+</tr>
+<tr>
+<td><code>lambda</code></td>
+<td>Don't evaluate parameters or body</td>
+</tr>
+<tr>
+<td><code>if</code></td>
+<td>Evaluate condition, then only one branch</td>
+</tr>
+<tr>
+<td><code>let</code></td>
+<td>Evaluate bindings, then body in new scope</td>
+</tr>
+<tr>
+<td><code>try</code></td>
+<td>Evaluate body, then handler only on error</td>
+</tr>
+<tr>
+<td><code>do</code></td>
+<td>Evaluate all arguments in sequence</td>
+</tr>
+<tr>
+<td><code>quote</code>/<code>@</code></td>
+<td>Don't evaluate argument at all</td>
+</tr>
+<tr>
+<td><code>host</code></td>
+<td>Evaluate all arguments</td>
+</tr>
+</tbody>
+</table>
+<h3 id="environment-interaction">Environment Interaction<a class="headerlink" href="#environment-interaction" title="Permanent link">&para;</a></h3>
+<p>Special forms interact with the environment in specific ways:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1">// def modifies environment</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">],</span><span class="w">        </span><span class="c1">// Adds x=10 to environment</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;y&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">]],</span><span class="w"> </span><span class="c1">// Uses x from environment, adds y=20</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;+&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;y&quot;</span><span class="p">]]</span><span class="w">         </span><span class="c1">// Uses both x and y: result 30</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="c1">// lambda captures environment</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;base&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">],</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;adder&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;+&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;n&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;base&quot;</span><span class="p">]]],</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;adder&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">23</span><span class="p">]]</span><span class="w">           </span><span class="c1">// Result: 123 (uses captured base=100)</span>
+</code></pre></div>
+<h2 id="meta-programming-with-special-forms">Meta-Programming with Special Forms<a class="headerlink" href="#meta-programming-with-special-forms" title="Permanent link">&para;</a></h2>
+<h3 id="code-generation">Code Generation<a class="headerlink" href="#code-generation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1">// Generate conditional code</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;make_comparator&quot;</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;op&quot;</span><span class="p">],</span><span class="w"> </span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;op&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">]]]]]</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="c1">// Usage</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;greater_than&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;make_comparator&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;&gt;&quot;</span><span class="p">]]</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="p">[</span><span class="s2">&quot;greater_than&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]</span><span class="w">  </span><span class="c1">// Result: true</span>
+</code></pre></div>
+<h3 id="dynamic-function-creation">Dynamic Function Creation<a class="headerlink" href="#dynamic-function-creation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1">// Create functions with varying parameter counts</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;make_n_ary_function&quot;</span><span class="p">,</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;body&quot;</span><span class="p">],</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;list&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;params&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;body&quot;</span><span class="p">]]]</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;triple_add&quot;</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;make_n_ary_function&quot;</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;c&quot;</span><span class="p">]],</span><span class="w"> </span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;+&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;+&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;b&quot;</span><span class="p">],</span><span class="w"> </span><span class="s2">&quot;c&quot;</span><span class="p">]]]]</span>
+</code></pre></div>
+<h3 id="macro-like-patterns">Macro-like Patterns<a class="headerlink" href="#macro-like-patterns" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1">// Define a &quot;when&quot; macro-like construct</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;when&quot;</span><span class="p">,</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;condition&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;action&quot;</span><span class="p">],</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;if&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;condition&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;action&quot;</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">]]]</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="c1">// Usage</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="p">[</span><span class="s2">&quot;when&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;temperature&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">],</span><span class="w"> </span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;log&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@It&#39;s hot outside!&quot;</span><span class="p">]]</span>
+</code></pre></div>
+<h2 id="advanced-special-form-usage">Advanced Special Form Usage<a class="headerlink" href="#advanced-special-form-usage" title="Permanent link">&para;</a></h2>
+<h3 id="combining-special-forms">Combining Special Forms<a class="headerlink" href="#combining-special-forms" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1">// Complex initialization pattern</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;config&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;file/read&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;config.json&quot;</span><span class="p">]],</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;database&quot;</span><span class="p">,</span><span class="w"> </span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;if&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;config&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;use_database&quot;</span><span class="p">],</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a><span class="w">      </span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;db/connect&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;config&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;db_url&quot;</span><span class="p">]],</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a><span class="w">      </span><span class="kc">null</span><span class="p">]],</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;processor&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span>
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a><span class="w">      </span><span class="p">[</span><span class="s2">&quot;if&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;database&quot;</span><span class="p">,</span>
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a><span class="w">        </span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;db/store&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;database&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;data&quot;</span><span class="p">],</span>
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a><span class="w">        </span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;log&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@No database configured&quot;</span><span class="p">]]]],</span>
+<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a><span class="w">  </span><span class="s2">&quot;processor&quot;</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="error-handling-patterns">Error Handling Patterns<a class="headerlink" href="#error-handling-patterns" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1">// Safe evaluation with fallback</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;safe_eval&quot;</span><span class="p">,</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;expr&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;fallback&quot;</span><span class="p">],</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;if&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;try&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;expr&quot;</span><span class="p">],</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="w">      </span><span class="s2">&quot;expr&quot;</span><span class="p">,</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="w">      </span><span class="s2">&quot;fallback&quot;</span><span class="p">]]]</span>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="c1">// Conditional resource acquisition</span>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;with_resource&quot;</span><span class="p">,</span>
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;resource_id&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;action&quot;</span><span class="p">],</span>
+<a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
+<a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a><span class="w">      </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;resource&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;resource/acquire&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;resource_id&quot;</span><span class="p">]],</span>
+<a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a><span class="w">      </span><span class="p">[</span><span class="s2">&quot;if&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;resource&quot;</span><span class="p">,</span>
+<a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a><span class="w">        </span><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
+<a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a><span class="w">          </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;result&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;action&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;resource&quot;</span><span class="p">]],</span>
+<a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a><span class="w">          </span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;resource/release&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;resource&quot;</span><span class="p">],</span>
+<a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a><span class="w">          </span><span class="s2">&quot;result&quot;</span><span class="p">],</span>
+<a id="__codelineno-20-18" name="__codelineno-20-18" href="#__codelineno-20-18"></a><span class="w">        </span><span class="kc">null</span><span class="p">]]]]</span>
+</code></pre></div>
+<h2 id="special-forms-vs-functions">Special Forms vs Functions<a class="headerlink" href="#special-forms-vs-functions" title="Permanent link">&para;</a></h2>
+<h3 id="key-differences">Key Differences<a class="headerlink" href="#key-differences" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Special Forms</th>
+<th>Functions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Argument Evaluation</strong></td>
+<td>Controlled by form</td>
+<td>All arguments evaluated</td>
+</tr>
+<tr>
+<td><strong>Environment Access</strong></td>
+<td>Can modify environment</td>
+<td>Read-only environment access</td>
+</tr>
+<tr>
+<td><strong>Evaluation Order</strong></td>
+<td>Form-specific rules</td>
+<td>Standard left-to-right</td>
+</tr>
+<tr>
+<td><strong>Meta-Programming</strong></td>
+<td>Enable code generation</td>
+<td>Operate on values only</td>
+</tr>
+<tr>
+<td><strong>Syntax Extension</strong></td>
+<td>Can create new syntax</td>
+<td>Cannot extend syntax</td>
+</tr>
+</tbody>
+</table>
+<h3 id="when-to-use-each">When to Use Each<a class="headerlink" href="#when-to-use-each" title="Permanent link">&para;</a></h3>
+<p><strong>Use Special Forms for:</strong>
+- Control flow (<code>if</code>, <code>do</code>)
+- Variable binding (<code>def</code>, <code>let</code>)
+- Function creation (<code>lambda</code>)
+- Meta-programming (<code>quote</code>)
+- Host interaction (<code>host</code>)
+- Error handling (<code>try</code>)</p>
+<p><strong>Use Functions for:</strong>
+- Data transformation
+- Mathematical operations
+- String processing
+- Collection manipulation
+- Business logic
+- JSON object construction (using JSL's first-class object support)</p>
+<h2 id="implementation-notes">Implementation Notes<a class="headerlink" href="#implementation-notes" title="Permanent link">&para;</a></h2>
+<h3 id="evaluation-context">Evaluation Context<a class="headerlink" href="#evaluation-context" title="Permanent link">&para;</a></h3>
+<p>Special forms are evaluated in the context of JSL's evaluator, which maintains:</p>
+<ol>
+<li><strong>Environment Stack</strong>: For variable resolution and binding</li>
+<li><strong>Continuation Stack</strong>: For function calls and returns</li>
+<li><strong>Host Interface</strong>: For JHIP command execution</li>
+<li><strong>Error Handling</strong>: For exception propagation</li>
+</ol>
+<h3 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>def</code></strong>: O(1) environment binding</li>
+<li><strong><code>let</code></strong>: O(1) local binding</li>
+<li><strong><code>try</code></strong>: O(n) body evaluation, O(m) handler evaluation on error</li>
+<li><strong><code>lambda</code></strong>: O(1) closure creation, O(e) environment capture</li>
+<li><strong><code>if</code></strong>: O(1) branch selection, avoids evaluating unused branch  </li>
+<li><strong><code>do</code></strong>: O(n) sequential evaluation</li>
+<li><strong><code>quote</code></strong>: O(1) literal return</li>
+<li><strong><code>host</code></strong>: O(h) depends on host operation complexity</li>
+</ul>
+<p>Special forms are the foundation of JSL's expressiveness, providing the essential building blocks for all higher-level language constructs while maintaining the language's homoiconic JSON-based structure.</p>
+<h2 id="special-form-details">Special Form Details<a class="headerlink" href="#special-form-details" title="Permanent link">&para;</a></h2>
+<h3 id="host"><code>host</code><a class="headerlink" href="#host" title="Permanent link">&para;</a></h3>
+<p>The <code>host</code> special form is the gateway for all side effects and interactions with the host system.</p>
+<ul>
+<li><strong>Syntax</strong>: <code>["host", command_expr, arg1_expr, ...]</code></li>
+<li><strong>Evaluation</strong>: All arguments are evaluated. The results are packaged into a JHIP request and yielded to the host runtime.</li>
+</ul>
+<h2 id="json-objects-as-first-class-citizens">JSON Objects as First-Class Citizens<a class="headerlink" href="#json-objects-as-first-class-citizens" title="Permanent link">&para;</a></h2>
+<p>JSL provides powerful support for JSON object construction through its first-class object syntax. Objects in JSL:</p>
+<ul>
+<li>Are always treated as data structures (never function calls)</li>
+<li>Use normal JSL evaluation rules for both keys and values</li>
+<li>Require keys to evaluate to strings</li>
+<li>Support dynamic construction with variables and expressions</li>
+</ul>
+<p>For example:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@Alice&quot;</span><span class="p">],</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;age&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">],</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">  </span><span class="p">{</span><span class="nt">&quot;@greeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;str-concat&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@Hello &quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="w">   </span><span class="nt">&quot;@info&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;@name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;@age&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;age&quot;</span><span class="p">}}</span>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="p">]</span>
+</code></pre></div></p>
+<p>For more details, see <strong><a href="../objects/">JSON Objects as First-Class Citizens</a></strong>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>

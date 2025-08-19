@@ -138,6 +138,15 @@ The stack evaluator can pause and resume execution at any point. The paused stat
   "resource_checkpoint": {
     "gas_used": 150,
     "steps_taken": 2
+  },
+  "user_env": {
+    "x": 42,
+    "my-func": {
+      "type": "closure",
+      "params": ["n"],
+      "body": ["*", "n", "x"],
+      "env": {"x": 42}
+    }
   }
 }
 ```
@@ -147,27 +156,48 @@ This represents:
 - **pc**: Program counter (next instruction to execute)
 - **instructions**: The JPN bytecode being executed
 - **resource_checkpoint**: Optional resource tracking state
+- **user_env**: User-defined variables and functions (not the prelude)
 
-The environment (variables, functions) is maintained separately by the evaluator. This separation means:
-- Execution state is lightweight (just stack and position)
-- Multiple executions can share the same environment
+The separation between user environment and prelude means:
+- User-defined state travels with the paused execution
+- The prelude (built-in functions) exists on every JSL host
 - State can be stored, transmitted, and resumed anywhere
+- Everything remains pure JSON - no binary formats or special serialization
 
-Example resumable execution:
+Example resumable execution with user-defined functions:
 ```python
-# Start execution
-result, state = evaluator.eval_partial(jpn, max_steps=100)
+# Define a user function
+evaluator.env['double'] = {
+    'type': 'closure',
+    'params': ['x'],
+    'body': ['*', 'x', 2],
+    'env': {}
+}
+
+# Compile program that uses it
+jpn = compile_to_postfix(['double', 21])  # => [21, 1, 'double']
+
+# Start execution with limited steps
+result, state = evaluator.eval_partial(jpn, max_steps=1)
 
 if state:  # Execution paused
-    # State is pure JSON - can be stored/transmitted
+    # State includes user-defined 'double' function
+    # Everything is pure JSON - can be stored/transmitted
     json_state = json.dumps(state.to_dict())
     
-    # Later, possibly on different machine
+    # Later, possibly on a different machine
+    # Create fresh evaluator with only prelude
+    fresh_evaluator = StackEvaluator(env=prelude.to_dict())
+    
+    # Restore state (including user environment)
     restored_state = StackState.from_dict(json.loads(json_state))
-    final_result, _ = evaluator.eval_partial(jpn, max_steps=1000, state=restored_state)
+    
+    # Resume execution - 'double' function is available!
+    final_result, _ = fresh_evaluator.eval_partial(jpn, max_steps=100, state=restored_state)
+    # final_result = 42
 ```
 
-No binary formats, no special protocols - just JSON!
+No binary formats, no special protocols - just JSON! User-defined functions travel with the paused state.
 
 ## Testing
 
@@ -186,11 +216,12 @@ def test_arithmetic(evaluator):
 
 ## Future Work
 
-1. **Optimize postfix**: Dead code elimination, constant folding
-2. **JIT compilation**: Compile hot paths to native code
-3. **Streaming evaluation**: Process postfix as it arrives over network
-4. **Parallel execution**: Some postfix sequences can run in parallel
-5. **Add special forms**: Implement if, let, lambda in stack evaluator
+1. **Unify with recursive evaluator**: Use the same Env and Closure classes for consistency
+2. **Optimize postfix**: Dead code elimination, constant folding
+3. **JIT compilation**: Compile hot paths to native code
+4. **Streaming evaluation**: Process postfix as it arrives over network
+5. **Parallel execution**: Some postfix sequences can run in parallel
+6. **Tail call optimization**: Detect and optimize tail-recursive calls
 
 ## Conclusion
 

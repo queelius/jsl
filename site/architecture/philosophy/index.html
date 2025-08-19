@@ -1,0 +1,2308 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Network-Native Functional Programming Language">
+      
+      
+      
+        <link rel="canonical" href="https://queelius.github.io/jsl/architecture/philosophy/">
+      
+      
+        <link rel="prev" href="../../jhip/host-commands/">
+      
+      
+        <link rel="next" href="../abstract-machine/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.17">
+    
+    
+      
+        <title>Philosophy - JSL - JSON Serializable Language</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#design-philosophy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="JSL - JSON Serializable Language" class="md-header__button md-logo" aria-label="JSL - JSON Serializable Language" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            JSL - JSON Serializable Language
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Philosophy
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../language/overview/" class="md-tabs__link">
+          
+  
+  
+  Language Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/first-program/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../jhip/protocol/" class="md-tabs__link">
+          
+  
+  
+  Host Interaction
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../examples/simple/" class="md-tabs__link">
+          
+  
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/core/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integrations/overview.md" class="md-tabs__link">
+          
+  
+  
+  Integrations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../changelog.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="JSL - JSON Serializable Language" class="md-nav__button md-logo" aria-label="JSL - JSON Serializable Language" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    JSL - JSON Serializable Language
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Language Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Language Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/specification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Specification
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/semantics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Syntax and Semantics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Environments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/special-forms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Special Forms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/objects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Objects
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Templates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/prelude/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prelude
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/query-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Query Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/transform-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Transform Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/path-navigation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Path Navigation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/first-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    First Program
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Host Interaction
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Host Interaction
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../jhip/protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    JHIP Protocol
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../jhip/host-commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Host Commands
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Philosophy
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Philosophy
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-problem-with-traditional-code-mobility" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Problem with Traditional Code Mobility
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Problem with Traditional Code Mobility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-serialization-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Serialization Complexity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-runtime-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Runtime Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-security-vulnerabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Security Vulnerabilities
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-platform-lock-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Platform Lock-in
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-jsl-solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      The JSL Solution
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#theoretical-foundations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Theoretical Foundations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Theoretical Foundations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#homoiconicity" class="md-nav__link">
+    <span class="md-ellipsis">
+      Homoiconicity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verifiable-serializable-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verifiable, Serializable State
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wire-format-transparency" class="md-nav__link">
+    <span class="md-ellipsis">
+      Wire-Format Transparency
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practical-applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      Practical Applications
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Practical Applications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-distributed-computing" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Distributed Computing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-edge-computing" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Edge Computing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-database-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Database Functions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sicp-inspired-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      SICP-Inspired Design
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../abstract-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Abstract Machine
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stack-evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Stack Evaluation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Runtime
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Security
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Network Transparency
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../serialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Serialization Design
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distributed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Distributed Computing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/simple/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simple
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/practical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Practical
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/query-transform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Query & Transform
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/group-by/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Group By
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Core
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/evaluator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Evaluator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Runner
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/serialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Serialization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/fluent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fluent API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/stack-evaluator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Stack Evaluator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/compiler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Compiler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Integrations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            Integrations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/fastapi.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    FastAPI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/mcp.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MCP
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/jupyter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Jupyter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-problem-with-traditional-code-mobility" class="md-nav__link">
+    <span class="md-ellipsis">
+      The Problem with Traditional Code Mobility
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Problem with Traditional Code Mobility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-serialization-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Serialization Complexity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-runtime-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Runtime Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-security-vulnerabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Security Vulnerabilities
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-platform-lock-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Platform Lock-in
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-jsl-solution" class="md-nav__link">
+    <span class="md-ellipsis">
+      The JSL Solution
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#theoretical-foundations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Theoretical Foundations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Theoretical Foundations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#homoiconicity" class="md-nav__link">
+    <span class="md-ellipsis">
+      Homoiconicity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verifiable-serializable-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verifiable, Serializable State
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wire-format-transparency" class="md-nav__link">
+    <span class="md-ellipsis">
+      Wire-Format Transparency
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practical-applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      Practical Applications
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Practical Applications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-distributed-computing" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Distributed Computing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-edge-computing" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Edge Computing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-database-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Database Functions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sicp-inspired-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      SICP-Inspired Design
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="design-philosophy">Design Philosophy<a class="headerlink" href="#design-philosophy" title="Permanent link">&para;</a></h1>
+<h2 id="the-problem-with-traditional-code-mobility">The Problem with Traditional Code Mobility<a class="headerlink" href="#the-problem-with-traditional-code-mobility" title="Permanent link">&para;</a></h2>
+<p>Modern distributed systems require seamless code mobility—the ability to send executable code across network boundaries, store it in databases, and reconstruct it in different runtime environments. Traditional approaches face fundamental challenges:</p>
+<h3 id="1-serialization-complexity">1. Serialization Complexity<a class="headerlink" href="#1-serialization-complexity" title="Permanent link">&para;</a></h3>
+<p>Most languages require complex serialization frameworks (e.g., pickle, protobuf) that are brittle, version-dependent, and often insecure.</p>
+<h3 id="2-runtime-dependencies">2. Runtime Dependencies<a class="headerlink" href="#2-runtime-dependencies" title="Permanent link">&para;</a></h3>
+<p>Serialized code often depends on specific runtime versions, libraries, or execution contexts that may not be available on the receiving end.</p>
+<h3 id="3-security-vulnerabilities">3. Security Vulnerabilities<a class="headerlink" href="#3-security-vulnerabilities" title="Permanent link">&para;</a></h3>
+<p>Deserializing code can execute arbitrary instructions, creating significant attack vectors.</p>
+<h3 id="4-platform-lock-in">4. Platform Lock-in<a class="headerlink" href="#4-platform-lock-in" title="Permanent link">&para;</a></h3>
+<p>Serialization formats are often language-specific, preventing cross-platform code sharing.</p>
+<h2 id="the-jsl-solution">The JSL Solution<a class="headerlink" href="#the-jsl-solution" title="Permanent link">&para;</a></h2>
+<p>JSL solves these problems by making JSON the native representation for both data and code. This design enables powerful properties for network-native programming. The core language is purely functional and safe, while interactions with the host system are reified as data and controlled through a programmable, capability-based environment model.</p>
+<h2 id="theoretical-foundations">Theoretical Foundations<a class="headerlink" href="#theoretical-foundations" title="Permanent link">&para;</a></h2>
+<h3 id="homoiconicity">Homoiconicity<a class="headerlink" href="#homoiconicity" title="Permanent link">&para;</a></h3>
+<p>Like classic Lisps, JSL is <strong>homoiconic</strong>, meaning code and data share the same representation. However, instead of S-expressions, JSL uses JSON—a universally supported and standardized format.</p>
+<p><strong>Key Benefits:</strong></p>
+<ul>
+<li><strong>No Parsing Ambiguity</strong>: JSON has a precise, standardized grammar.</li>
+<li><strong>Universal Tooling</strong>: Every major language and platform can handle JSON.</li>
+<li><strong>Network Transparency</strong>: Valid JSON travels safely across all network protocols.</li>
+<li><strong>Human Readability</strong>: Code can be inspected and modified with standard text tools.</li>
+</ul>
+<h3 id="verifiable-serializable-state">Verifiable, Serializable State<a class="headerlink" href="#verifiable-serializable-state" title="Permanent link">&para;</a></h3>
+<p>Handling closures (functions that capture their lexical environment) is a primary challenge in code mobility. JSL solves this with a <strong>content-addressable storage model</strong> that elegantly handles circular references and makes program state verifiable, efficient, and safely serializable.</p>
+<ul>
+<li><strong>Content-Addressable Objects:</strong> Every complex object (closure or environment) is identified by a unique hash of its contents. Objects are stored in a hash table and referenced by their content hashes, naturally handling circular references.</li>
+<li><strong>Serializable Closures:</strong> A closure is serialized as a JSON object containing its parameters, body, and a reference to its captured environment. The environment reference uses the content-addressable format <code>{"__ref__": "hash"}</code>.</li>
+<li><strong>Efficient Sharing:</strong> Identical objects share the same hash, avoiding duplication and creating an efficient storage model for complex object graphs.</li>
+<li><strong>Format Versioning:</strong> The serialized payload includes <code>__cas_version__</code> to enable format evolution while maintaining backward compatibility.</li>
+</ul>
+<p>This architecture ensures that a serialized JSL program can handle arbitrarily complex object relationships while remaining a verifiable, self-contained unit of computation.</p>
+<h3 id="wire-format-transparency">Wire-Format Transparency<a class="headerlink" href="#wire-format-transparency" title="Permanent link">&para;</a></h3>
+<p>Every JSL value can be serialized to JSON and reconstructed identically in any compliant runtime. This enables:</p>
+<ul>
+<li><strong>Database Storage</strong>: Store executable code with ACID properties.</li>
+<li><strong>HTTP Transmission</strong>: Send functions using standard web infrastructure.</li>
+<li><strong>Cross-Language Interoperability</strong>: Leverage JSON's universal support.</li>
+<li><strong>Audit Trails</strong>: Create reproducible records of code execution.</li>
+<li><strong>Version Control</strong>: Use standard JSON diff/merge tools to manage code.</li>
+</ul>
+<h2 id="practical-applications">Practical Applications<a class="headerlink" href="#practical-applications" title="Permanent link">&para;</a></h2>
+<h3 id="1-distributed-computing">1. Distributed Computing<a class="headerlink" href="#1-distributed-computing" title="Permanent link">&para;</a></h3>
+<p>Send computations to where data resides, rather than moving data.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>[&quot;lambda&quot;, [&quot;data&quot;], 
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  [&quot;filter&quot;, 
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    [&quot;lambda&quot;, [&quot;record&quot;], [&quot;=&quot;, [&quot;get&quot;, &quot;record&quot;, &quot;status&quot;], &quot;active&quot;]], 
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    &quot;data&quot;]]
+</code></pre></div>
+<h3 id="2-edge-computing">2. Edge Computing<a class="headerlink" href="#2-edge-computing" title="Permanent link">&para;</a></h3>
+<p>Deploy and update logic on edge devices dynamically.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>[&quot;lambda&quot;, [&quot;sensor_reading&quot;],
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  [&quot;if&quot;, [&quot;&gt;&quot;, &quot;sensor_reading&quot;, 75],
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    [&quot;send-alert&quot;, &quot;High temperature detected&quot;],
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    [&quot;log&quot;, &quot;Normal reading:&quot;, &quot;sensor_reading&quot;]]]
+</code></pre></div>
+<h3 id="3-database-functions">3. Database Functions<a class="headerlink" href="#3-database-functions" title="Permanent link">&para;</a></h3>
+<p>Store and execute business logic directly in databases.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>[&quot;lambda&quot;, [&quot;user_id&quot;, &quot;new_status&quot;],
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  [&quot;host&quot;, &quot;db/update&quot;, &quot;users&quot;, 
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    {&quot;id&quot;: &quot;user_id&quot;}, 
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    {&quot;$set&quot;: {&quot;status&quot;: &quot;new_status&quot;}}]]
+</code></pre></div>
+<h2 id="sicp-inspired-design">SICP-Inspired Design<a class="headerlink" href="#sicp-inspired-design" title="Permanent link">&para;</a></h2>
+<p>JSL follows the elegant principles outlined in <em>"Structure and Interpretation of Computer Programs"</em>:</p>
+<ul>
+<li><strong>Simplicity</strong>: Everything is built from a small set of primitives (atoms, lists, functions).</li>
+<li><strong>Composability</strong>: Complex operations are created by combining simple ones.</li>
+<li><strong>Abstraction</strong>: Higher-level concepts are built on lower-level foundations.</li>
+<li><strong>Uniformity</strong>: A consistent evaluation model applies throughout the language.</li>
+<li><strong>Extensibility</strong>: New capabilities are added through composition, not special cases.</li>
+</ul>
+<p>This approach creates a language that is both theoretically elegant and practically useful for distributed computing.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>

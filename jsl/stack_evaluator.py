@@ -22,6 +22,7 @@ class StackState:
     pc: int  # Program counter (position in postfix instructions)
     instructions: List[Any]
     resource_checkpoint: Optional[Dict[str, Any]] = None  # Resource state for resumption
+    user_env: Optional[Dict[str, Any]] = None  # User-defined environment (not prelude)
     
     def to_dict(self) -> Dict:
         """Convert to serializable dictionary."""
@@ -29,7 +30,8 @@ class StackState:
             'stack': self.stack.copy(),
             'pc': self.pc,
             'instructions': self.instructions.copy(),
-            'resource_checkpoint': self.resource_checkpoint.copy() if self.resource_checkpoint else None
+            'resource_checkpoint': self.resource_checkpoint.copy() if self.resource_checkpoint else None,
+            'user_env': self.user_env.copy() if self.user_env else None
         }
     
     @classmethod
@@ -39,7 +41,8 @@ class StackState:
             stack=data['stack'].copy(),
             pc=data['pc'],
             instructions=data['instructions'].copy(),
-            resource_checkpoint=data.get('resource_checkpoint', {}).copy() if data.get('resource_checkpoint') else None
+            resource_checkpoint=data.get('resource_checkpoint', {}).copy() if data.get('resource_checkpoint') else None,
+            user_env=data.get('user_env', {}).copy() if data.get('user_env') else None
         )
 
 
@@ -202,6 +205,9 @@ class StackEvaluator:
             # Restore resource state if available
             if state.resource_checkpoint and self.resource_budget:
                 self.resource_budget.restore(state.resource_checkpoint)
+            # Restore user environment if available
+            if state.user_env:
+                self.env.update(state.user_env)
         else:
             # Start fresh
             stack = []
@@ -288,8 +294,10 @@ class StackEvaluator:
                         if len(args) != len(params):
                             raise ValueError(f"Arity mismatch: closure expects {len(params)} args, got {len(args)}")
                         
-                        # Create new environment
-                        new_env = closure_env.copy()
+                        # Create new environment: merge current env (with prelude) with closure env
+                        # This ensures the closure has access to prelude functions
+                        new_env = self.env.copy()  # Start with current env (includes prelude)
+                        new_env.update(closure_env)  # Add closure's captured environment
                         for param, arg in zip(params, args):
                             new_env[param] = arg
                         
@@ -369,8 +377,10 @@ class StackEvaluator:
                             if len(args) != len(params):
                                 raise ValueError(f"Arity mismatch: {operator} expects {len(params)} args, got {len(args)}")
                             
-                            # Create new environment
-                            new_env = closure_env.copy()
+                            # Create new environment: merge current env (with prelude) with closure env
+                            # This ensures the closure has access to prelude functions
+                            new_env = self.env.copy()  # Start with current env (includes prelude)
+                            new_env.update(closure_env)  # Add closure's captured environment
                             for param, arg in zip(params, args):
                                 new_env[param] = arg
                             
@@ -475,6 +485,10 @@ class StackEvaluator:
             # Restore resource state if available
             if state.resource_checkpoint and self.resource_budget:
                 self.resource_budget.restore(state.resource_checkpoint)
+            # Restore user environment if available
+            if state.user_env:
+                # Merge user environment with current (prelude) environment
+                self.env.update(state.user_env)
         else:
             stack = []
             pc = 0
@@ -493,7 +507,8 @@ class StackEvaluator:
             if (isinstance(instr, int) and 
                 pc + 1 < len(instructions) and 
                 isinstance(instructions[pc + 1], str) and
-                instructions[pc + 1] in self.builtins):
+                (instructions[pc + 1] in self.builtins or
+                 instructions[pc + 1] in self.env)):
                 # This is an arity-operator pair
                 arity = instr
                 operator = instructions[pc + 1]
@@ -525,13 +540,61 @@ class StackEvaluator:
                     args.insert(0, stack.pop())
                 
                 # Apply operator
-                result = self.builtins[operator](args)
-                
-                # Check result constraints if we have a resource budget
-                if self.resource_budget:
-                    self.resource_budget.check_result(result)
-                
-                stack.append(result)
+                if operator in self.builtins:
+                    result = self.builtins[operator](args)
+                    
+                    # Check result constraints if we have a resource budget
+                    if self.resource_budget:
+                        self.resource_budget.check_result(result)
+                    
+                    stack.append(result)
+                else:
+                    # Not a builtin - could be a user-defined function in env
+                    if operator in self.env:
+                        func = self.env[operator]
+                        if isinstance(func, dict) and func.get('type') == 'closure':
+                            # It's a closure - apply it
+                            self._consume_gas(GasCost.FUNCTION_CALL, f"closure call: {operator}")
+                            
+                            # Extract closure parts
+                            params = func['params']
+                            body = func['body']
+                            closure_env = func.get('env', {})
+                            
+                            # Check arity
+                            if len(args) != len(params):
+                                raise ValueError(f"Arity mismatch: {operator} expects {len(params)} args, got {len(args)}")
+                            
+                            # Create new environment: merge current env (with prelude) with closure env
+                            # This ensures the closure has access to prelude functions
+                            new_env = self.env.copy()  # Start with current env (includes prelude)
+                            new_env.update(closure_env)  # Add closure's captured environment
+                            for param, arg in zip(params, args):
+                                new_env[param] = arg
+                            
+                            # Import compiler here to avoid circular dependency
+                            from .compiler import compile_to_postfix
+                            
+                            # Compile and evaluate body in new environment
+                            body_jpn = compile_to_postfix(body)
+                            result = self.eval(body_jpn, env=new_env)
+                            
+                            # Check result constraints if we have a resource budget
+                            if self.resource_budget:
+                                self.resource_budget.check_result(result)
+                            
+                            stack.append(result)
+                        elif callable(func):
+                            # Built-in function stored in env
+                            self._consume_gas(GasCost.FUNCTION_CALL, f"builtin call: {operator}")
+                            result = func(*args)
+                            if self.resource_budget:
+                                self.resource_budget.check_result(result)
+                            stack.append(result)
+                        else:
+                            raise ValueError(f"'{operator}' is not a function")
+                    else:
+                        raise ValueError(f"Undefined function: {operator}")
             
             elif isinstance(instr, (int, float, bool, type(None))):
                 # Push literal number/bool/null
@@ -589,11 +652,20 @@ class StackEvaluator:
             if self.resource_budget:
                 resource_checkpoint = self.resource_budget.checkpoint()
             
+            # Extract user-defined environment (exclude prelude functions)
+            # We identify prelude by checking if values are callable Python functions
+            user_env = {}
+            for key, value in self.env.items():
+                # Include if: not a Python callable (user lambdas are dicts), or is a user value
+                if not callable(value) or isinstance(value, dict):
+                    user_env[key] = value
+            
             state = StackState(
                 stack=stack, 
                 pc=pc, 
                 instructions=instructions,
-                resource_checkpoint=resource_checkpoint
+                resource_checkpoint=resource_checkpoint,
+                user_env=user_env
             )
             return None, state
 

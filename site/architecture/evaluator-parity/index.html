@@ -1,0 +1,2319 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Network-Native Functional Programming Language">
+      
+      
+      
+        <link rel="canonical" href="https://queelius.github.io/jsl/architecture/evaluator-parity/">
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.17">
+    
+    
+      
+        <title>Evaluator Parity: Dual Implementation Architecture - JSL - JSON Serializable Language</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#evaluator-parity-dual-implementation-architecture" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="JSL - JSON Serializable Language" class="md-header__button md-logo" aria-label="JSL - JSON Serializable Language" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            JSL - JSON Serializable Language
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Evaluator Parity: Dual Implementation Architecture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../language/overview/" class="md-tabs__link">
+          
+  
+  
+  Language Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/first-program/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../jhip/protocol/" class="md-tabs__link">
+          
+  
+  
+  Host Interaction
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../philosophy/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../examples/simple/" class="md-tabs__link">
+          
+  
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/core/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integrations/overview.md" class="md-tabs__link">
+          
+  
+  
+  Integrations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../changelog.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="JSL - JSON Serializable Language" class="md-nav__button md-logo" aria-label="JSL - JSON Serializable Language" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    JSL - JSON Serializable Language
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Language Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Language Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/specification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Specification
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/semantics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Syntax and Semantics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Environments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/special-forms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Special Forms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/objects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Objects
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Templates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/prelude/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prelude
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/query-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Query Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/transform-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Transform Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/path-navigation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Path Navigation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/first-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    First Program
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Host Interaction
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Host Interaction
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../jhip/protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    JHIP Protocol
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../jhip/host-commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Host Commands
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Philosophy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../abstract-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Abstract Machine
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../stack-evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Stack Evaluation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Runtime
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Security
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Network Transparency
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../serialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Serialization Design
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../distributed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Distributed Computing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/simple/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simple
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/practical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Practical
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/query-transform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Query & Transform
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/group-by/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Group By
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Core
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/evaluator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Evaluator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Runner
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/serialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Serialization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/fluent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fluent API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/stack-evaluator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Stack Evaluator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/compiler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Compiler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Integrations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            Integrations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/fastapi.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    FastAPI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/mcp.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MCP
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/jupyter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Jupyter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-two-evaluators" class="md-nav__link">
+    <span class="md-ellipsis">
+      Why Two Evaluators?
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Why Two Evaluators?">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recursive-evaluator" class="md-nav__link">
+    <span class="md-ellipsis">
+      Recursive Evaluator
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stack-evaluator" class="md-nav__link">
+    <span class="md-ellipsis">
+      Stack Evaluator
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parity-achievement" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parity Achievement
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parity Achievement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test Coverage
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#language-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Language Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Language Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#special-forms" class="md-nav__link">
+    <span class="md-ellipsis">
+      Special Forms
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Features
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Details
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#function-application-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function Application Design
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#closure-representations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Closure Representations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identity-elements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Identity Elements
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#n-ary-subtraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      N-ary Subtraction
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing Strategy
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unified-test-suite" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unified Test Suite
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test Categories
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#runner-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Runner Integration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Runner Integration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#environment-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Management
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benefits-of-dual-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benefits of Dual Implementation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      Future Work
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="evaluator-parity-dual-implementation-architecture">Evaluator Parity: Dual Implementation Architecture<a class="headerlink" href="#evaluator-parity-dual-implementation-architecture" title="Permanent link">&para;</a></h1>
+<p>This document describes JSL's dual evaluator architecture and the comprehensive work done to ensure both evaluators have identical semantics.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>JSL implements two evaluators with different execution strategies but identical language semantics:</p>
+<ol>
+<li><strong>Recursive Evaluator</strong> - Traditional tree-walking interpreter</li>
+<li><strong>Stack Evaluator</strong> - Compiles to postfix notation for stack-based execution</li>
+</ol>
+<h2 id="why-two-evaluators">Why Two Evaluators?<a class="headerlink" href="#why-two-evaluators" title="Permanent link">&para;</a></h2>
+<h3 id="recursive-evaluator">Recursive Evaluator<a class="headerlink" href="#recursive-evaluator" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Reference implementation and development</li>
+<li><strong>Benefits</strong>:</li>
+<li>Simple, traditional tree-walking approach</li>
+<li>Natural recursion for nested expressions  </li>
+<li>Easy to understand and debug</li>
+<li>Good for development and testing</li>
+<li><strong>Implementation</strong>: Uses <code>Closure</code> class objects</li>
+</ul>
+<h3 id="stack-evaluator">Stack Evaluator<a class="headerlink" href="#stack-evaluator" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Purpose</strong>: Production implementation with advanced features</li>
+<li><strong>Benefits</strong>:</li>
+<li>Compiles to JPN (JSL Postfix Notation)</li>
+<li><strong>Resumable execution</strong> (can pause/restore state)</li>
+<li><strong>Network-native</strong> (all state is JSON-serializable)</li>
+<li>No call stack depth limitations</li>
+<li>Better for distributed systems</li>
+<li><strong>Implementation</strong>: Uses dict closures (JSON-serializable)</li>
+</ul>
+<h2 id="parity-achievement">Parity Achievement<a class="headerlink" href="#parity-achievement" title="Permanent link">&para;</a></h2>
+<h3 id="test-coverage">Test Coverage<a class="headerlink" href="#test-coverage" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>168 unified tests</strong> - Each test runs against both evaluators</li>
+<li><strong>100% pass rate</strong> - Identical inputs produce identical outputs</li>
+<li><strong>30 runner integration tests</strong> - All pass with both evaluators</li>
+</ul>
+<h3 id="language-features">Language Features<a class="headerlink" href="#language-features" title="Permanent link">&para;</a></h3>
+<h4 id="core-operations">Core Operations<a class="headerlink" href="#core-operations" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Arithmetic: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>%</code> with proper identity elements</li>
+<li>✅ Comparison: <code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>  </li>
+<li>✅ Logical: <code>and</code>, <code>or</code>, <code>not</code> with proper identity elements</li>
+<li>✅ Lists: <code>list</code>, <code>cons</code>, <code>first</code>, <code>rest</code>, <code>length</code>, <code>append</code></li>
+</ul>
+<h4 id="special-forms">Special Forms<a class="headerlink" href="#special-forms" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ <code>if</code> - Conditional evaluation</li>
+<li>✅ <code>let</code> - Local bindings (standardized format: <code>["let", [[bindings]], body]</code>)</li>
+<li>✅ <code>lambda</code> - Function creation</li>
+<li>✅ <code>def</code> - Global definitions</li>
+<li>✅ <code>do</code> - Sequential evaluation</li>
+<li>✅ <code>quote</code> / <code>@</code> - Prevent evaluation</li>
+<li>✅ <code>try</code> - Error handling</li>
+<li>✅ <code>host</code> - Side effects</li>
+</ul>
+<h4 id="advanced-features">Advanced Features<a class="headerlink" href="#advanced-features" title="Permanent link">&para;</a></h4>
+<ul>
+<li>✅ Function application: <code>[["lambda", ["x"], body], arg]</code></li>
+<li>✅ Recursive functions (fibonacci, factorial, etc.)</li>
+<li>✅ Higher-order functions (map, filter, reduce)</li>
+<li>✅ Closures with proper lexical scoping</li>
+<li>✅ Error handling with try/catch</li>
+</ul>
+<h2 id="implementation-details">Implementation Details<a class="headerlink" href="#implementation-details" title="Permanent link">&para;</a></h2>
+<h3 id="function-application-design">Function Application Design<a class="headerlink" href="#function-application-design" title="Permanent link">&para;</a></h3>
+<p>When the first element of a list is itself an expression (not just a string), it's evaluated to get a function:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">[[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">]],</span><span class="w"> </span><span class="mi">5</span><span class="p">]</span>
+</code></pre></div>
+<p>The compiler detects this pattern and generates an <code>__apply__</code> operation:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>[5, &lt;lambda-closure&gt;, 1, &quot;__apply__&quot;]
+</code></pre></div></p>
+<h3 id="closure-representations">Closure Representations<a class="headerlink" href="#closure-representations" title="Permanent link">&para;</a></h3>
+<p><strong>Recursive Evaluator:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">Closure</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="n">body</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">env</span><span class="o">=</span><span class="n">Env</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+</code></pre></div></p>
+<p><strong>Stack Evaluator:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;closure&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">&quot;params&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">&quot;body&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">],</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="p">}</span>
+</code></pre></div></p>
+<h3 id="identity-elements">Identity Elements<a class="headerlink" href="#identity-elements" title="Permanent link">&para;</a></h3>
+<p>Operations return mathematically correct identity elements for 0-arity calls:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>0-arity Result</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>(+)</code></td>
+<td>0</td>
+<td>Addition identity</td>
+</tr>
+<tr>
+<td><code>(*)</code></td>
+<td>1</td>
+<td>Multiplication identity</td>
+</tr>
+<tr>
+<td><code>(-)</code></td>
+<td>0</td>
+<td>Consistent with addition</td>
+</tr>
+<tr>
+<td><code>(and)</code></td>
+<td>true</td>
+<td>All of empty set</td>
+</tr>
+<tr>
+<td><code>(or)</code></td>
+<td>false</td>
+<td>Any of empty set</td>
+</tr>
+<tr>
+<td><code>(min)</code></td>
+<td>+∞</td>
+<td>Upper bound</td>
+</tr>
+<tr>
+<td><code>(max)</code></td>
+<td>-∞</td>
+<td>Lower bound</td>
+</tr>
+</tbody>
+</table>
+<h3 id="n-ary-subtraction">N-ary Subtraction<a class="headerlink" href="#n-ary-subtraction" title="Permanent link">&para;</a></h3>
+<p>Subtraction follows left-associative semantics:
+- <code>(-)</code> → 0 (identity)
+- <code>(- x)</code> → -x (negation)
+- <code>(- a b c)</code> → ((a - b) - c) (left-associative)</p>
+<h2 id="testing-strategy">Testing Strategy<a class="headerlink" href="#testing-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="unified-test-suite">Unified Test Suite<a class="headerlink" href="#unified-test-suite" title="Permanent link">&para;</a></h3>
+<p>The <code>tests/test_unified_evaluators.py</code> file contains comprehensive tests that run against both evaluators:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">params</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">RecursiveEvaluatorAdapter</span><span class="p">(),</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">StackEvaluatorAdapter</span><span class="p">(),</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">RunnerAdapter</span><span class="p">(</span><span class="n">use_recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">RunnerAdapter</span><span class="p">(</span><span class="n">use_recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">])</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">evaluator</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="k">return</span> <span class="n">request</span><span class="o">.</span><span class="n">param</span>
+</code></pre></div>
+<p>Each test is automatically run 4 times to ensure consistency across all execution paths.</p>
+<h3 id="test-categories">Test Categories<a class="headerlink" href="#test-categories" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Literals</strong> - Numbers, booleans, null, strings</li>
+<li><strong>Arithmetic</strong> - All operations with various arities</li>
+<li><strong>Comparison</strong> - All comparison operators</li>
+<li><strong>Logical</strong> - Boolean operations</li>
+<li><strong>Lists</strong> - Creation and manipulation</li>
+<li><strong>Special Forms</strong> - All language constructs</li>
+<li><strong>Variables</strong> - Definition and lookup</li>
+<li><strong>Complex Expressions</strong> - Recursive functions, nested expressions</li>
+<li><strong>Edge Cases</strong> - Empty expressions, deeply nested structures</li>
+</ol>
+<h2 id="runner-integration">Runner Integration<a class="headerlink" href="#runner-integration" title="Permanent link">&para;</a></h2>
+<p>The <code>JSLRunner</code> class provides a unified interface that works seamlessly with either evaluator:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Use recursive evaluator</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">runner</span> <span class="o">=</span> <span class="n">JSLRunner</span><span class="p">(</span><span class="n">use_recursive_evaluator</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Use stack evaluator (default)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">runner</span> <span class="o">=</span> <span class="n">JSLRunner</span><span class="p">(</span><span class="n">use_recursive_evaluator</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Both produce identical results</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">result</span> <span class="o">=</span> <span class="n">runner</span><span class="o">.</span><span class="n">execute</span><span class="p">([</span><span class="s2">&quot;fibonacci&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+</code></pre></div>
+<h3 id="environment-management">Environment Management<a class="headerlink" href="#environment-management" title="Permanent link">&para;</a></h3>
+<p>Both evaluators properly handle:
+- Environment extension for lexical scoping
+- Context managers for isolated execution
+- Variable definition and lookup
+- Host command dispatch</p>
+<h2 id="benefits-of-dual-implementation">Benefits of Dual Implementation<a class="headerlink" href="#benefits-of-dual-implementation" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Validation</strong> - Cross-checking ensures correctness</li>
+<li><strong>Flexibility</strong> - Choose evaluator based on needs</li>
+<li><strong>Documentation</strong> - Recursive serves as readable specification</li>
+<li><strong>Innovation</strong> - Stack evaluator adds advanced features without breaking compatibility</li>
+<li><strong>Testing</strong> - Natural A/B testing of implementations</li>
+</ol>
+<h2 id="future-work">Future Work<a class="headerlink" href="#future-work" title="Permanent link">&para;</a></h2>
+<p>While parity is complete, the stack evaluator can add features impossible with recursive evaluation:</p>
+<ul>
+<li>Execution state serialization</li>
+<li>Network distribution of computation</li>
+<li>Time-sliced execution</li>
+<li>Pauseable/resumable workflows</li>
+<li>Checkpoint/restore capabilities</li>
+</ul>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>JSL's dual evaluator architecture provides both simplicity and power while maintaining complete semantic consistency. The comprehensive test suite ensures that any program will produce identical results regardless of which evaluator is used, giving users confidence to choose the evaluator that best fits their needs.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>

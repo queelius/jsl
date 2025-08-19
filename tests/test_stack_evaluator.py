@@ -249,6 +249,119 @@ class TestResumption:
         assert state is None
 
 
+class TestUserEnvironmentResumption:
+    """Test resumption with user-defined functions and variables."""
+    
+    def setup_method(self):
+        """Set up test components."""
+        from jsl.prelude import make_prelude
+        prelude = make_prelude()
+        self.evaluator = StackEvaluator(env=prelude.to_dict())
+    
+    def test_resume_with_user_function(self):
+        """Test resuming execution with a user-defined function."""
+        # Define a user function
+        self.evaluator.env['double'] = {
+            'type': 'closure',
+            'params': ['x'],
+            'body': ['*', 'x', 2],
+            'env': {}
+        }
+        
+        # Execute partially
+        instructions = [10, 1, 'double']  # Should return 20
+        result, state = self.evaluator.eval_partial(instructions, max_steps=1)
+        
+        assert result is None
+        assert state is not None
+        assert 'double' in state.user_env
+        
+        # Create fresh evaluator and resume
+        from jsl.prelude import make_prelude
+        fresh_prelude = make_prelude()
+        fresh_evaluator = StackEvaluator(env=fresh_prelude.to_dict())
+        
+        # Resume execution
+        final_result, final_state = fresh_evaluator.eval_partial(
+            instructions, max_steps=100, state=state
+        )
+        
+        assert final_result == 20
+        assert final_state is None
+    
+    def test_resume_with_captured_variables(self):
+        """Test resuming with closures that capture variables."""
+        # Define variables and a closure that captures them
+        self.evaluator.env['multiplier'] = 5
+        self.evaluator.env['add-and-multiply'] = {
+            'type': 'closure',
+            'params': ['a', 'b'],
+            'body': ['*', ['+', 'a', 'b'], 'multiplier'],
+            'env': {'multiplier': 5}
+        }
+        
+        # Execute partially - (3 + 4) * 5 = 35
+        instructions = [3, 4, 2, 'add-and-multiply']
+        result, state = self.evaluator.eval_partial(instructions, max_steps=2)
+        
+        assert result is None
+        assert state is not None
+        assert 'add-and-multiply' in state.user_env
+        assert 'multiplier' in state.user_env
+        
+        # Create fresh evaluator and resume
+        from jsl.prelude import make_prelude
+        fresh_prelude = make_prelude()
+        fresh_evaluator = StackEvaluator(env=fresh_prelude.to_dict())
+        
+        # Resume execution
+        final_result, final_state = fresh_evaluator.eval_partial(
+            instructions, max_steps=100, state=state
+        )
+        
+        assert final_result == 35
+        assert final_state is None
+    
+    def test_state_serialization_with_user_env(self):
+        """Test that state with user environment can be JSON serialized."""
+        import json
+        
+        # Define a user function and variable
+        self.evaluator.env['scale'] = 10
+        self.evaluator.env['scale-it'] = {
+            'type': 'closure',
+            'params': ['n'],
+            'body': ['*', 'n', 'scale'],
+            'env': {'scale': 10}
+        }
+        
+        # Execute partially
+        instructions = [7, 1, 'scale-it']  # Should return 70
+        result, state = self.evaluator.eval_partial(instructions, max_steps=1)
+        
+        assert state is not None
+        
+        # Serialize state to JSON
+        state_dict = state.to_dict()
+        json_str = json.dumps(state_dict)
+        
+        # Deserialize state
+        restored_dict = json.loads(json_str)
+        restored_state = StackState.from_dict(restored_dict)
+        
+        # Create fresh evaluator and resume with restored state
+        from jsl.prelude import make_prelude
+        fresh_prelude = make_prelude()
+        fresh_evaluator = StackEvaluator(env=fresh_prelude.to_dict())
+        
+        final_result, final_state = fresh_evaluator.eval_partial(
+            instructions, max_steps=100, state=restored_state
+        )
+        
+        assert final_result == 70
+        assert final_state is None
+
+
 class TestIntegration:
     """Test compiler and evaluator together."""
     

@@ -326,13 +326,19 @@ class SpecialFormEvaluator:
         params, body = args
         
         # Create a simple closure representation
-        # Store a reference to the environment, not a copy, to allow recursion
-        # We'll make a copy when we apply the closure
+        # Only capture user-defined bindings (not Python callables from prelude)
+        # This ensures the closure can be JSON-serialized
+        user_env = {}
+        for key, value in env.items():
+            # Include if: not a Python callable (user lambdas are dicts), or is a user value
+            if not callable(value) or isinstance(value, dict):
+                user_env[key] = value
+        
         return {
             'type': 'closure',
             'params': params,
             'body': body,
-            'env': env  # Store reference, not copy
+            'env': user_env  # Only user-defined values, not prelude functions
         }
     
     def eval_def(self, args: List[Any], env: Dict[str, Any]) -> Any:

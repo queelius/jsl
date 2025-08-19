@@ -1,0 +1,3012 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Network-Native Functional Programming Language">
+      
+      
+      
+        <link rel="canonical" href="https://queelius.github.io/jsl/jhip/host-commands/">
+      
+      
+        <link rel="prev" href="../protocol/">
+      
+      
+        <link rel="next" href="../../architecture/philosophy/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.17">
+    
+    
+      
+        <title>Host Commands - JSL - JSON Serializable Language</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#host-commands" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="JSL - JSON Serializable Language" class="md-header__button md-logo" aria-label="JSL - JSON Serializable Language" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            JSL - JSON Serializable Language
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Host Commands
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../language/overview/" class="md-tabs__link">
+          
+  
+  
+  Language Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/first-program/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../protocol/" class="md-tabs__link">
+          
+  
+  
+  Host Interaction
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/philosophy/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../examples/simple/" class="md-tabs__link">
+          
+  
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/core/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integrations/overview.md" class="md-tabs__link">
+          
+  
+  
+  Integrations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../changelog.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="JSL - JSON Serializable Language" class="md-nav__button md-logo" aria-label="JSL - JSON Serializable Language" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    JSL - JSON Serializable Language
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Language Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Language Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/specification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Specification
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/semantics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Syntax and Semantics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Environments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/special-forms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Special Forms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/objects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Objects
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Templates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/prelude/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prelude
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/query-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Query Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/transform-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Transform Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/path-navigation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Path Navigation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/first-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    First Program
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Host Interaction
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Host Interaction
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    JHIP Protocol
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Host Commands
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Host Commands
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#community-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Community Conventions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Community Conventions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file-system-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      File System Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#http-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      HTTP Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logging-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logging Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      System Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cryptographic-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cryptographic Operations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#command-design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Command Design Principles
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Command Design Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#naming-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Naming Conventions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#command-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Command Categories
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Command Categories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cloud-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cloud Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#machine-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Machine Learning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#business-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Business Logic
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Guidelines
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#command-handler-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      Command Handler Interface
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registration-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      Registration Pattern
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Handling
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-command-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Command Implementations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example Command Implementations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file-read-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      File Read Command
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#http-get-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      HTTP GET Command
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-business-logic-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Business Logic Command
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Considerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#permission-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permission System
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Input Validation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resource Limits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-host-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing Host Commands
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Host Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unit-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unit Testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration Testing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation Template
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#design-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Design Guidelines
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Optimization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Best Practices
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Philosophy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/abstract-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Abstract Machine
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/stack-evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Stack Evaluation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Runtime
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Security
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Network Transparency
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/serialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Serialization Design
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/distributed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Distributed Computing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/simple/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simple
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/practical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Practical
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/query-transform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Query & Transform
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/group-by/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Group By
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Core
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/evaluator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Evaluator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Runner
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/serialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Serialization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/fluent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fluent API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/stack-evaluator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Stack Evaluator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/compiler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Compiler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Integrations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            Integrations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/fastapi.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    FastAPI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/mcp.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MCP
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/jupyter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Jupyter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#community-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Community Conventions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Community Conventions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file-system-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      File System Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#http-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      HTTP Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logging-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Logging Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      System Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#database-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Database Operations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cryptographic-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cryptographic Operations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#command-design-principles" class="md-nav__link">
+    <span class="md-ellipsis">
+      Command Design Principles
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Command Design Principles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#naming-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Naming Conventions
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#command-categories" class="md-nav__link">
+    <span class="md-ellipsis">
+      Command Categories
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Command Categories">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cloud-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cloud Services
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#machine-learning" class="md-nav__link">
+    <span class="md-ellipsis">
+      Machine Learning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#business-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      Business Logic
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Guidelines
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#command-handler-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      Command Handler Interface
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#registration-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      Registration Pattern
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Handling
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-command-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Command Implementations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example Command Implementations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file-read-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      File Read Command
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#http-get-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      HTTP GET Command
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-business-logic-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Business Logic Command
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Considerations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#permission-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      Permission System
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Input Validation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resource-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      Resource Limits
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-host-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Testing Host Commands
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Host Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unit-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Unit Testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration Testing
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation Template
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Best Practices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#design-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Design Guidelines
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#performance-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Optimization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Best Practices
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="host-commands">Host Commands<a class="headerlink" href="#host-commands" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>JHIP defines the protocol structure for host interactions, but <strong>all commands are host-specific</strong> and defined by individual host implementations. Each JSL host chooses which commands to support based on their specific environment and use cases. This extensibility allows JSL to integrate with any system while maintaining the security and audit benefits of the JHIP protocol.</p>
+<p>There are no "built-in" or "standard" commands - JHIP is purely a communication protocol. However, community conventions have emerged for common operations.</p>
+<h2 id="community-conventions">Community Conventions<a class="headerlink" href="#community-conventions" title="Permanent link">&para;</a></h2>
+<p>While hosts define their own command sets, these naming patterns are commonly used:</p>
+<h3 id="file-system-operations">File System Operations<a class="headerlink" href="#file-system-operations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@file/read&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@/path/to/file&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@file/write&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@/path/to/file&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@content&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@file/exists&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@/path/to/file&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@file/list&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@/path/to/directory&quot;</span><span class="p">]</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@file/delete&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@/path/to/file&quot;</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="http-operations">HTTP Operations<a class="headerlink" href="#http-operations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@http/get&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@https://api.example.com/data&quot;</span><span class="p">]</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@http/post&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@https://api.example.com/submit&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;@key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@value&quot;</span><span class="p">}]</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@http/put&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@https://api.example.com/update&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;@data&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@updated&quot;</span><span class="p">}]</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@http/delete&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@https://api.example.com/item/123&quot;</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="logging-operations">Logging Operations<a class="headerlink" href="#logging-operations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@log/debug&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@Debug message&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;@context&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@additional info&quot;</span><span class="p">}]</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@log/info&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@Application started successfully&quot;</span><span class="p">]</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@log/warn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@Warning message&quot;</span><span class="p">]</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@log/error&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@Error occurred&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;@error_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">500</span><span class="p">}]</span>
+</code></pre></div>
+<h3 id="system-operations">System Operations<a class="headerlink" href="#system-operations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@env/get&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@PATH&quot;</span><span class="p">]</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@time/now&quot;</span><span class="p">]</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@time/format&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@2025-01-01T12:00:00Z&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@YYYY-MM-DD&quot;</span><span class="p">]</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@random/uuid&quot;</span><span class="p">]</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@process/exec&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@ls&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@-la&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@/tmp&quot;</span><span class="p">]]]</span>
+</code></pre></div>
+<h3 id="database-operations">Database Operations<a class="headerlink" href="#database-operations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@db/query&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@SELECT * FROM users WHERE active = ?&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="kc">true</span><span class="p">]]]</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@db/transaction&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;@INSERT INTO logs (message) VALUES (?)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@Log entry 1&quot;</span><span class="p">]]],</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;@INSERT INTO logs (message) VALUES (?)&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@Log entry 2&quot;</span><span class="p">]]]</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">]]]</span>
+</code></pre></div>
+<h3 id="cryptographic-operations">Cryptographic Operations<a class="headerlink" href="#cryptographic-operations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@crypto/hash&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@sha256&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@data to hash&quot;</span><span class="p">]</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@crypto/random&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">32</span><span class="p">]</span>
+</code></pre></div>
+<h2 id="command-design-principles">Command Design Principles<a class="headerlink" href="#command-design-principles" title="Permanent link">&para;</a></h2>
+<h3 id="naming-conventions">Naming Conventions<a class="headerlink" href="#naming-conventions" title="Permanent link">&para;</a></h3>
+<p>Host commands should follow a hierarchical naming structure:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>&lt;namespace&gt;/&lt;category&gt;/&lt;operation&gt;
+</code></pre></div>
+<p>Examples:
+- <code>myapp/user/create</code>
+- <code>aws/s3/upload</code>
+- <code>database/postgres/query</code>
+- <code>ml/tensorflow/predict</code></p>
+<h3 id="command-categories">Command Categories<a class="headerlink" href="#command-categories" title="Permanent link">&para;</a></h3>
+<h4 id="cloud-services">Cloud Services<a class="headerlink" href="#cloud-services" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@aws/s3/upload&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@bucket-name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@key&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@gcp/storage/download&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@bucket&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@object&quot;</span><span class="p">]</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@azure/blob/delete&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@container&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@blob-name&quot;</span><span class="p">]</span>
+</code></pre></div>
+<h4 id="machine-learning">Machine Learning<a class="headerlink" href="#machine-learning" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@tensorflow/predict&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@model-id&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;@features&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">]]}]</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@pytorch/train&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@model-config&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;training-data&quot;</span><span class="p">]</span>
+</code></pre></div>
+<h4 id="business-logic">Business Logic<a class="headerlink" href="#business-logic" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@ecommerce/order/create&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;@product&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@123&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;@quantity&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">}]</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@crm/contact/update&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@contact-id&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;@email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@new@example.com&quot;</span><span class="p">}]</span>
+</code></pre></div>
+<h2 id="implementation-guidelines">Implementation Guidelines<a class="headerlink" href="#implementation-guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="command-handler-interface">Command Handler Interface<a class="headerlink" href="#command-handler-interface" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">HostCommandHandler</span><span class="p">:</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">command_id</span> <span class="o">=</span> <span class="n">command_id</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate command arguments&quot;&quot;&quot;</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>        <span class="c1"># Implement argument validation</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>        <span class="k">pass</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">any</span><span class="p">:</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute the command and return result&quot;&quot;&quot;</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>        <span class="c1"># Implement command logic</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>        <span class="k">pass</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Return required permissions for this command&quot;&quot;&quot;</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>        <span class="c1"># Return list of required permissions</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>        <span class="k">pass</span>
+</code></pre></div>
+<h3 id="registration-pattern">Registration Pattern<a class="headerlink" href="#registration-pattern" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Register host command handlers</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">jsl_host</span><span class="o">.</span><span class="n">register_command</span><span class="p">(</span><span class="s2">&quot;file/read&quot;</span><span class="p">,</span> <span class="n">FileReadHandler</span><span class="p">())</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">jsl_host</span><span class="o">.</span><span class="n">register_command</span><span class="p">(</span><span class="s2">&quot;http/get&quot;</span><span class="p">,</span> <span class="n">HttpGetHandler</span><span class="p">())</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="n">jsl_host</span><span class="o">.</span><span class="n">register_command</span><span class="p">(</span><span class="s2">&quot;myapp/user/create&quot;</span><span class="p">,</span> <span class="n">UserCreateHandler</span><span class="p">())</span>
+</code></pre></div>
+<h3 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h3>
+<p>All commands must return errors in standard JHIP format:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">&quot;$jsl_error&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CommandError&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;File not found&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">    </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;file/read&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">      </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/nonexistent/file&quot;</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="p">}</span>
+</code></pre></div>
+<h2 id="example-command-implementations">Example Command Implementations<a class="headerlink" href="#example-command-implementations" title="Permanent link">&para;</a></h2>
+<h3 id="file-read-command">File Read Command<a class="headerlink" href="#file-read-command" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">FileReadHandler</span><span class="p">(</span><span class="n">HostCommandHandler</span><span class="p">):</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>        <span class="n">path</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>        <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>                <span class="k">return</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>            <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>                <span class="s2">&quot;$jsl_error&quot;</span><span class="p">:</span> <span class="p">{</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;FileNotFound&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>                    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;File does not exist: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>                    <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;operation&quot;</span><span class="p">:</span> <span class="s2">&quot;file/read&quot;</span><span class="p">}</span>
+<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>                <span class="p">}</span>
+<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>            <span class="p">}</span>
+<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>        <span class="k">except</span> <span class="ne">PermissionError</span><span class="p">:</span>
+<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>            <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a>                <span class="s2">&quot;$jsl_error&quot;</span><span class="p">:</span> <span class="p">{</span>
+<a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a>                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;PermissionDenied&quot;</span><span class="p">,</span> 
+<a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a>                    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Permission denied: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a>                    <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;operation&quot;</span><span class="p">:</span> <span class="s2">&quot;file/read&quot;</span><span class="p">}</span>
+<a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a>                <span class="p">}</span>
+<a id="__codelineno-13-25" name="__codelineno-13-25" href="#__codelineno-13-25"></a>            <span class="p">}</span>
+<a id="__codelineno-13-26" name="__codelineno-13-26" href="#__codelineno-13-26"></a>
+<a id="__codelineno-13-27" name="__codelineno-13-27" href="#__codelineno-13-27"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<a id="__codelineno-13-28" name="__codelineno-13-28" href="#__codelineno-13-28"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;file.read&quot;</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="http-get-command">HTTP GET Command<a class="headerlink" href="#http-get-command" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="k">class</span><span class="w"> </span><span class="nc">HttpGetHandler</span><span class="p">(</span><span class="n">HostCommandHandler</span><span class="p">):</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">)</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>        <span class="n">url</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>        <span class="n">headers</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">{}</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>        <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>            <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>                <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>                <span class="s2">&quot;headers&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">),</span>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>                <span class="s2">&quot;body&quot;</span><span class="p">:</span> <span class="n">response</span><span class="o">.</span><span class="n">text</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>            <span class="p">}</span>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">Timeout</span><span class="p">:</span>
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>            <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>                <span class="s2">&quot;$jsl_error&quot;</span><span class="p">:</span> <span class="p">{</span>
+<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;NetworkError&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a>                    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Request timeout&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a>                    <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">url</span><span class="p">,</span> <span class="s2">&quot;timeout_ms&quot;</span><span class="p">:</span> <span class="mi">30000</span><span class="p">}</span>
+<a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a>                <span class="p">}</span>
+<a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a>            <span class="p">}</span>
+<a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a>        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">:</span>
+<a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a>            <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a>                <span class="s2">&quot;$jsl_error&quot;</span><span class="p">:</span> <span class="p">{</span>
+<a id="__codelineno-14-29" name="__codelineno-14-29" href="#__codelineno-14-29"></a>                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;NetworkError&quot;</span><span class="p">,</span> 
+<a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a>                    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Connection failed&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a>                    <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;url&quot;</span><span class="p">:</span> <span class="n">url</span><span class="p">}</span>
+<a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a>                <span class="p">}</span>
+<a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a>            <span class="p">}</span>
+<a id="__codelineno-14-34" name="__codelineno-14-34" href="#__codelineno-14-34"></a>
+<a id="__codelineno-14-35" name="__codelineno-14-35" href="#__codelineno-14-35"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<a id="__codelineno-14-36" name="__codelineno-14-36" href="#__codelineno-14-36"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;network.http&quot;</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="custom-business-logic-command">Custom Business Logic Command<a class="headerlink" href="#custom-business-logic-command" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">UserCreateHandler</span><span class="p">(</span><span class="n">HostCommandHandler</span><span class="p">):</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">validate_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>            <span class="k">return</span> <span class="kc">False</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>        <span class="n">user_data</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>        <span class="n">required_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">]</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">field</span> <span class="ow">in</span> <span class="n">user_data</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">required_fields</span><span class="p">)</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>        <span class="n">user_data</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>        <span class="c1"># Validate email format</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>        <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^@]+@[^@]+\.[^@]+&quot;</span><span class="p">,</span> <span class="n">user_data</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]):</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>            <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>                <span class="s2">&quot;$jsl_error&quot;</span><span class="p">:</span> <span class="p">{</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;ValidationError&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>                    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid email format&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>                    <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;email&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">user_data</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]}</span>
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>                <span class="p">}</span>
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a>            <span class="p">}</span>
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>        <span class="c1"># Check for duplicate email</span>
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">email_exists</span><span class="p">(</span><span class="n">user_data</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]):</span>
+<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a>            <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a>                <span class="s2">&quot;$jsl_error&quot;</span><span class="p">:</span> <span class="p">{</span>
+<a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a>                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;DuplicateError&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a>                    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Email already exists&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-30" name="__codelineno-15-30" href="#__codelineno-15-30"></a>                    <span class="s2">&quot;details&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;field&quot;</span><span class="p">:</span> <span class="s2">&quot;email&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">user_data</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]}</span>
+<a id="__codelineno-15-31" name="__codelineno-15-31" href="#__codelineno-15-31"></a>                <span class="p">}</span>
+<a id="__codelineno-15-32" name="__codelineno-15-32" href="#__codelineno-15-32"></a>            <span class="p">}</span>
+<a id="__codelineno-15-33" name="__codelineno-15-33" href="#__codelineno-15-33"></a>
+<a id="__codelineno-15-34" name="__codelineno-15-34" href="#__codelineno-15-34"></a>        <span class="c1"># Create user</span>
+<a id="__codelineno-15-35" name="__codelineno-15-35" href="#__codelineno-15-35"></a>        <span class="n">user_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_user_in_database</span><span class="p">(</span><span class="n">user_data</span><span class="p">)</span>
+<a id="__codelineno-15-36" name="__codelineno-15-36" href="#__codelineno-15-36"></a>
+<a id="__codelineno-15-37" name="__codelineno-15-37" href="#__codelineno-15-37"></a>        <span class="k">return</span> <span class="p">{</span>
+<a id="__codelineno-15-38" name="__codelineno-15-38" href="#__codelineno-15-38"></a>            <span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">,</span>
+<a id="__codelineno-15-39" name="__codelineno-15-39" href="#__codelineno-15-39"></a>            <span class="s2">&quot;email&quot;</span><span class="p">:</span> <span class="n">user_data</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">],</span>
+<a id="__codelineno-15-40" name="__codelineno-15-40" href="#__codelineno-15-40"></a>            <span class="s2">&quot;created_at&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+<a id="__codelineno-15-41" name="__codelineno-15-41" href="#__codelineno-15-41"></a>        <span class="p">}</span>
+<a id="__codelineno-15-42" name="__codelineno-15-42" href="#__codelineno-15-42"></a>
+<a id="__codelineno-15-43" name="__codelineno-15-43" href="#__codelineno-15-43"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">get_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<a id="__codelineno-15-44" name="__codelineno-15-44" href="#__codelineno-15-44"></a>        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;user.create&quot;</span><span class="p">]</span>
+</code></pre></div>
+<h2 id="security-considerations">Security Considerations<a class="headerlink" href="#security-considerations" title="Permanent link">&para;</a></h2>
+<h3 id="permission-system">Permission System<a class="headerlink" href="#permission-system" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">PermissionChecker</span><span class="p">:</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">check_command_permission</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">user_context</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>        <span class="c1"># Example permission logic</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>        <span class="n">user_permissions</span> <span class="o">=</span> <span class="n">user_context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;permissions&quot;</span><span class="p">,</span> <span class="p">[])</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>        <span class="c1"># Admin bypass</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>        <span class="k">if</span> <span class="s2">&quot;admin&quot;</span> <span class="ow">in</span> <span class="n">user_context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;roles&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>            <span class="k">return</span> <span class="kc">True</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>        <span class="c1"># Check specific command permissions</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>        <span class="k">if</span> <span class="n">command_id</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;file/&quot;</span><span class="p">):</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>            <span class="k">return</span> <span class="s2">&quot;file.access&quot;</span> <span class="ow">in</span> <span class="n">user_permissions</span>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>        <span class="k">if</span> <span class="n">command_id</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;http/&quot;</span><span class="p">):</span>
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>            <span class="k">return</span> <span class="s2">&quot;network.http&quot;</span> <span class="ow">in</span> <span class="n">user_permissions</span>
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a>        <span class="c1"># Custom business logic permissions</span>
+<a id="__codelineno-16-18" name="__codelineno-16-18" href="#__codelineno-16-18"></a>        <span class="k">if</span> <span class="n">command_id</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;myapp/&quot;</span><span class="p">):</span>
+<a id="__codelineno-16-19" name="__codelineno-16-19" href="#__codelineno-16-19"></a>            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;myapp.</span><span class="si">{</span><span class="n">command_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">user_permissions</span>
+<a id="__codelineno-16-20" name="__codelineno-16-20" href="#__codelineno-16-20"></a>
+<a id="__codelineno-16-21" name="__codelineno-16-21" href="#__codelineno-16-21"></a>        <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+<h3 id="input-validation">Input Validation<a class="headerlink" href="#input-validation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">validate_command_args</span><span class="p">(</span><span class="n">command_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate arguments for security and correctness&quot;&quot;&quot;</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="k">if</span> <span class="n">command_id</span> <span class="o">==</span> <span class="s2">&quot;file/read&quot;</span><span class="p">:</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;file/read requires exactly one string argument&quot;</span><span class="p">)</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>        <span class="c1"># Prevent directory traversal</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normpath</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;../&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;/../&quot;</span> <span class="ow">in</span> <span class="n">path</span><span class="p">:</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Directory traversal not allowed&quot;</span><span class="p">)</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>    <span class="k">elif</span> <span class="n">command_id</span> <span class="o">==</span> <span class="s2">&quot;process/exec&quot;</span><span class="p">:</span>
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;process/exec requires at least one argument&quot;</span><span class="p">)</span>
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>
+<a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a>        <span class="c1"># Whitelist allowed commands</span>
+<a id="__codelineno-17-18" name="__codelineno-17-18" href="#__codelineno-17-18"></a>        <span class="n">allowed_commands</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ls&quot;</span><span class="p">,</span> <span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;echo&quot;</span><span class="p">,</span> <span class="s2">&quot;date&quot;</span><span class="p">]</span>
+<a id="__codelineno-17-19" name="__codelineno-17-19" href="#__codelineno-17-19"></a>        <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_commands</span><span class="p">:</span>
+<a id="__codelineno-17-20" name="__codelineno-17-20" href="#__codelineno-17-20"></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Command not allowed: </span><span class="si">{</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="resource-limits">Resource Limits<a class="headerlink" href="#resource-limits" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">ResourceLimiter</span><span class="p">:</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">limits</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>            <span class="s2">&quot;max_execution_time&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>  <span class="c1"># seconds</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>            <span class="s2">&quot;max_memory_usage&quot;</span><span class="p">:</span> <span class="mi">100</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>  <span class="c1"># 100MB</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>            <span class="s2">&quot;max_file_size&quot;</span><span class="p">:</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">,</span>  <span class="c1"># 10MB</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>            <span class="s2">&quot;max_network_requests_per_minute&quot;</span><span class="p">:</span> <span class="mi">60</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>        <span class="p">}</span>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">usage_tracking</span> <span class="o">=</span> <span class="p">{}</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">check_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">user_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>        <span class="c1"># Implement rate limiting and resource checking</span>
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>        <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>
+<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a>        <span class="c1"># Check rate limits</span>
+<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>        <span class="n">user_requests</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">usage_tracking</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="p">[])</span>
+<a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a>        <span class="n">recent_requests</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">user_requests</span> <span class="k">if</span> <span class="n">current_time</span> <span class="o">-</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="mi">60</span><span class="p">]</span>
+<a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a>
+<a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">recent_requests</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limits</span><span class="p">[</span><span class="s2">&quot;max_network_requests_per_minute&quot;</span><span class="p">]:</span>
+<a id="__codelineno-18-20" name="__codelineno-18-20" href="#__codelineno-18-20"></a>            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Rate limit exceeded&quot;</span><span class="p">)</span>
+<a id="__codelineno-18-21" name="__codelineno-18-21" href="#__codelineno-18-21"></a>
+<a id="__codelineno-18-22" name="__codelineno-18-22" href="#__codelineno-18-22"></a>        <span class="c1"># Track this request</span>
+<a id="__codelineno-18-23" name="__codelineno-18-23" href="#__codelineno-18-23"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">usage_tracking</span><span class="p">[</span><span class="n">user_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">recent_requests</span> <span class="o">+</span> <span class="p">[</span><span class="n">current_time</span><span class="p">]</span>
+</code></pre></div>
+<h2 id="testing-host-commands">Testing Host Commands<a class="headerlink" href="#testing-host-commands" title="Permanent link">&para;</a></h2>
+<h3 id="unit-testing">Unit Testing<a class="headerlink" href="#unit-testing" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_file_read_command</span><span class="p">():</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    <span class="n">handler</span> <span class="o">=</span> <span class="n">FileReadHandler</span><span class="p">()</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    <span class="c1"># Test successful read</span>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;test content&quot;</span><span class="p">)</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>        <span class="n">f</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">execute</span><span class="p">([</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>        <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">&quot;test content&quot;</span>
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>    <span class="c1"># Test file not found</span>
+<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">handler</span><span class="o">.</span><span class="n">execute</span><span class="p">([</span><span class="s2">&quot;/nonexistent/file&quot;</span><span class="p">])</span>
+<a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>    <span class="k">assert</span> <span class="s2">&quot;$jsl_error&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+<a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;$jsl_error&quot;</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;FileNotFound&quot;</span>
+</code></pre></div>
+<h3 id="integration-testing">Integration Testing<a class="headerlink" href="#integration-testing" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">test_command_through_jsl</span><span class="p">():</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>    <span class="c1"># Test command through JSL runtime</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>    <span class="n">jsl_code</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span> <span class="s2">&quot;@file/read&quot;</span><span class="p">,</span> <span class="s2">&quot;@/tmp/test.txt&quot;</span><span class="p">]</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    <span class="c1"># Mock the host command</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s1">&#39;jsl_host.execute_command&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_execute</span><span class="p">:</span>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>        <span class="n">mock_execute</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="s2">&quot;mocked file content&quot;</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>        <span class="n">result</span> <span class="o">=</span> <span class="n">jsl_runtime</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">jsl_code</span><span class="p">)</span>
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>        <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="s2">&quot;mocked file content&quot;</span>
+<a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>
+<a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>        <span class="n">mock_execute</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="s2">&quot;file/read&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;/tmp/test.txt&quot;</span><span class="p">])</span>
+</code></pre></div>
+<h2 id="documentation-template">Documentation Template<a class="headerlink" href="#documentation-template" title="Permanent link">&para;</a></h2>
+<p>Use this template when documenting host commands:</p>
+<p><strong>Command:</strong> <code>myapp/user/create</code></p>
+<p><strong>Description:</strong> Creates a new user account in the system.</p>
+<p><strong>Parameters:</strong>
+- <code>user_data</code> (object): User information
+  - <code>email</code> (string, required): User's email address
+  - <code>name</code> (string, required): User's full name
+  - <code>role</code> (string, optional): User role, defaults to "user"</p>
+<p><strong>Returns:</strong> 
+- <code>user_id</code> (string): Unique identifier for created user
+- <code>email</code> (string): Confirmed email address
+- <code>created_at</code> (string): ISO timestamp of creation</p>
+<p><strong>Permissions Required:</strong> <code>user.create</code></p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@myapp/user/create&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="w">  </span><span class="nt">&quot;@email&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@john@example.com&quot;</span><span class="p">,</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="w">  </span><span class="nt">&quot;@name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@John Doe&quot;</span><span class="p">,</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="w">  </span><span class="nt">&quot;@role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@editor&quot;</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="p">}]</span>
+</code></pre></div></p>
+<p><strong>Error Types:</strong>
+- <code>DUPLICATE_EMAIL</code>: Email address already exists
+- <code>INVALID_EMAIL</code>: Email format is invalid
+- <code>PERMISSION_DENIED</code>: Insufficient permissions</p>
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="design-guidelines">Design Guidelines<a class="headerlink" href="#design-guidelines" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Atomic Operations</strong>: Commands should perform single, well-defined operations</li>
+<li><strong>Idempotency</strong>: Where possible, commands should be idempotent</li>
+<li><strong>Error Transparency</strong>: Provide clear, actionable error messages</li>
+<li><strong>Resource Efficiency</strong>: Minimize resource usage and implement proper cleanup</li>
+<li><strong>Backward Compatibility</strong>: Maintain compatibility when updating commands</li>
+</ol>
+<h3 id="performance-optimization">Performance Optimization<a class="headerlink" href="#performance-optimization" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Caching</strong>: Cache frequently accessed data</li>
+<li><strong>Connection Pooling</strong>: Reuse database and network connections</li>
+<li><strong>Async Operations</strong>: Use async patterns for I/O operations</li>
+<li><strong>Batch Processing</strong>: Support batch operations where appropriate</li>
+</ol>
+<h3 id="security-best-practices">Security Best Practices<a class="headerlink" href="#security-best-practices" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Input Sanitization</strong>: Always validate and sanitize inputs</li>
+<li><strong>Principle of Least Privilege</strong>: Grant minimal required permissions</li>
+<li><strong>Audit Logging</strong>: Log all command executions for security analysis</li>
+<li><strong>Rate Limiting</strong>: Implement rate limits to prevent abuse</li>
+<li><strong>Resource Limits</strong>: Set timeouts and size limits on operations</li>
+</ol>
+<p>Host commands are how JSL integrates with the real world while maintaining security, transparency, and auditability. By following these guidelines and community conventions, you can create robust, secure, and maintainable host command implementations that work well with the broader JSL ecosystem.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>
