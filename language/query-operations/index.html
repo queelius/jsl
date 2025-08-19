@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://queelius.github.io/jsl/architecture/distributed/">
+        <link rel="canonical" href="https://queelius.github.io/jsl/language/query-operations/">
       
       
-        <link rel="prev" href="../serialization/">
+        <link rel="prev" href="../prelude/">
       
       
-        <link rel="next" href="../../examples/simple/">
+        <link rel="next" href="../transform-operations/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Distributed Computing - JSL - JSON Serializable Language</title>
+        <title>Query Operations - JSL - JSON Serializable Language</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#distributed-computing-with-jsl" class="md-skip">
+        <a href="#query-operations" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Distributed Computing
+              Query Operations
             
           </span>
         </div>
@@ -221,11 +221,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../language/overview/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../overview/" class="md-tabs__link">
           
   
   
@@ -281,13 +283,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../philosophy/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../architecture/philosophy/" class="md-tabs__link">
           
   
   
@@ -459,28 +459,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -493,7 +496,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Language Guide
@@ -507,7 +510,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../language/overview/" class="md-nav__link">
+      <a href="../overview/" class="md-nav__link">
         
   
   
@@ -530,7 +533,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../language/specification/" class="md-nav__link">
+      <a href="../specification/" class="md-nav__link">
         
   
   
@@ -553,7 +556,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../language/semantics/" class="md-nav__link">
+      <a href="../semantics/" class="md-nav__link">
         
   
   
@@ -576,7 +579,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../language/environments/" class="md-nav__link">
+      <a href="../environments/" class="md-nav__link">
         
   
   
@@ -599,7 +602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../language/special-forms/" class="md-nav__link">
+      <a href="../special-forms/" class="md-nav__link">
         
   
   
@@ -622,7 +625,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../language/objects/" class="md-nav__link">
+      <a href="../objects/" class="md-nav__link">
         
   
   
@@ -645,7 +648,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../language/templates/" class="md-nav__link">
+      <a href="../templates/" class="md-nav__link">
         
   
   
@@ -668,7 +671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../language/prelude/" class="md-nav__link">
+      <a href="../prelude/" class="md-nav__link">
         
   
   
@@ -688,10 +691,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../language/query-operations/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Query Operations
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -702,6 +727,212 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-where-special-form" class="md-nav__link">
+    <span class="md-ellipsis">
+      The where Special Form
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The where Special Form">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Syntax
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simple-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      Simple Filtering
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complex-conditions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complex Conditions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#field-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      Field Binding
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#string-literals-vs-field-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      String Literals vs Field References
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      Query Composition
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query Composition">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filter-then-transform" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter then Transform
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filter-then-pluck" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter then Pluck
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multiple Filters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Details
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Considerations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-with-traditional-approaches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comparison with Traditional Approaches
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comparison with Traditional Approaches">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#traditional-lambda-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      Traditional Lambda Approach
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#declarative-where-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      Declarative Where Approach
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-with-transform" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration with Transform
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See Also
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -714,7 +945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../language/transform-operations/" class="md-nav__link">
+      <a href="../transform-operations/" class="md-nav__link">
         
   
   
@@ -737,7 +968,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../language/path-navigation/" class="md-nav__link">
+      <a href="../path-navigation/" class="md-nav__link">
         
   
   
@@ -983,31 +1214,28 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
             
   
   
@@ -1020,7 +1248,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             Architecture
@@ -1034,7 +1262,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../philosophy/" class="md-nav__link">
+      <a href="../../architecture/philosophy/" class="md-nav__link">
         
   
   
@@ -1057,7 +1285,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../abstract-machine/" class="md-nav__link">
+      <a href="../../architecture/abstract-machine/" class="md-nav__link">
         
   
   
@@ -1080,7 +1308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../stack-evaluation/" class="md-nav__link">
+      <a href="../../architecture/stack-evaluation/" class="md-nav__link">
         
   
   
@@ -1103,7 +1331,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../performance/" class="md-nav__link">
+      <a href="../../architecture/performance/" class="md-nav__link">
         
   
   
@@ -1126,7 +1354,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../runtime/" class="md-nav__link">
+      <a href="../../architecture/runtime/" class="md-nav__link">
         
   
   
@@ -1149,7 +1377,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../security/" class="md-nav__link">
+      <a href="../../architecture/security/" class="md-nav__link">
         
   
   
@@ -1172,7 +1400,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../network/" class="md-nav__link">
+      <a href="../../architecture/network/" class="md-nav__link">
         
   
   
@@ -1195,7 +1423,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../serialization/" class="md-nav__link">
+      <a href="../../architecture/serialization/" class="md-nav__link">
         
   
   
@@ -1215,32 +1443,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Distributed Computing
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../architecture/distributed/" class="md-nav__link">
         
   
   
@@ -1251,101 +1457,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Overview
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#core-patterns" class="md-nav__link">
-    <span class="md-ellipsis">
-      Core Patterns
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Core Patterns">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-remote-execution" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Remote Execution
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-master-worker-pattern" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. Master-Worker Pattern
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-fault-tolerance-via-retries" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. Fault Tolerance via Retries
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#advanced-patterns" class="md-nav__link">
-    <span class="md-ellipsis">
-      Advanced Patterns
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Advanced Patterns">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#mapreduce-implementation" class="md-nav__link">
-    <span class="md-ellipsis">
-      MapReduce Implementation
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1931,46 +2042,70 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#the-where-special-form" class="md-nav__link">
     <span class="md-ellipsis">
-      Overview
+      The where Special Form
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#core-patterns" class="md-nav__link">
-    <span class="md-ellipsis">
-      Core Patterns
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Core Patterns">
+    <nav class="md-nav" aria-label="The where Special Form">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-remote-execution" class="md-nav__link">
+  <a href="#basic-syntax" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Remote Execution
+      Basic Syntax
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-master-worker-pattern" class="md-nav__link">
+  <a href="#examples" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Master-Worker Pattern
+      Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#simple-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      Simple Filtering
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-fault-tolerance-via-retries" class="md-nav__link">
+  <a href="#complex-conditions" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Fault Tolerance via Retries
+      Complex Conditions
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#field-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      Field Binding
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#string-literals-vs-field-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      String Literals vs Field References
     </span>
   </a>
   
@@ -1982,19 +2117,37 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#advanced-patterns" class="md-nav__link">
+  <a href="#query-composition" class="md-nav__link">
     <span class="md-ellipsis">
-      Advanced Patterns
+      Query Composition
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Advanced Patterns">
+    <nav class="md-nav" aria-label="Query Composition">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#mapreduce-implementation" class="md-nav__link">
+  <a href="#filter-then-transform" class="md-nav__link">
     <span class="md-ellipsis">
-      MapReduce Implementation
+      Filter then Transform
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filter-then-pluck" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter then Pluck
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple-filters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multiple Filters
     </span>
   </a>
   
@@ -2002,6 +2155,75 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Details
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Considerations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-with-traditional-approaches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comparison with Traditional Approaches
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comparison with Traditional Approaches">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#traditional-lambda-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      Traditional Lambda Approach
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#declarative-where-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      Declarative Where Approach
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-with-transform" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration with Transform
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See Also
+    </span>
+  </a>
   
 </li>
       
@@ -2021,83 +2243,121 @@
 
 
 
-<h1 id="distributed-computing-with-jsl">Distributed Computing with JSL<a class="headerlink" href="#distributed-computing-with-jsl" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>JSL's core design—being homoiconic and having a robust, verifiable serialization model—makes it an ideal language for building distributed systems. Because both code and state can be safely transmitted over the network, complex distributed patterns can be expressed with the same clarity as local computations.</p>
-<blockquote>
-<p><strong>An Architectural Showcase:</strong>
-The following examples are an architectural showcase of what is possible. They are not a standard library reference. These patterns assume the host environment provides a rich set of networking primitives (e.g., <code>remote/execute</code>, <code>remote/call</code>). The purpose is to demonstrate how JSL can be used as the foundation for a powerful distributed computing framework.</p>
-</blockquote>
-<h2 id="core-patterns">Core Patterns<a class="headerlink" href="#core-patterns" title="Permanent link">&para;</a></h2>
-<h3 id="1-remote-execution">1. Remote Execution<a class="headerlink" href="#1-remote-execution" title="Permanent link">&para;</a></h3>
-<p>The most fundamental pattern is executing a function on a remote node. JSL's serializable closures make this trivial. The closure packages its code and its environment, which can be sent to a remote host for evaluation.</p>
-<p>The host provides <code>remote/execute</code> which takes a node, a function, and arguments.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;remote/execute&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;node-2&quot;</span><span class="p">,</span><span class="w"> </span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;x&quot;</span><span class="p">]],</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="mi">5</span><span class="p">]</span>
-</code></pre></div></p>
-<h3 id="2-master-worker-pattern">2. Master-Worker Pattern<a class="headerlink" href="#2-master-worker-pattern" title="Permanent link">&para;</a></h3>
-<p>A coordinator node can partition a workload and distribute it among a set of worker nodes. This pattern highlights how JSL's functional nature (<code>map</code>, <code>zip</code>) simplifies parallel processing logic. The worker function itself is passed as an argument, making this a flexible, higher-order function.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;distribute_work&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;work_items&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;workers&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;work_fn&quot;</span><span class="p">],</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">      </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;chunks&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;partition&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;work_items&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;workers&quot;</span><span class="p">]]],</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">      </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tasks&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;zip&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;workers&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;chunks&quot;</span><span class="p">]],</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">      </span><span class="p">[</span><span class="s2">&quot;map&quot;</span><span class="p">,</span><span class="w"> </span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">        </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;task&quot;</span><span class="p">],</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">          </span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;remote/execute&quot;</span><span class="p">,</span><span class="w"> </span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">            </span><span class="p">[</span><span class="s2">&quot;first&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;task&quot;</span><span class="p">],</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">            </span><span class="s2">&quot;work_fn&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">            </span><span class="p">[</span><span class="s2">&quot;second&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;task&quot;</span><span class="p">]]],</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">        </span><span class="s2">&quot;tasks&quot;</span><span class="p">]]]]</span>
+<h1 id="query-operations">Query Operations<a class="headerlink" href="#query-operations" title="Permanent link">&para;</a></h1>
+<p>JSL provides powerful declarative operations for querying and filtering data, inspired by <a href="https://github.com/queelius/dotsuite">dotsuite</a>'s pedagogical approach to JSON manipulation.</p>
+<h2 id="the-where-special-form">The <code>where</code> Special Form<a class="headerlink" href="#the-where-special-form" title="Permanent link">&para;</a></h2>
+<p>The <code>where</code> is a special form (not a function) that provides SQL-like declarative filtering. As a special form, it has special evaluation semantics that automatically bind item fields to the environment before evaluating the condition.</p>
+<h3 id="basic-syntax">Basic Syntax<a class="headerlink" href="#basic-syntax" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>(where collection condition)
 </code></pre></div>
-<h3 id="3-fault-tolerance-via-retries">3. Fault Tolerance via Retries<a class="headerlink" href="#3-fault-tolerance-via-retries" title="Permanent link">&para;</a></h3>
-<p>Handling network failures is critical. Because JSL code is data, we can easily write higher-order functions that wrap any remote call with a retry mechanism.</p>
-<p>This example defines a recursive inner function, <code>try_call</code>, to handle the retry loop. The <code>try</code> special form is used to catch failures, and the error handler recursively calls itself with one fewer attempt.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;reliable_remote_call&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;node&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;function&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;args&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;max_retries&quot;</span><span class="p">],</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">      </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;try_call&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">        </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;attempts_left&quot;</span><span class="p">],</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">          </span><span class="p">[</span><span class="s2">&quot;if&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;=&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;attempts_left&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">            </span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Max retries exceeded&quot;</span><span class="p">],</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">            </span><span class="p">[</span><span class="s2">&quot;try&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">              </span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;remote/call&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;node&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;function&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;args&quot;</span><span class="p">],</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">              </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">],</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">                </span><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">                  </span><span class="p">[</span><span class="s2">&quot;host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;log/warn&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Retry attempt &quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;+&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;max_retries&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="s2">&quot;attempts_left&quot;</span><span class="p">],</span><span class="w"> </span><span class="s2">&quot; failed. Retrying...&quot;</span><span class="p">]],</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">                  </span><span class="p">[</span><span class="s2">&quot;try_call&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;attempts_left&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">]]</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">                </span><span class="p">]</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">              </span><span class="p">]</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">            </span><span class="p">]</span>
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">          </span><span class="p">]</span>
-<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">        </span><span class="p">]</span>
-<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">      </span><span class="p">],</span>
-<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">      </span><span class="p">[</span><span class="s2">&quot;try_call&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;max_retries&quot;</span><span class="p">]</span>
-<a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="p">]</span>
-</code></pre></div></p>
-<h2 id="advanced-patterns">Advanced Patterns<a class="headerlink" href="#advanced-patterns" title="Permanent link">&para;</a></h2>
-<p>JSL's composability allows these simple building blocks to be combined into sophisticated distributed algorithms.</p>
-<h3 id="mapreduce-implementation">MapReduce Implementation<a class="headerlink" href="#mapreduce-implementation" title="Permanent link">&para;</a></h3>
-<p>This example shows how a full MapReduce job can be expressed by composing the <code>distribute_work</code> function defined earlier.</p>
-<p>The process is broken down into three phases:
-1.  <strong>MAP PHASE:</strong> Distribute the map function across the map nodes.
-2.  <strong>SHUFFLE PHASE:</strong> Group the intermediate results by key.
-3.  <strong>REDUCE PHASE:</strong> Distribute the reduce function across the reduce nodes to produce the final result.
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;mapreduce&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;lambda&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;map_fn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;reduce_fn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;data&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;map_nodes&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;reduce_nodes&quot;</span><span class="p">],</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">      </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;map_results&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;distribute_work&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;data&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;map_nodes&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;map_fn&quot;</span><span class="p">]],</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">      </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;grouped&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;group_by&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;first&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;flatten&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;map_results&quot;</span><span class="p">]]],</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">      </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;reduce_tasks&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;grouped&quot;</span><span class="p">]],</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">      </span><span class="p">[</span><span class="s2">&quot;distribute_work&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;reduce_tasks&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;reduce_nodes&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;reduce_fn&quot;</span><span class="p">]</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="p">]</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="p">]</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="p">]</span>
-</code></pre></div></p>
-<p>These examples illustrate that JSL provides the ideal substrate for building resilient, scalable systems while maintaining the simplicity and clarity of the language's core design principles.</p>
+<p>The condition is evaluated with each item's fields automatically bound to the environment.</p>
+<h3 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h3>
+<h4 id="simple-filtering">Simple Filtering<a class="headerlink" href="#simple-filtering" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>; Filter users by role
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>(where users (= role &quot;admin&quot;))
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>; Filter products by price
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>(where products (&gt; price 100))
+</code></pre></div>
+<h4 id="complex-conditions">Complex Conditions<a class="headerlink" href="#complex-conditions" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>; AND conditions
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>(where users 
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  (and (= role &quot;admin&quot;) 
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>       active))
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>; OR conditions  
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>(where products
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>  (or (= category &quot;electronics&quot;)
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>      (&lt; price 50)))
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>; Nested conditions
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>(where orders
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>  (and (&gt;= total 100)
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>       (or (= status &quot;pending&quot;)
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>           (= status &quot;processing&quot;))))
+</code></pre></div>
+<h3 id="field-binding">Field Binding<a class="headerlink" href="#field-binding" title="Permanent link">&para;</a></h3>
+<p>The <code>where</code> special form automatically extends the environment with each item's fields. For objects, all key-value pairs become available as variables. For non-objects, the item is bound to <code>it</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>(def users [@
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  {&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 30, &quot;role&quot;: &quot;admin&quot;}
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  {&quot;name&quot;: &quot;Bob&quot;, &quot;age&quot;: 25, &quot;role&quot;: &quot;user&quot;}
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>])
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>; &#39;role&#39; and &#39;age&#39; are automatically bound from each user
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>(where users (and (= role &quot;admin&quot;) (&gt; age 25)))
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>; Returns: [{&quot;name&quot;: &quot;Alice&quot;, &quot;age&quot;: 30, &quot;role&quot;: &quot;admin&quot;}]
+</code></pre></div>
+<h3 id="string-literals-vs-field-references">String Literals vs Field References<a class="headerlink" href="#string-literals-vs-field-references" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Field names are symbols that get looked up: <code>role</code>, <code>age</code>, <code>name</code></li>
+<li>String literals use the @ prefix: <code>"@admin"</code>, <code>"@user"</code></li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>(where users (= role &quot;@admin&quot;))  ; role field equals string &quot;admin&quot;
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>(where users (= &quot;@role&quot; role))   ; string &quot;role&quot; equals role field (unusual)
+</code></pre></div>
+<h2 id="query-composition">Query Composition<a class="headerlink" href="#query-composition" title="Permanent link">&para;</a></h2>
+<p>Query operations compose naturally with other JSL operations:</p>
+<h3 id="filter-then-transform">Filter then Transform<a class="headerlink" href="#filter-then-transform" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>(transform
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  (where products (&gt; price 50))
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  (pick &quot;@name&quot; &quot;@price&quot;))
+</code></pre></div>
+<h3 id="filter-then-pluck">Filter then Pluck<a class="headerlink" href="#filter-then-pluck" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>(pluck
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  (where users (= role &quot;@admin&quot;))
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  &quot;@email&quot;)
+</code></pre></div>
+<h3 id="multiple-filters">Multiple Filters<a class="headerlink" href="#multiple-filters" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>(where
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  (where products (= category &quot;@electronics&quot;))
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  (&gt; price 100))
+</code></pre></div>
+<h2 id="implementation-details">Implementation Details<a class="headerlink" href="#implementation-details" title="Permanent link">&para;</a></h2>
+<p>As a special form, <code>where</code> is implemented directly in the evaluator (<code>_eval_where</code> in <code>core.py</code>), not as a prelude function. This allows it to:
+- Control evaluation order
+- Automatically bind fields without explicit lambda expressions
+- Integrate seamlessly with the JSL evaluation model
+- Work identically in both recursive and stack evaluators</p>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<p>The <code>where</code> operator:
+- Uses the standard JSL evaluator for conditions
+- Extends the environment once per item
+- Short-circuits on false conditions
+- Maintains original collection order</p>
+<h2 id="comparison-with-traditional-approaches">Comparison with Traditional Approaches<a class="headerlink" href="#comparison-with-traditional-approaches" title="Permanent link">&para;</a></h2>
+<h3 id="traditional-lambda-approach">Traditional Lambda Approach<a class="headerlink" href="#traditional-lambda-approach" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>(filter 
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  (lambda (user) 
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    (and (= (get user &quot;@role&quot;) &quot;@admin&quot;)
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>         (get user &quot;@active&quot;)))
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>  users)
+</code></pre></div>
+<h3 id="declarative-where-approach">Declarative Where Approach<a class="headerlink" href="#declarative-where-approach" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>(where users (and (= role &quot;@admin&quot;) active))
+</code></pre></div>
+<p>The declarative approach is:
+- More concise and readable
+- Automatically handles field binding
+- Consistent with SQL-like query languages
+- Easier to compose with other operations</p>
+<h2 id="integration-with-transform">Integration with Transform<a class="headerlink" href="#integration-with-transform" title="Permanent link">&para;</a></h2>
+<p><code>where</code> and <code>transform</code> work together for powerful data pipelines:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>; Get names of active admins
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>(pluck
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>  (where users (and (= role &quot;@admin&quot;) active))
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>  &quot;@name&quot;)
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>; Add discount to expensive products
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>(transform
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>  (where products (&gt; price 100))
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>  (assign &quot;@discounted&quot; (* price 0.9)))
+</code></pre></div>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../transform-operations/">Transform Operations</a> - Data transformation operations</li>
+<li><a href="../path-navigation/">Path Navigation</a> - Deep JSON path access</li>
+<li><a href="../prelude/">Prelude Functions</a> - Built-in collection functions</li>
+</ul>
 
 
 

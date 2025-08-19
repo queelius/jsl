@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://queelius.github.io/jsl/language/objects/">
+        <link rel="canonical" href="https://queelius.github.io/jsl/language/path-navigation/">
       
       
-        <link rel="prev" href="../special-forms/">
+        <link rel="prev" href="../transform-operations/">
       
       
-        <link rel="next" href="../templates/">
+        <link rel="next" href="../../tutorials/first-program/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Objects - JSL - JSON Serializable Language</title>
+        <title>Path Navigation - JSL - JSON Serializable Language</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#json-objects-as-first-class-citizens" class="md-skip">
+        <a href="#path-navigation" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Objects
+              Path Navigation
             
           </span>
         </div>
@@ -622,32 +622,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Objects
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../objects/" class="md-nav__link">
         
   
   
@@ -658,104 +636,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Overview
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-objects-are-special" class="md-nav__link">
-    <span class="md-ellipsis">
-      Why Objects Are Special
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#object-construction-syntax" class="md-nav__link">
-    <span class="md-ellipsis">
-      Object Construction Syntax
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Object Construction Syntax">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#basic-examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      Basic Examples
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#string-construction-in-objects" class="md-nav__link">
-    <span class="md-ellipsis">
-      String Construction in Objects
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#nested-objects-and-complex-structures" class="md-nav__link">
-    <span class="md-ellipsis">
-      Nested Objects and Complex Structures
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#advantages-of-object-first-design" class="md-nav__link">
-    <span class="md-ellipsis">
-      Advantages of Object-First Design
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#working-with-object-functions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Working with Object Functions
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -857,10 +737,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../path-navigation/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Path Navigation
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -871,6 +773,224 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#path-navigation-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Path Navigation Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Path Navigation Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-path-navigate-to-a-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      get-path - Navigate to a Value
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set-path-set-a-value-at-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      set-path - Set a Value at Path
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#has-path-check-path-existence" class="md-nav__link">
+    <span class="md-ellipsis">
+      has-path - Check Path Existence
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-path-update-value-at-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      update-path - Update Value at Path
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-safe-safe-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      get-safe - Safe Navigation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#path-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      Path Syntax
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Path Syntax">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Paths
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array-indexing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Array Indexing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alternative-array-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      Alternative Array Syntax
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wildcards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Wildcards
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complex-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complex Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Complex Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#working-with-nested-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Working with Nested Data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-complex-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      Building Complex Structures
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#safe-data-extraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Safe Data Extraction
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-with-query-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration with Query Operations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Considerations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Handling
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See Also
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1943,28 +2063,55 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#why-objects-are-special" class="md-nav__link">
+  <a href="#path-navigation-functions" class="md-nav__link">
     <span class="md-ellipsis">
-      Why Objects Are Special
+      Path Navigation Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Path Navigation Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#get-path-navigate-to-a-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      get-path - Navigate to a Value
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#object-construction-syntax" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#set-path-set-a-value-at-path" class="md-nav__link">
     <span class="md-ellipsis">
-      Object Construction Syntax
+      set-path - Set a Value at Path
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Object Construction Syntax">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
-  <a href="#basic-examples" class="md-nav__link">
+  <a href="#has-path-check-path-existence" class="md-nav__link">
     <span class="md-ellipsis">
-      Basic Examples
+      has-path - Check Path Existence
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-path-update-value-at-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      update-path - Update Value at Path
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-safe-safe-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      get-safe - Safe Navigation
     </span>
   </a>
   
@@ -1976,36 +2123,129 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#string-construction-in-objects" class="md-nav__link">
+  <a href="#path-syntax" class="md-nav__link">
     <span class="md-ellipsis">
-      String Construction in Objects
+      Path Syntax
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Path Syntax">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Paths
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#array-indexing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Array Indexing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#alternative-array-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      Alternative Array Syntax
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#wildcards" class="md-nav__link">
+    <span class="md-ellipsis">
+      Wildcards
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complex-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complex Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Complex Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#working-with-nested-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Working with Nested Data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-complex-structures" class="md-nav__link">
+    <span class="md-ellipsis">
+      Building Complex Structures
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#safe-data-extraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Safe Data Extraction
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integration-with-query-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integration with Query Operations
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#nested-objects-and-complex-structures" class="md-nav__link">
+  <a href="#performance-considerations" class="md-nav__link">
     <span class="md-ellipsis">
-      Nested Objects and Complex Structures
+      Performance Considerations
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#advantages-of-object-first-design" class="md-nav__link">
+  <a href="#error-handling" class="md-nav__link">
     <span class="md-ellipsis">
-      Advantages of Object-First Design
+      Error Handling
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#working-with-object-functions" class="md-nav__link">
+  <a href="#see-also" class="md-nav__link">
     <span class="md-ellipsis">
-      Working with Object Functions
+      See Also
     </span>
   </a>
   
@@ -2027,97 +2267,210 @@
 
 
 
-<h1 id="json-objects-as-first-class-citizens">JSON Objects as First-Class Citizens<a class="headerlink" href="#json-objects-as-first-class-citizens" title="Permanent link">&para;</a></h1>
+<h1 id="path-navigation">Path Navigation<a class="headerlink" href="#path-navigation" title="Permanent link">&para;</a></h1>
+<p>JSL provides powerful path navigation operations for accessing and manipulating deeply nested JSON structures. These operations are inspired by <a href="https://github.com/queelius/dotsuite">dotsuite</a>'s dotpath approach.</p>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>JSL treats JSON objects as <strong>first-class data structures</strong> with native support for dynamic construction. Unlike arrays (which are interpreted as S-expressions), JSON objects in JSL are always treated as data structures, making them perfect for constructing pure JSON output without ambiguity.</p>
-<h2 id="why-objects-are-special">Why Objects Are Special<a class="headerlink" href="#why-objects-are-special" title="Permanent link">&para;</a></h2>
-<p>In JSL, there's an important distinction between arrays and objects:</p>
-<ul>
-<li><strong>Arrays</strong>: <code>["+", 1, 2]</code> are interpreted as function calls (S-expressions)</li>
-<li><strong>Objects</strong>: <code>{"name": "Alice"}</code> are always treated as data structures</li>
-</ul>
-<p>This means objects provide a "safe zone" for pure data construction where you don't have to worry about the first element being interpreted as an operator.</p>
-<h2 id="object-construction-syntax">Object Construction Syntax<a class="headerlink" href="#object-construction-syntax" title="Permanent link">&para;</a></h2>
-<p>JSL objects use <strong>normal JSL evaluation rules</strong> for both keys and values:</p>
-<ul>
-<li><strong>Keys</strong> must evaluate to strings</li>
-<li><strong>Values</strong> can be any JSL expression</li>
-<li>Use <code>@</code> prefix for literal strings in both keys and values</li>
-</ul>
-<h3 id="basic-examples">Basic Examples<a class="headerlink" href="#basic-examples" title="Permanent link">&para;</a></h3>
-<p><strong>Literal Object:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span><span class="nt">&quot;@name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@Alice&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;@age&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">}</span>
+<p>Path navigation allows you to access nested values using simple path strings instead of chaining multiple <code>get</code> operations.</p>
+<h2 id="path-navigation-functions">Path Navigation Functions<a class="headerlink" href="#path-navigation-functions" title="Permanent link">&para;</a></h2>
+<h3 id="get-path-navigate-to-a-value"><code>get-path</code> - Navigate to a Value<a class="headerlink" href="#get-path-navigate-to-a-value" title="Permanent link">&para;</a></h3>
+<p>Retrieves a value at a deep path:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>(def user {
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  &quot;@name&quot;: &quot;@John&quot;,
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  &quot;@address&quot;: {
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    &quot;@city&quot;: &quot;@Boston&quot;,
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    &quot;@zip&quot;: &quot;@02134&quot;
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  }
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>})
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>; Instead of nested gets:
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>(get (get user &quot;@address&quot;) &quot;@city&quot;)  ; &quot;@Boston&quot;
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>; Use path navigation:
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>(get-path user &quot;@address.city&quot;)      ; &quot;@Boston&quot;
 </code></pre></div>
-<strong>Result:</strong> <code>{"name": "Alice", "age": 25}</code></p>
-<p><strong>Dynamic Values:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user_name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@Bob&quot;</span><span class="p">],</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user_age&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">],</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="p">{</span><span class="nt">&quot;@name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_name&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;@age&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_age&quot;</span><span class="p">}</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">]</span>
+<h3 id="set-path-set-a-value-at-path"><code>set-path</code> - Set a Value at Path<a class="headerlink" href="#set-path-set-a-value-at-path" title="Permanent link">&para;</a></h3>
+<p>Creates a new object with a value set at the specified path:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>; Set a nested value
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>(set-path user &quot;@address.country&quot; &quot;@USA&quot;)
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>; Creates intermediate objects if needed
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>(set-path {} &quot;@user.profile.name&quot; &quot;@Alice&quot;)
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>; Returns: {&quot;user&quot;: {&quot;profile&quot;: {&quot;name&quot;: &quot;Alice&quot;}}}
 </code></pre></div>
-<strong>Result:</strong> <code>{"name": "Bob", "age": 30}</code></p>
-<p><strong>Dynamic Keys:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;field_name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@username&quot;</span><span class="p">],</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="p">{</span><span class="nt">&quot;field_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@Alice&quot;</span><span class="p">}</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">]</span>
+<h3 id="has-path-check-path-existence"><code>has-path</code> - Check Path Existence<a class="headerlink" href="#has-path-check-path-existence" title="Permanent link">&para;</a></h3>
+<p>Tests whether a path exists in an object:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>(has-path user &quot;@address.city&quot;)     ; true
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>(has-path user &quot;@address.country&quot;)  ; false
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>(has-path user &quot;@phone.mobile&quot;)     ; false
 </code></pre></div>
-<strong>Result:</strong> <code>{"username": "Alice"}</code></p>
-<h2 id="string-construction-in-objects">String Construction in Objects<a class="headerlink" href="#string-construction-in-objects" title="Permanent link">&para;</a></h2>
-<p>For dynamic string construction, use JSL's string functions:</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@Alice&quot;</span><span class="p">],</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;age&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">],</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="p">{</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">&quot;@greeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;str-concat&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@Hello &quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nt">&quot;@info&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;str-concat&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@Age: &quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;age&quot;</span><span class="p">],</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nt">&quot;@status&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;if&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;age&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">18</span><span class="p">],</span><span class="w"> </span><span class="s2">&quot;@adult&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@minor&quot;</span><span class="p">]</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">]</span>
+<h3 id="update-path-update-value-at-path"><code>update-path</code> - Update Value at Path<a class="headerlink" href="#update-path-update-value-at-path" title="Permanent link">&para;</a></h3>
+<p>Updates a value at a path using a function:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>; Increment a nested counter
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>(update-path stats &quot;@views.total&quot; inc)
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>; Transform a nested value
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>(update-path user &quot;@address.zip&quot; 
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>  (lambda (z) (str-concat z &quot;-0000&quot;)))
 </code></pre></div>
-<strong>Result:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;greeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Hello Alice&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&quot;info&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Age: 25&quot;</span><span class="p">,</span><span class="w"> </span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;adult&quot;</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">}</span>
-</code></pre></div></p>
-<h2 id="nested-objects-and-complex-structures">Nested Objects and Complex Structures<a class="headerlink" href="#nested-objects-and-complex-structures" title="Permanent link">&para;</a></h2>
-<p>Objects can contain any JSL expressions, including nested objects and arrays:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;users&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Alice&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Bob&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Carol&quot;</span><span class="p">]]],</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="p">{</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">&quot;@project&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@My Project&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">&quot;@team&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">      </span><span class="nt">&quot;@lead&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;first&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;users&quot;</span><span class="p">],</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">      </span><span class="nt">&quot;@members&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;users&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">      </span><span class="nt">&quot;@size&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;users&quot;</span><span class="p">]</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="nt">&quot;@tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;web&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;javascript&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;api&quot;</span><span class="p">]]</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">]</span>
+<h3 id="get-safe-safe-navigation"><code>get-safe</code> - Safe Navigation<a class="headerlink" href="#get-safe-safe-navigation" title="Permanent link">&para;</a></h3>
+<p>Returns a default value if the path doesn't exist:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>; Returns null if path missing
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>(get-safe user &quot;@phone.mobile&quot;)  ; null
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>; With custom default
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>(get-safe user &quot;@phone.mobile&quot; &quot;@unknown&quot;)  ; &quot;@unknown&quot;
 </code></pre></div>
-<h2 id="advantages-of-object-first-design">Advantages of Object-First Design<a class="headerlink" href="#advantages-of-object-first-design" title="Permanent link">&para;</a></h2>
-<ol>
-<li><strong>No Operator Ambiguity</strong>: Objects are always data, never function calls</li>
-<li><strong>Pure JSON Output</strong>: Objects naturally serialize to clean JSON</li>
-<li><strong>Composable</strong>: Works seamlessly with JSL functions and variables</li>
-<li><strong>Consistent Syntax</strong>: Uses the same <code>@</code> rules as the rest of JSL</li>
-<li><strong>Type Safety</strong>: Keys are validated to be strings at runtime</li>
-</ol>
-<h2 id="working-with-object-functions">Working with Object Functions<a class="headerlink" href="#working-with-object-functions" title="Permanent link">&para;</a></h2>
-<p>JSL provides built-in functions for object manipulation:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;@name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@Alice&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;@role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@admin&quot;</span><span class="p">}],</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@name&quot;</span><span class="p">],</span><span class="w">        </span><span class="c1">// → &quot;Alice&quot;</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;has&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@email&quot;</span><span class="p">],</span><span class="w">       </span><span class="c1">// → false</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;keys&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">],</span><span class="w">                </span><span class="c1">// → [&quot;name&quot;, &quot;role&quot;]</span>
+<h2 id="path-syntax">Path Syntax<a class="headerlink" href="#path-syntax" title="Permanent link">&para;</a></h2>
+<h3 id="basic-paths">Basic Paths<a class="headerlink" href="#basic-paths" title="Permanent link">&para;</a></h3>
+<p>Paths use dot notation to navigate through objects:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>&quot;@field&quot;           ; Top-level field
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>&quot;@field.subfield&quot;  ; Nested field
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>&quot;@a.b.c.d&quot;        ; Deep nesting
+</code></pre></div>
+<h3 id="array-indexing">Array Indexing<a class="headerlink" href="#array-indexing" title="Permanent link">&para;</a></h3>
+<p>Access array elements by index:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>(def data {
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  &quot;@items&quot;: [@
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    {&quot;@id&quot;: 1, &quot;@name&quot;: &quot;@First&quot;}
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    {&quot;@id&quot;: 2, &quot;@name&quot;: &quot;@Second&quot;}
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>  ]
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>})
 <a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;set&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@email&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@alice@example.com&quot;</span><span class="p">]</span><span class="w">  </span><span class="c1">// Add new field</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="p">]</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>(get-path data &quot;@items.0&quot;)       ; {&quot;id&quot;: 1, &quot;name&quot;: &quot;First&quot;}
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>(get-path data &quot;@items.0.name&quot;)  ; &quot;@First&quot;
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>(get-path data &quot;@items.1.id&quot;)    ; 2
 </code></pre></div>
+<h3 id="alternative-array-syntax">Alternative Array Syntax<a class="headerlink" href="#alternative-array-syntax" title="Permanent link">&para;</a></h3>
+<p>Arrays can also use bracket notation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>(get-path data &quot;@items[0]&quot;)       ; {&quot;id&quot;: 1, &quot;name&quot;: &quot;First&quot;}
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>(get-path data &quot;@items[0].name&quot;)  ; &quot;@First&quot;
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>(get-path data &quot;@items[1].id&quot;)    ; 2
+</code></pre></div>
+<h3 id="wildcards">Wildcards<a class="headerlink" href="#wildcards" title="Permanent link">&para;</a></h3>
+<p>Use <code>*</code> to match all elements:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>(def users [@
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  {&quot;@name&quot;: &quot;@Alice&quot;, &quot;@age&quot;: 30}
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  {&quot;@name&quot;: &quot;@Bob&quot;, &quot;@age&quot;: 25}
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>])
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>; Get all names
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>(get-path {&quot;@users&quot;: users} &quot;@users.*.name&quot;)
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>; Returns: [&quot;Alice&quot;, &quot;Bob&quot;]
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>; Get all ages
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>(get-path {&quot;@users&quot;: users} &quot;@users.*.age&quot;)  
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>; Returns: [30, 25]
+</code></pre></div>
+<h2 id="complex-examples">Complex Examples<a class="headerlink" href="#complex-examples" title="Permanent link">&para;</a></h2>
+<h3 id="working-with-nested-data">Working with Nested Data<a class="headerlink" href="#working-with-nested-data" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>(def company {
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>  &quot;@name&quot;: &quot;@TechCorp&quot;,
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  &quot;@departments&quot;: [@
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    {
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>      &quot;@name&quot;: &quot;@Engineering&quot;,
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>      &quot;@employees&quot;: [@
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>        {&quot;@name&quot;: &quot;@Alice&quot;, &quot;@role&quot;: &quot;@Lead&quot;}
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>        {&quot;@name&quot;: &quot;@Bob&quot;, &quot;@role&quot;: &quot;@Developer&quot;}
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>      ]
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>    }
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>    {
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>      &quot;@name&quot;: &quot;@Sales&quot;,
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>      &quot;@employees&quot;: [@
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>        {&quot;@name&quot;: &quot;@Charlie&quot;, &quot;@role&quot;: &quot;@Manager&quot;}
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>      ]
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>    }
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>  ]
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>})
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>; Access specific employee
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>(get-path company &quot;@departments.0.employees.1.name&quot;)  ; &quot;@Bob&quot;
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>; Get all department names
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>(get-path company &quot;@departments.*.name&quot;)  ; [&quot;Engineering&quot;, &quot;Sales&quot;]
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>; Get all employee names across departments
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>(get-path company &quot;@departments.*.employees.*.name&quot;)
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>; Returns: [&quot;Alice&quot;, &quot;Bob&quot;, &quot;Charlie&quot;]
+</code></pre></div>
+<h3 id="building-complex-structures">Building Complex Structures<a class="headerlink" href="#building-complex-structures" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>; Start with empty object
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>(def config {})
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>; Build configuration progressively
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>(def config
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>  (set-path config &quot;@database.host&quot; &quot;@localhost&quot;))
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>(def config  
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>  (set-path config &quot;@database.port&quot; 5432))
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>(def config
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>  (set-path config &quot;@database.credentials.user&quot; &quot;@admin&quot;))
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>(def config
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>  (set-path config &quot;@database.credentials.password&quot; &quot;@secret&quot;))
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>; Result:
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>; {
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>;   &quot;database&quot;: {
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>;     &quot;host&quot;: &quot;localhost&quot;,
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>;     &quot;port&quot;: 5432,
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>;     &quot;credentials&quot;: {
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>;       &quot;user&quot;: &quot;admin&quot;,
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>;       &quot;password&quot;: &quot;secret&quot;
+<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>;     }
+<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>;   }
+<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>; }
+</code></pre></div>
+<h3 id="safe-data-extraction">Safe Data Extraction<a class="headerlink" href="#safe-data-extraction" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>(def response {
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  &quot;@data&quot;: {
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    &quot;@user&quot;: {
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>      &quot;@profile&quot;: {
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>        &quot;@email&quot;: &quot;@user@example.com&quot;
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>      }
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    }
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>  }
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>})
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>; Safe extraction with defaults
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>(get-safe response &quot;@data.user.profile.email&quot; &quot;@no-email&quot;)  ; &quot;@user@example.com&quot;
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>(get-safe response &quot;@data.user.profile.phone&quot; &quot;@no-phone&quot;)  ; &quot;@no-phone&quot;
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>(get-safe response &quot;@data.user.address.city&quot; &quot;@unknown&quot;)    ; &quot;@unknown&quot;
+</code></pre></div>
+<h2 id="integration-with-query-operations">Integration with Query Operations<a class="headerlink" href="#integration-with-query-operations" title="Permanent link">&para;</a></h2>
+<p>Path navigation works seamlessly with <code>where</code> and <code>transform</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>; Filter by nested field
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>(where users (= (get-path it &quot;@address.city&quot;) &quot;@Boston&quot;))
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>; Transform nested fields
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>(transform users 
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>  (assign &quot;@full_address&quot; 
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    (str-concat 
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>      (get-path it &quot;@address.street&quot;) &quot;, &quot;
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>      (get-path it &quot;@address.city&quot;))))
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>; Update nested fields
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>(transform orders
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>  (update-path &quot;@shipping.status&quot; 
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>    (lambda (s) (if (= s &quot;@pending&quot;) &quot;@processing&quot; s))))
+</code></pre></div>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Path parsing is done once per operation</li>
+<li>Wildcards may traverse entire structures</li>
+<li><code>set-path</code> creates new objects (immutable)</li>
+<li><code>has-path</code> short-circuits on missing segments</li>
+</ul>
+<h2 id="error-handling">Error Handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<p>Path operations handle missing paths gracefully:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>(get-path {} &quot;@a.b.c&quot;)       ; null (not an error)
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>(has-path {} &quot;@a.b.c&quot;)       ; false
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>(set-path {} &quot;@a.b.c&quot; 123)   ; Creates full path
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>(update-path {} &quot;@a.b.c&quot; inc) ; null (can&#39;t update non-existent)
+</code></pre></div>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../query-operations/">Query Operations</a> - Filtering with <code>where</code></li>
+<li><a href="../transform-operations/">Transform Operations</a> - Data transformation</li>
+<li><a href="../objects/">Objects</a> - Working with JSL objects</li>
+</ul>
 
 
 

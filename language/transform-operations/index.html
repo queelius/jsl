@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://queelius.github.io/jsl/language/objects/">
+        <link rel="canonical" href="https://queelius.github.io/jsl/language/transform-operations/">
       
       
-        <link rel="prev" href="../special-forms/">
+        <link rel="prev" href="../query-operations/">
       
       
-        <link rel="next" href="../templates/">
+        <link rel="next" href="../path-navigation/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Objects - JSL - JSON Serializable Language</title>
+        <title>Transform Operations - JSL - JSON Serializable Language</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#json-objects-as-first-class-citizens" class="md-skip">
+        <a href="#transform-operations" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Objects
+              Transform Operations
             
           </span>
         </div>
@@ -622,32 +622,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Objects
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../objects/" class="md-nav__link">
         
   
   
@@ -658,104 +636,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      Overview
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-objects-are-special" class="md-nav__link">
-    <span class="md-ellipsis">
-      Why Objects Are Special
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#object-construction-syntax" class="md-nav__link">
-    <span class="md-ellipsis">
-      Object Construction Syntax
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Object Construction Syntax">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#basic-examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      Basic Examples
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#string-construction-in-objects" class="md-nav__link">
-    <span class="md-ellipsis">
-      String Construction in Objects
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#nested-objects-and-complex-structures" class="md-nav__link">
-    <span class="md-ellipsis">
-      Nested Objects and Complex Structures
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#advantages-of-object-first-design" class="md-nav__link">
-    <span class="md-ellipsis">
-      Advantages of Object-First Design
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#working-with-object-functions" class="md-nav__link">
-    <span class="md-ellipsis">
-      Working with Object Functions
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -834,10 +714,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../transform-operations/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Transform Operations
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -848,6 +750,281 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-transform-special-form" class="md-nav__link">
+    <span class="md-ellipsis">
+      The transform Special Form
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The transform Special Form">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Syntax
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transformation-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transformation Operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Transformation Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#assign-add-or-update-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      assign - Add or Update Fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pick-select-specific-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      pick - Select Specific Fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#omit-remove-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      omit - Remove Fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rename-rename-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      rename - Rename Fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-update-specific-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      update - Update Specific Fields
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#field-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      Field Binding
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#working-with-collections" class="md-nav__link">
+    <span class="md-ellipsis">
+      Working with Collections
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#composition-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Composition Patterns
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Composition Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sequential-transformations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sequential Transformations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filter-and-transform" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter and Transform
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transform-and-aggregate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transform and Aggregate
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-normalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Normalization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#computed-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computed Fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nested-transformations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nested Transformations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#string-literals-vs-field-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      String Literals vs Field References
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementation Details
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Considerations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-with-manual-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comparison with Manual Approach
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comparison with Manual Approach">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manual-construction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manual Construction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transform-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transform Approach
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See Also
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1934,37 +2111,19 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#the-transform-special-form" class="md-nav__link">
     <span class="md-ellipsis">
-      Overview
+      The transform Special Form
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-objects-are-special" class="md-nav__link">
-    <span class="md-ellipsis">
-      Why Objects Are Special
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#object-construction-syntax" class="md-nav__link">
-    <span class="md-ellipsis">
-      Object Construction Syntax
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Object Construction Syntax">
+    <nav class="md-nav" aria-label="The transform Special Form">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#basic-examples" class="md-nav__link">
+  <a href="#basic-syntax" class="md-nav__link">
     <span class="md-ellipsis">
-      Basic Examples
+      Basic Syntax
     </span>
   </a>
   
@@ -1976,36 +2135,231 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#string-construction-in-objects" class="md-nav__link">
+  <a href="#transformation-operations" class="md-nav__link">
     <span class="md-ellipsis">
-      String Construction in Objects
+      Transformation Operations
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Transformation Operations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#assign-add-or-update-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      assign - Add or Update Fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pick-select-specific-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      pick - Select Specific Fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#omit-remove-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      omit - Remove Fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rename-rename-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      rename - Rename Fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-update-specific-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      update - Update Specific Fields
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#field-binding" class="md-nav__link">
+    <span class="md-ellipsis">
+      Field Binding
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#nested-objects-and-complex-structures" class="md-nav__link">
+  <a href="#working-with-collections" class="md-nav__link">
     <span class="md-ellipsis">
-      Nested Objects and Complex Structures
+      Working with Collections
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#advantages-of-object-first-design" class="md-nav__link">
+  <a href="#composition-patterns" class="md-nav__link">
     <span class="md-ellipsis">
-      Advantages of Object-First Design
+      Composition Patterns
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Composition Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sequential-transformations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sequential Transformations
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filter-and-transform" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter and Transform
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transform-and-aggregate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transform and Aggregate
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-normalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Normalization
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#computed-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      Computed Fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nested-transformations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nested Transformations
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#string-literals-vs-field-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      String Literals vs Field References
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#working-with-object-functions" class="md-nav__link">
+  <a href="#implementation-details" class="md-nav__link">
     <span class="md-ellipsis">
-      Working with Object Functions
+      Implementation Details
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Considerations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-with-manual-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comparison with Manual Approach
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comparison with Manual Approach">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manual-construction" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manual Construction
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transform-approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transform Approach
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See Also
     </span>
   </a>
   
@@ -2027,97 +2381,173 @@
 
 
 
-<h1 id="json-objects-as-first-class-citizens">JSON Objects as First-Class Citizens<a class="headerlink" href="#json-objects-as-first-class-citizens" title="Permanent link">&para;</a></h1>
-<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>JSL treats JSON objects as <strong>first-class data structures</strong> with native support for dynamic construction. Unlike arrays (which are interpreted as S-expressions), JSON objects in JSL are always treated as data structures, making them perfect for constructing pure JSON output without ambiguity.</p>
-<h2 id="why-objects-are-special">Why Objects Are Special<a class="headerlink" href="#why-objects-are-special" title="Permanent link">&para;</a></h2>
-<p>In JSL, there's an important distinction between arrays and objects:</p>
+<h1 id="transform-operations">Transform Operations<a class="headerlink" href="#transform-operations" title="Permanent link">&para;</a></h1>
+<p>JSL provides powerful declarative operations for transforming and reshaping data structures.</p>
+<h2 id="the-transform-special-form">The <code>transform</code> Special Form<a class="headerlink" href="#the-transform-special-form" title="Permanent link">&para;</a></h2>
+<p>The <code>transform</code> is a special form (not a function) that applies transformation operations to data. As a special form, it automatically binds item fields to the environment, allowing direct field references in transformation expressions.</p>
+<h3 id="basic-syntax">Basic Syntax<a class="headerlink" href="#basic-syntax" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>(transform data operation)
+</code></pre></div>
+<p>The operation can be one of several transformation functions that reshape the data.</p>
+<h2 id="transformation-operations">Transformation Operations<a class="headerlink" href="#transformation-operations" title="Permanent link">&para;</a></h2>
+<p>The transform operations are functions in the prelude that return operation descriptors. These descriptors are then interpreted by the <code>transform</code> special form.</p>
+<h3 id="assign-add-or-update-fields"><code>assign</code> - Add or Update Fields<a class="headerlink" href="#assign-add-or-update-fields" title="Permanent link">&para;</a></h3>
+<p>Returns an operation descriptor that adds new fields or updates existing ones:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>; Add a single field
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>(transform user (assign &quot;@verified&quot; true))
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>; Add computed field
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>(transform product (assign &quot;@discounted&quot; (* price 0.9)))
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>; Update existing field
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>(transform user (assign &quot;@age&quot; (+ age 1)))
+</code></pre></div>
+<h3 id="pick-select-specific-fields"><code>pick</code> - Select Specific Fields<a class="headerlink" href="#pick-select-specific-fields" title="Permanent link">&para;</a></h3>
+<p>Creates new objects with only specified fields:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>; Pick specific fields
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>(transform user (pick &quot;@name&quot; &quot;@email&quot;))
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>; From collection
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>(transform users (pick &quot;@id&quot; &quot;@name&quot; &quot;@role&quot;))
+</code></pre></div>
+<h3 id="omit-remove-fields"><code>omit</code> - Remove Fields<a class="headerlink" href="#omit-remove-fields" title="Permanent link">&para;</a></h3>
+<p>Creates new objects without specified fields:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>; Remove sensitive fields
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>(transform user (omit &quot;@password&quot; &quot;@ssn&quot;))
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>; Remove multiple fields
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>(transform response (omit &quot;@internal_id&quot; &quot;@debug_info&quot;))
+</code></pre></div>
+<h3 id="rename-rename-fields"><code>rename</code> - Rename Fields<a class="headerlink" href="#rename-rename-fields" title="Permanent link">&para;</a></h3>
+<p>Renames fields in objects:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>; Rename single field
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>(transform user (rename &quot;@username&quot; &quot;@login&quot;))
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>; Multiple renames
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>(transform data (rename {&quot;@old_name&quot;: &quot;@new_name&quot;, &quot;@id&quot;: &quot;@identifier&quot;}))
+</code></pre></div>
+<h3 id="update-update-specific-fields"><code>update</code> - Update Specific Fields<a class="headerlink" href="#update-update-specific-fields" title="Permanent link">&para;</a></h3>
+<p>Updates fields with computed values:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>; Update with function
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>(transform product (update &quot;@price&quot; (lambda (p) (* p 1.1))))
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>; Update multiple fields
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>(transform user 
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>  (update {&quot;@age&quot;: (lambda (a) (+ a 1)), 
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>           &quot;@score&quot;: (lambda (s) (* s 2))}))
+</code></pre></div>
+<h2 id="field-binding">Field Binding<a class="headerlink" href="#field-binding" title="Permanent link">&para;</a></h2>
+<p>Within transform operations, fields are automatically bound:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>(def product {&quot;name&quot;: &quot;Widget&quot;, &quot;price&quot;: 100, &quot;tax_rate&quot;: 0.08})
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>; Fields &#39;price&#39; and &#39;tax_rate&#39; are automatically available
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>(transform product 
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>  (assign &quot;@total&quot; (* price (+ 1 tax_rate))))
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>; Returns: {&quot;name&quot;: &quot;Widget&quot;, &quot;price&quot;: 100, &quot;tax_rate&quot;: 0.08, &quot;total&quot;: 108}
+</code></pre></div>
+<h2 id="working-with-collections">Working with Collections<a class="headerlink" href="#working-with-collections" title="Permanent link">&para;</a></h2>
+<p>Transform operations work on both single objects and collections:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>(def products [@
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  {&quot;name&quot;: &quot;A&quot;, &quot;price&quot;: 100}
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  {&quot;name&quot;: &quot;B&quot;, &quot;price&quot;: 200}
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>])
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>; Applied to each item
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>(transform products (assign &quot;@on_sale&quot; true))
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>; Returns: [{&quot;name&quot;: &quot;A&quot;, &quot;price&quot;: 100, &quot;on_sale&quot;: true},
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>;           {&quot;name&quot;: &quot;B&quot;, &quot;price&quot;: 200, &quot;on_sale&quot;: true}]
+</code></pre></div>
+<h2 id="composition-patterns">Composition Patterns<a class="headerlink" href="#composition-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="sequential-transformations">Sequential Transformations<a class="headerlink" href="#sequential-transformations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>(transform
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  (transform user (pick &quot;@name&quot; &quot;@email&quot; &quot;@age&quot;))
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  (assign &quot;@adult&quot; (&gt;= age 18)))
+</code></pre></div>
+<h3 id="filter-and-transform">Filter and Transform<a class="headerlink" href="#filter-and-transform" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>(transform
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>  (where products (&gt; price 50))
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  (assign &quot;@premium&quot; true))
+</code></pre></div>
+<h3 id="transform-and-aggregate">Transform and Aggregate<a class="headerlink" href="#transform-and-aggregate" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>(sum
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>  (pluck
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    (transform orders (assign &quot;@total&quot; (* quantity price)))
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    &quot;@total&quot;))
+</code></pre></div>
+<h2 id="advanced-examples">Advanced Examples<a class="headerlink" href="#advanced-examples" title="Permanent link">&para;</a></h2>
+<h3 id="data-normalization">Data Normalization<a class="headerlink" href="#data-normalization" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>; Normalize user data
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>(transform users
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  (do
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    (pick &quot;@id&quot; &quot;@username&quot; &quot;@email&quot;)
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    (rename &quot;@username&quot; &quot;@name&quot;)
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    (assign &quot;@created_at&quot; (now))))
+</code></pre></div>
+<h3 id="computed-fields">Computed Fields<a class="headerlink" href="#computed-fields" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>; Add multiple computed fields
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>(def order {&quot;items&quot;: 5, &quot;price_per_item&quot;: 20, &quot;tax_rate&quot;: 0.08})
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>(transform order
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>  (do
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    (assign &quot;@subtotal&quot; (* items price_per_item))
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    (assign &quot;@tax&quot; (* subtotal tax_rate))
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>    (assign &quot;@total&quot; (+ subtotal tax))))
+</code></pre></div>
+<h3 id="nested-transformations">Nested Transformations<a class="headerlink" href="#nested-transformations" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>; Transform nested structures
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>(transform user
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>  (update &quot;@address&quot; 
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    (lambda (addr) 
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>      (transform addr (pick &quot;@city&quot; &quot;@country&quot;)))))
+</code></pre></div>
+<h2 id="string-literals-vs-field-references">String Literals vs Field References<a class="headerlink" href="#string-literals-vs-field-references" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Arrays</strong>: <code>["+", 1, 2]</code> are interpreted as function calls (S-expressions)</li>
-<li><strong>Objects</strong>: <code>{"name": "Alice"}</code> are always treated as data structures</li>
+<li>Field references (symbols): <code>price</code>, <code>name</code>, <code>active</code></li>
+<li>String literals (@ prefix): <code>"@price"</code>, <code>"@name"</code></li>
 </ul>
-<p>This means objects provide a "safe zone" for pure data construction where you don't have to worry about the first element being interpreted as an operator.</p>
-<h2 id="object-construction-syntax">Object Construction Syntax<a class="headerlink" href="#object-construction-syntax" title="Permanent link">&para;</a></h2>
-<p>JSL objects use <strong>normal JSL evaluation rules</strong> for both keys and values:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>; Assign literal string &quot;pending&quot; to status field
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>(transform order (assign &quot;@status&quot; &quot;@pending&quot;))
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>; Assign value of status variable to new_status field  
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>(transform order (assign &quot;@new_status&quot; status))
+</code></pre></div>
+<h2 id="implementation-details">Implementation Details<a class="headerlink" href="#implementation-details" title="Permanent link">&para;</a></h2>
+<p>The <code>transform</code> special form is implemented in <code>_eval_transform</code> in <code>core.py</code>. The transformation operators (<code>pick</code>, <code>omit</code>, <code>assign</code>, etc.) are prelude functions that return operation descriptors like <code>["pick", "@field1", "@field2"]</code>. The special form then:
+1. Evaluates the data expression
+2. For each operation, evaluates it with item fields in scope
+3. Interprets the operation descriptor to perform the transformation
+4. Returns the transformed data</p>
+<p>This design separates the operation definition (in prelude) from the execution logic (in the evaluator).</p>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<p>Transform operations:
+- Create new objects (immutable)
+- Extend environment once per transformation
+- Process collections item by item
+- Can be optimized by the compiler</p>
+<h2 id="comparison-with-manual-approach">Comparison with Manual Approach<a class="headerlink" href="#comparison-with-manual-approach" title="Permanent link">&para;</a></h2>
+<h3 id="manual-construction">Manual Construction<a class="headerlink" href="#manual-construction" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>(lambda (user)
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>  {&quot;@name&quot;: (get user &quot;@name&quot;),
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>   &quot;@email&quot;: (get user &quot;@email&quot;),
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>   &quot;@verified&quot;: true})
+</code></pre></div>
+<h3 id="transform-approach">Transform Approach<a class="headerlink" href="#transform-approach" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>(transform user 
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>  (do
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    (pick &quot;@name&quot; &quot;@email&quot;)
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>    (assign &quot;@verified&quot; true)))
+</code></pre></div>
+<p>The transform approach is:
+- More declarative and readable
+- Automatically handles field access
+- Composable with other operations
+- Less error-prone</p>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Keys</strong> must evaluate to strings</li>
-<li><strong>Values</strong> can be any JSL expression</li>
-<li>Use <code>@</code> prefix for literal strings in both keys and values</li>
+<li><a href="../query-operations/">Query Operations</a> - Filtering with <code>where</code></li>
+<li><a href="../path-navigation/">Path Navigation</a> - Deep JSON path access</li>
+<li><a href="../../examples/group-by/">Group By</a> - Grouping and aggregation</li>
 </ul>
-<h3 id="basic-examples">Basic Examples<a class="headerlink" href="#basic-examples" title="Permanent link">&para;</a></h3>
-<p><strong>Literal Object:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span><span class="nt">&quot;@name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@Alice&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;@age&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">}</span>
-</code></pre></div>
-<strong>Result:</strong> <code>{"name": "Alice", "age": 25}</code></p>
-<p><strong>Dynamic Values:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user_name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@Bob&quot;</span><span class="p">],</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user_age&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">30</span><span class="p">],</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="p">{</span><span class="nt">&quot;@name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_name&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;@age&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;user_age&quot;</span><span class="p">}</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">]</span>
-</code></pre></div>
-<strong>Result:</strong> <code>{"name": "Bob", "age": 30}</code></p>
-<p><strong>Dynamic Keys:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;field_name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@username&quot;</span><span class="p">],</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="p">{</span><span class="nt">&quot;field_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@Alice&quot;</span><span class="p">}</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">]</span>
-</code></pre></div>
-<strong>Result:</strong> <code>{"username": "Alice"}</code></p>
-<h2 id="string-construction-in-objects">String Construction in Objects<a class="headerlink" href="#string-construction-in-objects" title="Permanent link">&para;</a></h2>
-<p>For dynamic string construction, use JSL's string functions:</p>
-<p><div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@Alice&quot;</span><span class="p">],</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;age&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">25</span><span class="p">],</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="p">{</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">&quot;@greeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;str-concat&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@Hello &quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="nt">&quot;@info&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;str-concat&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@Age: &quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;age&quot;</span><span class="p">],</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nt">&quot;@status&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;if&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;age&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">18</span><span class="p">],</span><span class="w"> </span><span class="s2">&quot;@adult&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@minor&quot;</span><span class="p">]</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="p">]</span>
-</code></pre></div>
-<strong>Result:</strong>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;greeting&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Hello Alice&quot;</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="nt">&quot;info&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Age: 25&quot;</span><span class="p">,</span><span class="w"> </span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;adult&quot;</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">}</span>
-</code></pre></div></p>
-<h2 id="nested-objects-and-complex-structures">Nested Objects and Complex Structures<a class="headerlink" href="#nested-objects-and-complex-structures" title="Permanent link">&para;</a></h2>
-<p>Objects can contain any JSL expressions, including nested objects and arrays:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;users&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Alice&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Bob&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Carol&quot;</span><span class="p">]]],</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="p">{</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="nt">&quot;@project&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@My Project&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nt">&quot;@team&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">      </span><span class="nt">&quot;@lead&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;first&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;users&quot;</span><span class="p">],</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">      </span><span class="nt">&quot;@members&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;users&quot;</span><span class="p">,</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">      </span><span class="nt">&quot;@size&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;users&quot;</span><span class="p">]</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="p">},</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="nt">&quot;@tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;@&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;web&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;javascript&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;api&quot;</span><span class="p">]]</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">]</span>
-</code></pre></div>
-<h2 id="advantages-of-object-first-design">Advantages of Object-First Design<a class="headerlink" href="#advantages-of-object-first-design" title="Permanent link">&para;</a></h2>
-<ol>
-<li><strong>No Operator Ambiguity</strong>: Objects are always data, never function calls</li>
-<li><strong>Pure JSON Output</strong>: Objects naturally serialize to clean JSON</li>
-<li><strong>Composable</strong>: Works seamlessly with JSL functions and variables</li>
-<li><strong>Consistent Syntax</strong>: Uses the same <code>@</code> rules as the rest of JSL</li>
-<li><strong>Type Safety</strong>: Keys are validated to be strings at runtime</li>
-</ol>
-<h2 id="working-with-object-functions">Working with Object Functions<a class="headerlink" href="#working-with-object-functions" title="Permanent link">&para;</a></h2>
-<p>JSL provides built-in functions for object manipulation:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">[</span><span class="s2">&quot;do&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;def&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;@name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@Alice&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;@role&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;@admin&quot;</span><span class="p">}],</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;get&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@name&quot;</span><span class="p">],</span><span class="w">        </span><span class="c1">// → &quot;Alice&quot;</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;has&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@email&quot;</span><span class="p">],</span><span class="w">       </span><span class="c1">// → false</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;keys&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">],</span><span class="w">                </span><span class="c1">// → [&quot;name&quot;, &quot;role&quot;]</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="p">[</span><span class="s2">&quot;set&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;user&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@email&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;@alice@example.com&quot;</span><span class="p">]</span><span class="w">  </span><span class="c1">// Add new field</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="p">]</span>
-</code></pre></div>
 
 
 

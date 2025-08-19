@@ -1,0 +1,2565 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Network-Native Functional Programming Language">
+      
+      
+      
+        <link rel="canonical" href="https://queelius.github.io/jsl/examples/group-by/">
+      
+      
+        <link rel="prev" href="../query-transform/">
+      
+      
+        <link rel="next" href="../../api/core/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.17">
+    
+    
+      
+        <title>Group By - JSL - JSON Serializable Language</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#group-by-examples" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="JSL - JSON Serializable Language" class="md-header__button md-logo" aria-label="JSL - JSON Serializable Language" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            JSL - JSON Serializable Language
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Group By
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../language/overview/" class="md-tabs__link">
+          
+  
+  
+  Language Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/first-program/" class="md-tabs__link">
+          
+  
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../jhip/protocol/" class="md-tabs__link">
+          
+  
+  
+  Host Interaction
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/philosophy/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../simple/" class="md-tabs__link">
+          
+  
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/core/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../integrations/overview.md" class="md-tabs__link">
+          
+  
+  
+  Integrations
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../changelog.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="JSL - JSON Serializable Language" class="md-nav__button md-logo" aria-label="JSL - JSON Serializable Language" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    JSL - JSON Serializable Language
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Language Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Language Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/specification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Specification
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/semantics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Syntax and Semantics
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/environments/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Environments
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/special-forms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Special Forms
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/objects/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Objects
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Templates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/prelude/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prelude
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/query-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Query Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/transform-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Transform Operations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../language/path-navigation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Path Navigation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/first-program/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    First Program
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Functions
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/data/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Host Interaction
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Host Interaction
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../jhip/protocol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    JHIP Protocol
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../jhip/host-commands/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Host Commands
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Philosophy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/abstract-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Abstract Machine
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/stack-evaluation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Stack Evaluation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Performance
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Runtime
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Security
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Network Transparency
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/serialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Serialization Design
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/distributed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Distributed Computing
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Examples
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../simple/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Simple
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../practical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Practical
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Advanced
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../query-transform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Query & Transform
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Group By
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Group By
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#basic-grouping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Grouping
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Basic Grouping">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#group-by-single-field" class="md-nav__link">
+    <span class="md-ellipsis">
+      Group by Single Field
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-with-custom-key-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      Group with Custom Key Function
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aggregation-after-grouping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aggregation After Grouping
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Aggregation After Grouping">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#calculate-group-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Calculate Group Statistics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#find-group-extremes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Find Group Extremes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complex-grouping-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complex Grouping Scenarios
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Complex Grouping Scenarios">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multi-level-grouping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multi-Level Grouping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grouping-with-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      Grouping with Filtering
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real-world-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Real-World Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Real-World Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sales-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sales Report
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#user-activity-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      User Activity Analysis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-log-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Log Analysis
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aggregation-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aggregation Functions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Considerations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Patterns
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pivot-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pivot Table
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See Also
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Core
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/evaluator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Evaluator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Runner
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/serialization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Serialization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/fluent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Fluent API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/stack-evaluator/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Stack Evaluator
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/compiler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Compiler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Integrations
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            Integrations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/fastapi.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    FastAPI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/mcp.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MCP
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../integrations/jupyter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Jupyter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#basic-grouping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Grouping
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Basic Grouping">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#group-by-single-field" class="md-nav__link">
+    <span class="md-ellipsis">
+      Group by Single Field
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#group-with-custom-key-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      Group with Custom Key Function
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aggregation-after-grouping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aggregation After Grouping
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Aggregation After Grouping">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#calculate-group-statistics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Calculate Group Statistics
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#find-group-extremes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Find Group Extremes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complex-grouping-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      Complex Grouping Scenarios
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Complex Grouping Scenarios">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#multi-level-grouping" class="md-nav__link">
+    <span class="md-ellipsis">
+      Multi-Level Grouping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grouping-with-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      Grouping with Filtering
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real-world-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Real-World Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Real-World Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sales-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sales Report
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#user-activity-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      User Activity Analysis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#error-log-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Error Log Analysis
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aggregation-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Aggregation Functions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-considerations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Considerations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#advanced-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Patterns
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pivot-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      Pivot Table
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      See Also
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="group-by-examples">Group By Examples<a class="headerlink" href="#group-by-examples" title="Permanent link">&para;</a></h1>
+<p>This page demonstrates how to use JSL's <code>group-by</code> function for data aggregation and analysis.</p>
+<h2 id="basic-grouping">Basic Grouping<a class="headerlink" href="#basic-grouping" title="Permanent link">&para;</a></h2>
+<h3 id="group-by-single-field">Group by Single Field<a class="headerlink" href="#group-by-single-field" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>(def sales [@
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  {&quot;product&quot;: &quot;Laptop&quot;, &quot;category&quot;: &quot;Electronics&quot;, &quot;amount&quot;: 1200}
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  {&quot;product&quot;: &quot;Phone&quot;, &quot;category&quot;: &quot;Electronics&quot;, &quot;amount&quot;: 800}
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  {&quot;product&quot;: &quot;Shirt&quot;, &quot;category&quot;: &quot;Clothing&quot;, &quot;amount&quot;: 50}
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  {&quot;product&quot;: &quot;Jeans&quot;, &quot;category&quot;: &quot;Clothing&quot;, &quot;amount&quot;: 80}
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>])
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>; Group by category
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>(group-by sales &quot;@category&quot;)
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>; Result: [
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>;   [{&quot;product&quot;: &quot;Laptop&quot;, &quot;category&quot;: &quot;Electronics&quot;, &quot;amount&quot;: 1200},
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>;    {&quot;product&quot;: &quot;Phone&quot;, &quot;category&quot;: &quot;Electronics&quot;, &quot;amount&quot;: 800}],
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>;   [{&quot;product&quot;: &quot;Shirt&quot;, &quot;category&quot;: &quot;Clothing&quot;, &quot;amount&quot;: 50},
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>;    {&quot;product&quot;: &quot;Jeans&quot;, &quot;category&quot;: &quot;Clothing&quot;, &quot;amount&quot;: 80}]
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>; ]
+</code></pre></div>
+<h3 id="group-with-custom-key-function">Group with Custom Key Function<a class="headerlink" href="#group-with-custom-key-function" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>(def orders [@
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  {&quot;id&quot;: 1, &quot;date&quot;: &quot;2024-01-15&quot;, &quot;total&quot;: 150}
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  {&quot;id&quot;: 2, &quot;date&quot;: &quot;2024-01-15&quot;, &quot;total&quot;: 200}
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  {&quot;id&quot;: 3, &quot;date&quot;: &quot;2024-01-16&quot;, &quot;total&quot;: 100}
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>])
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>; Group by date
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>(group-by orders &quot;@date&quot;)
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>; Group by price range
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>(group-by orders 
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>  (lambda (order)
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    (if (&lt; (get order &quot;@total&quot;) 150) &quot;@low&quot; &quot;@high&quot;)))
+</code></pre></div>
+<h2 id="aggregation-after-grouping">Aggregation After Grouping<a class="headerlink" href="#aggregation-after-grouping" title="Permanent link">&para;</a></h2>
+<h3 id="calculate-group-statistics">Calculate Group Statistics<a class="headerlink" href="#calculate-group-statistics" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>(def employees [@
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  {&quot;name&quot;: &quot;Alice&quot;, &quot;department&quot;: &quot;Engineering&quot;, &quot;salary&quot;: 120000}
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  {&quot;name&quot;: &quot;Bob&quot;, &quot;department&quot;: &quot;Engineering&quot;, &quot;salary&quot;: 110000}
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  {&quot;name&quot;: &quot;Charlie&quot;, &quot;department&quot;: &quot;Sales&quot;, &quot;salary&quot;: 90000}
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  {&quot;name&quot;: &quot;Diana&quot;, &quot;department&quot;: &quot;Sales&quot;, &quot;salary&quot;: 95000}
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>])
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>; Calculate average salary by department
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>(map
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>  (group-by employees &quot;@department&quot;)
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>  (lambda (group)
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    {&quot;@department&quot;: (get (first group) &quot;@department&quot;),
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>     &quot;@count&quot;: (length group),
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>     &quot;@avgSalary&quot;: (/ (sum (pluck group &quot;@salary&quot;)) (length group)),
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>     &quot;@totalSalary&quot;: (sum (pluck group &quot;@salary&quot;))}))
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>; Result: [
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>;   {&quot;department&quot;: &quot;Engineering&quot;, &quot;count&quot;: 2, &quot;avgSalary&quot;: 115000, &quot;totalSalary&quot;: 230000},
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>;   {&quot;department&quot;: &quot;Sales&quot;, &quot;count&quot;: 2, &quot;avgSalary&quot;: 92500, &quot;totalSalary&quot;: 185000}
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>; ]
+</code></pre></div>
+<h3 id="find-group-extremes">Find Group Extremes<a class="headerlink" href="#find-group-extremes" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>(def products [@
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  {&quot;name&quot;: &quot;Product A&quot;, &quot;category&quot;: &quot;tools&quot;, &quot;price&quot;: 25, &quot;rating&quot;: 4.5}
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  {&quot;name&quot;: &quot;Product B&quot;, &quot;category&quot;: &quot;tools&quot;, &quot;price&quot;: 35, &quot;rating&quot;: 4.8}
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>  {&quot;name&quot;: &quot;Product C&quot;, &quot;category&quot;: &quot;books&quot;, &quot;price&quot;: 15, &quot;rating&quot;: 4.2}
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>  {&quot;name&quot;: &quot;Product D&quot;, &quot;category&quot;: &quot;books&quot;, &quot;price&quot;: 20, &quot;rating&quot;: 4.9}
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>])
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>; Find best rated product in each category
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>(map
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>  (group-by products &quot;@category&quot;)
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>  (lambda (group)
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    (let (best (reduce 
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>                 (lambda (acc item)
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>                   (if (&gt; (get item &quot;@rating&quot;) (get acc &quot;@rating&quot;))
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>                       item acc))
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>                 (first group)
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>                 (rest group)))
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>      {&quot;@category&quot;: (get best &quot;@category&quot;),
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>       &quot;@bestProduct&quot;: (get best &quot;@name&quot;),
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>       &quot;@rating&quot;: (get best &quot;@rating&quot;)})))
+</code></pre></div>
+<h2 id="complex-grouping-scenarios">Complex Grouping Scenarios<a class="headerlink" href="#complex-grouping-scenarios" title="Permanent link">&para;</a></h2>
+<h3 id="multi-level-grouping">Multi-Level Grouping<a class="headerlink" href="#multi-level-grouping" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>(def transactions [@
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  {&quot;date&quot;: &quot;2024-01&quot;, &quot;type&quot;: &quot;income&quot;, &quot;category&quot;: &quot;salary&quot;, &quot;amount&quot;: 5000}
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  {&quot;date&quot;: &quot;2024-01&quot;, &quot;type&quot;: &quot;expense&quot;, &quot;category&quot;: &quot;rent&quot;, &quot;amount&quot;: 1500}
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  {&quot;date&quot;: &quot;2024-01&quot;, &quot;type&quot;: &quot;expense&quot;, &quot;category&quot;: &quot;food&quot;, &quot;amount&quot;: 500}
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>  {&quot;date&quot;: &quot;2024-02&quot;, &quot;type&quot;: &quot;income&quot;, &quot;category&quot;: &quot;salary&quot;, &quot;amount&quot;: 5000}
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>  {&quot;date&quot;: &quot;2024-02&quot;, &quot;type&quot;: &quot;expense&quot;, &quot;category&quot;: &quot;rent&quot;, &quot;amount&quot;: 1500}
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>])
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>; Group by month, then by type
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>(map
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>  (group-by transactions &quot;@date&quot;)
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>  (lambda (month-group)
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    {&quot;@month&quot;: (get (first month-group) &quot;@date&quot;),
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>     &quot;@types&quot;: (map
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>                 (group-by month-group &quot;@type&quot;)
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>                 (lambda (type-group)
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>                   {&quot;@type&quot;: (get (first type-group) &quot;@type&quot;),
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>                    &quot;@total&quot;: (sum (pluck type-group &quot;@amount&quot;)),
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>                    &quot;@count&quot;: (length type-group)}))}))
+</code></pre></div>
+<h3 id="grouping-with-filtering">Grouping with Filtering<a class="headerlink" href="#grouping-with-filtering" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>(def orders [@
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  {&quot;customer&quot;: &quot;Alice&quot;, &quot;status&quot;: &quot;completed&quot;, &quot;total&quot;: 150}
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  {&quot;customer&quot;: &quot;Bob&quot;, &quot;status&quot;: &quot;pending&quot;, &quot;total&quot;: 200}
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>  {&quot;customer&quot;: &quot;Alice&quot;, &quot;status&quot;: &quot;completed&quot;, &quot;total&quot;: 100}
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>  {&quot;customer&quot;: &quot;Charlie&quot;, &quot;status&quot;: &quot;cancelled&quot;, &quot;total&quot;: 75}
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>  {&quot;customer&quot;: &quot;Bob&quot;, &quot;status&quot;: &quot;completed&quot;, &quot;total&quot;: 300}
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>])
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>; Group completed orders by customer
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>(map
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>  (group-by 
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>    (where orders (= status &quot;@completed&quot;))
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>    &quot;@customer&quot;)
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>  (lambda (group)
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>    {&quot;@customer&quot;: (get (first group) &quot;@customer&quot;),
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>     &quot;@orderCount&quot;: (length group),
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>     &quot;@totalSpent&quot;: (sum (pluck group &quot;@total&quot;))}))
+</code></pre></div>
+<h2 id="real-world-examples">Real-World Examples<a class="headerlink" href="#real-world-examples" title="Permanent link">&para;</a></h2>
+<h3 id="sales-report">Sales Report<a class="headerlink" href="#sales-report" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>(def sales-data [@
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  {&quot;date&quot;: &quot;2024-01-15&quot;, &quot;product&quot;: &quot;Widget&quot;, &quot;quantity&quot;: 5, &quot;price&quot;: 20}
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  {&quot;date&quot;: &quot;2024-01-15&quot;, &quot;product&quot;: &quot;Gadget&quot;, &quot;quantity&quot;: 3, &quot;price&quot;: 50}
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>  {&quot;date&quot;: &quot;2024-01-16&quot;, &quot;product&quot;: &quot;Widget&quot;, &quot;quantity&quot;: 8, &quot;price&quot;: 20}
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>  {&quot;date&quot;: &quot;2024-01-16&quot;, &quot;product&quot;: &quot;Gadget&quot;, &quot;quantity&quot;: 2, &quot;price&quot;: 50}
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>])
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>; Daily sales summary
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>(def daily-summary
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>  (map
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    (group-by sales-data &quot;@date&quot;)
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    (lambda (day-sales)
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>      {&quot;@date&quot;: (get (first day-sales) &quot;@date&quot;),
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>       &quot;@totalRevenue&quot;: (sum 
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>                          (map day-sales 
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>                            (lambda (s) (* (get s &quot;@quantity&quot;) 
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>                                          (get s &quot;@price&quot;)))))
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>       &quot;@totalUnits&quot;: (sum (pluck day-sales &quot;@quantity&quot;)),
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>       &quot;@uniqueProducts&quot;: (length (unique (pluck day-sales &quot;@product&quot;)))})))
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>; Product performance
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>(def product-summary
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>  (map
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>    (group-by sales-data &quot;@product&quot;)
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>    (lambda (product-sales)
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>      {&quot;@product&quot;: (get (first product-sales) &quot;@product&quot;),
+<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>       &quot;@totalQuantity&quot;: (sum (pluck product-sales &quot;@quantity&quot;)),
+<a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>       &quot;@totalRevenue&quot;: (sum 
+<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>                          (map product-sales
+<a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>                            (lambda (s) (* (get s &quot;@quantity&quot;)
+<a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a>                                          (get s &quot;@price&quot;)))))
+<a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a>       &quot;@avgQuantityPerSale&quot;: (/ (sum (pluck product-sales &quot;@quantity&quot;))
+<a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a>                                 (length product-sales))})))
+</code></pre></div>
+<h3 id="user-activity-analysis">User Activity Analysis<a class="headerlink" href="#user-activity-analysis" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>(def activities [@
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  {&quot;user&quot;: &quot;alice&quot;, &quot;action&quot;: &quot;login&quot;, &quot;timestamp&quot;: &quot;2024-01-15T09:00:00&quot;}
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  {&quot;user&quot;: &quot;bob&quot;, &quot;action&quot;: &quot;login&quot;, &quot;timestamp&quot;: &quot;2024-01-15T09:30:00&quot;}
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>  {&quot;user&quot;: &quot;alice&quot;, &quot;action&quot;: &quot;purchase&quot;, &quot;timestamp&quot;: &quot;2024-01-15T10:00:00&quot;}
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>  {&quot;user&quot;: &quot;alice&quot;, &quot;action&quot;: &quot;logout&quot;, &quot;timestamp&quot;: &quot;2024-01-15T11:00:00&quot;}
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>  {&quot;user&quot;: &quot;bob&quot;, &quot;action&quot;: &quot;browse&quot;, &quot;timestamp&quot;: &quot;2024-01-15T10:00:00&quot;}
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>])
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>; User activity summary
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>(map
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>  (group-by activities &quot;@user&quot;)
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>  (lambda (user-activities)
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>    {&quot;@user&quot;: (get (first user-activities) &quot;@user&quot;),
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>     &quot;@totalActions&quot;: (length user-activities),
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>     &quot;@actionTypes&quot;: (unique (pluck user-activities &quot;@action&quot;)),
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>     &quot;@hasPurchased&quot;: (any 
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>                        (map user-activities
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>                          (lambda (a) (= (get a &quot;@action&quot;) &quot;@purchase&quot;))))}))
+</code></pre></div>
+<h3 id="error-log-analysis">Error Log Analysis<a class="headerlink" href="#error-log-analysis" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>(def error-logs [@
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  {&quot;service&quot;: &quot;api&quot;, &quot;level&quot;: &quot;ERROR&quot;, &quot;code&quot;: 500, &quot;message&quot;: &quot;Internal error&quot;}
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  {&quot;service&quot;: &quot;api&quot;, &quot;level&quot;: &quot;WARN&quot;, &quot;code&quot;: 429, &quot;message&quot;: &quot;Rate limited&quot;}
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  {&quot;service&quot;: &quot;db&quot;, &quot;level&quot;: &quot;ERROR&quot;, &quot;code&quot;: 1205, &quot;message&quot;: &quot;Deadlock&quot;}
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>  {&quot;service&quot;: &quot;api&quot;, &quot;level&quot;: &quot;ERROR&quot;, &quot;code&quot;: 500, &quot;message&quot;: &quot;Internal error&quot;}
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  {&quot;service&quot;: &quot;auth&quot;, &quot;level&quot;: &quot;WARN&quot;, &quot;code&quot;: 401, &quot;message&quot;: &quot;Invalid token&quot;}
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>])
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>; Error summary by service
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>(map
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>  (group-by 
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    (where error-logs (= level &quot;@ERROR&quot;))
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>    &quot;@service&quot;)
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>  (lambda (service-errors)
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    {&quot;@service&quot;: (get (first service-errors) &quot;@service&quot;),
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>     &quot;@errorCount&quot;: (length service-errors),
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>     &quot;@uniqueErrors&quot;: (length (unique (pluck service-errors &quot;@code&quot;))),
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>     &quot;@errorCodes&quot;: (unique (pluck service-errors &quot;@code&quot;))}))
+</code></pre></div>
+<h2 id="aggregation-functions">Aggregation Functions<a class="headerlink" href="#aggregation-functions" title="Permanent link">&para;</a></h2>
+<p>Common aggregation patterns with grouped data:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>; Sum
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>(sum (pluck group &quot;@amount&quot;))
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>; Average
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>(/ (sum (pluck group &quot;@value&quot;)) (length group))
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>; Min/Max
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>(reduce min (first (pluck group &quot;@price&quot;)) (rest (pluck group &quot;@price&quot;)))
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>(reduce max (first (pluck group &quot;@score&quot;)) (rest (pluck group &quot;@score&quot;)))
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>; Count distinct
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>(length (unique (pluck group &quot;@category&quot;)))
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>; Concatenate strings
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>(str-join &quot;, &quot; (pluck group &quot;@name&quot;))
+</code></pre></div>
+<h2 id="performance-considerations">Performance Considerations<a class="headerlink" href="#performance-considerations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Group Early</strong>: Group before complex transformations when possible</li>
+<li><strong>Use Indexes</strong>: If available, group by indexed fields</li>
+<li><strong>Aggregate Incrementally</strong>: For large groups, use <code>reduce</code> instead of collecting all values</li>
+<li><strong>Memory Usage</strong>: Be aware that grouping creates sublists in memory</li>
+</ol>
+<h2 id="advanced-patterns">Advanced Patterns<a class="headerlink" href="#advanced-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="pivot-table">Pivot Table<a class="headerlink" href="#pivot-table" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>(def pivot-table
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>  (lambda (data row-key col-key value-key)
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    (let (rows (unique (pluck data row-key))
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>          cols (unique (pluck data col-key)))
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>      (map rows
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>        (lambda (row)
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>          (merge
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>            {row-key: row}
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>            (reduce
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>              (lambda (acc col)
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>                (assoc acc col
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>                  (sum (pluck
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>                    (where data
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>                      (and (= (get it row-key) row)
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>                           (= (get it col-key) col)))
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>                    value-key))))
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>              {}
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>              cols)))))))
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>; Example: Sales by product and month
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>(pivot-table sales-data &quot;@product&quot; &quot;@month&quot; &quot;@revenue&quot;)
+</code></pre></div>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../language/query-operations/">Query Operations</a> - Filtering with <code>where</code></li>
+<li><a href="../../language/transform-operations/">Transform Operations</a> - Data transformation</li>
+<li><a href="../../language/prelude/">Prelude Functions</a> - Built-in aggregation functions</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "toc.follow", "search.suggest", "search.highlight", "content.code.copy"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>
