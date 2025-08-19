@@ -32,6 +32,8 @@ The recursive evaluator in `jsl/core.py` has several fundamental limitations:
 
 5. **Clear execution model**: Each instruction is atomic and predictable.
 
+6. **JSON all the way down**: Even the paused execution state (stack, PC, environment) is pure JSON - no binary formats, no special serialization.
+
 ## Architecture
 
 ### Compilation Pipeline
@@ -123,6 +125,49 @@ Benefits:
 - No parsing ambiguity
 - Direct execution without compilation
 - Trivial serialization
+
+## Resumable Execution State
+
+The stack evaluator can pause and resume execution at any point. The paused state is pure JSON:
+
+```json
+{
+  "stack": [10, 20],
+  "pc": 2,
+  "instructions": [10, 20, 2, "+", 5, 2, "*"],
+  "resource_checkpoint": {
+    "gas_used": 150,
+    "steps_taken": 2
+  }
+}
+```
+
+This represents:
+- **stack**: Current operand stack values
+- **pc**: Program counter (next instruction to execute)
+- **instructions**: The JPN bytecode being executed
+- **resource_checkpoint**: Optional resource tracking state
+
+The environment (variables, functions) is maintained separately by the evaluator. This separation means:
+- Execution state is lightweight (just stack and position)
+- Multiple executions can share the same environment
+- State can be stored, transmitted, and resumed anywhere
+
+Example resumable execution:
+```python
+# Start execution
+result, state = evaluator.eval_partial(jpn, max_steps=100)
+
+if state:  # Execution paused
+    # State is pure JSON - can be stored/transmitted
+    json_state = json.dumps(state.to_dict())
+    
+    # Later, possibly on different machine
+    restored_state = StackState.from_dict(json.loads(json_state))
+    final_result, _ = evaluator.eval_partial(jpn, max_steps=1000, state=restored_state)
+```
+
+No binary formats, no special protocols - just JSON!
 
 ## Testing
 

@@ -8,16 +8,25 @@ JSL is unlike most programming languages you may have used before. The key insig
 
 - Your program is valid JSON that can be transmitted over networks
 - Functions can be serialized and reconstructed anywhere  
-- No compilation step - JSON is the native format
-- Universal compatibility - any system that handles JSON can run JSL
+- Dual evaluation modes - direct interpretation or JIT compilation to stack bytecode
+- Pauseable/resumable execution - programs can be suspended and continued later
+- Universal compatibility - any system that handles JSON can work with JSL
 
 ## Hello, World!
 
-Let's start with the classic first program. Create a file called `hello.jsl`:
+Let's start with the classic first program. JSL supports two syntax styles - JSON arrays and Lisp-style parentheses. Create a file called `hello.jsl`:
 
+### JSON Array Syntax
 ```json
-["print", "@Hello, JSL!"]
+["host", "@print", "@Hello, JSL!"]
 ```
+
+### Lisp-Style Syntax (Human-Friendly)
+```lisp
+(host @print "Hello, JSL!")
+```
+
+Both are exactly equivalent! The Lisp-style is often easier to read and write, while JSON is universal for network transmission.
 
 Now, run it from your terminal:
 
@@ -33,15 +42,43 @@ Hello, JSL!
 
 **What happened?**
 
-1. `["print", "Hello, JSL!"]` is a **function call** 
-2. `"print"` is the function name (a built-in function)
-3. `"Hello, JSL!"` is the argument
-4. JSL evaluates the expression and calls the print function
+1. `(host @print "Hello, JSL!")` is a **host interaction** 
+2. `host` is a special form for side effects
+3. `@print` is the host command (@ prefix in JSON, quoted in Lisp-style)
+4. `"Hello, JSL!"` is the argument to print
+5. JSL sends the print request to the host environment
+
+## How JSL Executes Your Code
+
+JSL offers two execution strategies:
+
+### 1. Recursive Evaluation (Default)
+The S-expression is directly evaluated by walking the tree structure. This is the default mode and works well for most programs.
+
+### 2. Stack Machine Compilation (Available on Request)
+JSL can compile your program Just-In-Time to JPN (JSL Postfix Notation) bytecode when you need advanced features:
+
+```json
+// Your code: ["+", 1, 2, 3]
+// Compiles to JPN: [1, 2, 3, 3, "+"]
+// Executes on stack machine with resumable state
+```
+
+The stack machine enables:
+- **Pauseable execution** - Stop after N steps and resume later
+- **Resource limits** - Control CPU/memory usage with gas metering
+- **Distributed execution** - Pause on one machine, resume on another
+- **Debugging** - Step through execution instruction by instruction
+
+Even the paused execution state is pure JSON - maintaining JSL's core principle that everything (code, data, and even execution state) can be serialized and transmitted!
+
+You don't need to worry about this initially - JSL handles it automatically. But it's there when you need advanced features!
 
 ## Understanding Prefix Notation
 
-JSL uses **prefix notation** - the operator comes first:
+JSL uses **prefix notation** - the operator comes first. Here's the same code in both syntaxes:
 
+### JSON Array Syntax
 ```json
 // Traditional: 2 + 3
 ["+", 2, 3]
@@ -53,11 +90,19 @@ JSL uses **prefix notation** - the operator comes first:
 ["*", 2, ["+", 3, 4]]
 ```
 
-Try it:
+### Lisp-Style Syntax
+```lisp
+; Traditional: 2 + 3
+(+ 2 3)
 
-```json
-["print", "2 + 3 =", ["+", 2, 3]]
+; Traditional: 2 + 3 + 4
+(+ 2 3 4)
+
+; Traditional: 2 * (3 + 4)
+(* 2 (+ 3 4))
 ```
+
+The Lisp-style is often more readable, especially for complex expressions!
 
 ## Variables with `def`
 
@@ -181,19 +226,78 @@ Work with dictionaries (objects) to structure data:
 [
   "do",
   ["def", "person", {
-    "name": "Bob",
-    "age": 25,
-    "city": "San Francisco"
+    "@name": "@Bob",
+    "@age": 25,
+    "@city": "@San Francisco"
   }],
   
-  ["def", "name", ["get", "person", "name"]],
-  ["def", "age", ["get", "person", "age"]],
+  ["def", "name", ["get", "person", "@name"]],
+  ["def", "age", ["get", "person", "@age"]],
   
   // Create a new person with updated age
-  ["def", "older-person", ["set", "person", "age", ["+", "age", 1]]],
+  ["def", "older-person", ["set", "person", "@age", ["+", "age", 1]]],
   
-  ["print", "Original person:", "person"],
-  ["print", "Person next year:", "older-person"]
+  ["host", "@print", "@Original person:", "person"],
+  ["host", "@print", "@Person next year:", "older-person"]
+]
+```
+
+## Modern Data Operations
+
+JSL provides powerful special forms for working with collections:
+
+### Filtering with `where`
+
+Instead of verbose lambda expressions, use the declarative `where` form. The fields from each item are automatically available as variables!
+
+#### JSON Syntax
+```json
+["where", "users", ["and", "active", [">", "age", 30]]]
+```
+
+#### Lisp-Style Syntax
+```lisp
+(where users (and active (> age 30)))
+```
+
+Complete example in Lisp-style:
+```lisp
+(do
+  (def users [@
+    {"name": "Alice", "age": 30, "active": true}
+    {"name": "Bob", "age": 25, "active": false}
+    {"name": "Charlie", "age": 35, "active": true}])
+  
+  ; Filter active users - fields are automatically available!
+  (def active-users (where users active))
+  
+  ; Complex conditions
+  (def active-adults (where users 
+    (and active (> age 30))))
+  
+  (host @print "Active adults:" active-adults))
+```
+
+### Transforming with `transform`
+
+Reshape data declaratively:
+
+```json
+[
+  "do",
+  ["def", "products", [
+    {"@name": "@Widget", "@price": 29.99, "@stock": 100}
+  ]],
+  
+  // Add discount field
+  ["def", "discounted", ["transform", "products",
+    ["assign", "@discount", ["*", "price", 0.1]]]],
+  
+  // Pick only certain fields
+  ["def", "summary", ["transform", "products",
+    ["pick", "@name", "@price"]]],
+  
+  ["host", "@print", "@Products with discount:", "discounted"]
 ]
 ```
 
