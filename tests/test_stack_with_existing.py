@@ -21,10 +21,9 @@ class StackEvaluatorAdapter:
     """
     
     def __init__(self):
-        self.stack_evaluator = StackEvaluator()
         # Set up prelude functions as built-ins
         prelude = make_prelude()
-        self.stack_evaluator.env = prelude.to_dict()
+        self.stack_evaluator = StackEvaluator(env=prelude)
     
     def eval(self, expr, env=None):
         """
@@ -39,9 +38,11 @@ class StackEvaluatorAdapter:
         # Update environment if provided
         if env:
             if isinstance(env, Env):
-                self.stack_evaluator.env.update(env.to_dict())
+                # Use the provided Env directly
+                self.stack_evaluator.env = env
             else:
-                self.stack_evaluator.env.update(env)
+                # If it's a dict, extend the current env with those bindings
+                self.stack_evaluator.env = self.stack_evaluator.env.extend(env)
         
         # Evaluate postfix
         return self.stack_evaluator.eval(postfix)
@@ -141,7 +142,8 @@ def test_with_variables():
     
     # Stack evaluator (already has prelude from __init__)
     stack_eval = StackEvaluatorAdapter()
-    stack_eval.stack_evaluator.env.update({'x': 10, 'y': 20})
+    # Extend the environment with new bindings
+    stack_eval.stack_evaluator.env = stack_eval.stack_evaluator.env.extend({'x': 10, 'y': 20})
     
     test_cases = [
         ('x', "variable x"),

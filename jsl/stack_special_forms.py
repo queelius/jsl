@@ -9,6 +9,7 @@ This module provides support for handling them in the stack evaluator.
 from typing import Any, List, Dict, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
+from .core import Closure, Env
 
 
 class Opcode(Enum):
@@ -223,7 +224,7 @@ class SpecialFormEvaluator:
         """
         self.evaluator = stack_evaluator
     
-    def eval_special_form(self, form: str, args: List[Any], env: Dict[str, Any]) -> Any:
+    def eval_special_form(self, form: str, args: List[Any], env: Env) -> Any:
         """
         Evaluate a special form.
         
@@ -258,7 +259,7 @@ class SpecialFormEvaluator:
         else:
             raise ValueError(f"Unknown special form: {form}")
     
-    def eval_if(self, args: List[Any], env: Dict[str, Any]) -> Any:
+    def eval_if(self, args: List[Any], env: Env) -> Any:
         """Evaluate 'if' special form."""
         if len(args) != 3:
             raise ValueError(f"'if' requires exactly 3 arguments, got {len(args)}")
@@ -282,7 +283,7 @@ class SpecialFormEvaluator:
         # Evaluate chosen branch with environment
         return self.evaluator.eval(branch_jpn, env=env)
     
-    def eval_let(self, args: List[Any], env: Dict[str, Any]) -> Any:
+    def eval_let(self, args: List[Any], env: Env) -> Any:
         """
         Evaluate 'let' special form: ["let", [[name, value], ...], body]
         
@@ -299,8 +300,9 @@ class SpecialFormEvaluator:
         
         # Create new environment with bindings
         from .compiler import compile_to_postfix
-        new_env = env.copy()
         
+        # Build bindings dict first
+        new_bindings = {}
         for binding in bindings:
             if not isinstance(binding, list) or len(binding) != 2:
                 raise ValueError("Each 'let' binding must be [name, value]")
@@ -312,45 +314,33 @@ class SpecialFormEvaluator:
             # Evaluate value in current environment (not the new one)
             value_jpn = compile_to_postfix(value_expr)
             value_result = self.evaluator.eval(value_jpn, env=env)
-            new_env[name] = value_result
+            new_bindings[name] = value_result
         
-        # Evaluate body in new environment
+        # Create extended environment and evaluate body
+        new_env = env.extend(new_bindings)
         body_jpn = compile_to_postfix(body)
         return self.evaluator.eval(body_jpn, env=new_env)
     
-    def eval_lambda(self, args: List[Any], env: Dict[str, Any]) -> Any:
+    def eval_lambda(self, args: List[Any], env: Env) -> Any:
         """Evaluate 'lambda' special form."""
         if len(args) != 2:
             raise ValueError(f"'lambda' requires exactly 2 arguments, got {len(args)}")
         
         params, body = args
         
-        # Create a simple closure representation
-        # Only capture user-defined bindings (not Python callables from prelude)
-        # This ensures the closure can be JSON-serialized
-        user_env = {}
-        for key, value in env.items():
-            # Include if: not a Python callable (user lambdas are dicts), or is a user value
-            if not callable(value) or isinstance(value, dict):
-                user_env[key] = value
-        
-        return {
-            'type': 'closure',
-            'params': params,
-            'body': body,
-            'env': user_env  # Only user-defined values, not prelude functions
-        }
+        # Create a proper Closure object that captures the full environment
+        return Closure(params, body, env)
     
-    def eval_def(self, args: List[Any], env: Dict[str, Any]) -> Any:
+    def eval_def(self, args: List[Any], env: Env) -> Any:
         """Evaluate 'def' special form."""
         if len(args) != 2:
             raise ValueError(f"'def' requires exactly 2 arguments, got {len(args)}")
         
         var, value = args
         
-        # Check if the value is already a closure dict (from a previous evaluation)
+        # Check if the value is already a Closure (from a previous evaluation)
         # This happens when a closure is created and then passed to def
-        if isinstance(value, dict) and value.get('type') == 'closure':
+        if isinstance(value, Closure):
             # It's already evaluated - don't evaluate again
             value_result = value
         else:
@@ -359,13 +349,13 @@ class SpecialFormEvaluator:
             value_jpn = compile_to_postfix(value)
             value_result = self.evaluator.eval(value_jpn, env=env)
         
-        # Define in environment (modifies in place)
-        env[var] = value_result
+        # Define in environment
+        env.define(var, value_result)
         # Also update the evaluator's base environment
-        self.evaluator.env[var] = value_result
+        self.evaluator.env.define(var, value_result)
         return value_result
     
-    def eval_do(self, args: List[Any], env: Dict[str, Any]) -> Any:
+    def eval_do(self, args: List[Any], env: Env) -> Any:
         """Evaluate 'do' special form."""
         if len(args) == 0:
             return None
@@ -379,12 +369,12 @@ class SpecialFormEvaluator:
         
         return result
     
-    def eval_quote(self, args: List[Any], env: Dict[str, Any]) -> Any:
+    def eval_quote(self, args: List[Any], env: Env) -> Any:
         """Evaluate 'quote' special form."""
         # Simply return the quoted expression without evaluation
         return args[0]
     
-    def eval_try(self, args: List[Any], env: Dict[str, Any]) -> Any:
+    def eval_try(self, args: List[Any], env: Env) -> Any:
         """Evaluate 'try' special form: ["try", body, handler]"""
         if len(args) != 2:
             raise ValueError(f"'try' requires exactly 2 arguments, got {len(args)}")
@@ -408,27 +398,26 @@ class SpecialFormEvaluator:
             handler_func = self.evaluator.eval(handler_jpn, env=env)
             
             # Check if handler is a closure
-            if not (isinstance(handler_func, dict) and handler_func.get('type') == 'closure'):
+            if not isinstance(handler_func, Closure):
                 raise ValueError("'try' handler must be a function")
             
             # Apply handler function to the error
-            params = handler_func['params']
-            body = handler_func['body']
-            closure_env = handler_func.get('env', {})
+            params = handler_func.params
+            body = handler_func.body
+            closure_env = handler_func.env if handler_func.env is not None else env
             
             # Check arity
             if len(params) != 1:
                 raise ValueError(f"'try' handler must take exactly 1 argument, got {len(params)}")
             
             # Create new environment with error bound
-            new_env = closure_env.copy()
-            new_env[params[0]] = error_obj
+            new_env = closure_env.extend({params[0]: error_obj})
             
             # Evaluate handler body
             handler_body_jpn = compile_to_postfix(body)
             return self.evaluator.eval(handler_body_jpn, env=new_env)
     
-    def eval_where(self, args: List[Any], env: Dict[str, Any]) -> Any:
+    def eval_where(self, args: List[Any], env: Env) -> Any:
         """
         Evaluate 'where' special form: filter collection by condition.
         
@@ -464,13 +453,13 @@ class SpecialFormEvaluator:
         result = []
         for item in items:
             # Extend environment with item's fields
-            extended_env = env.copy()
             if isinstance(item, dict):
                 # Add all fields from the dict item to the environment
-                extended_env.update(item)
+                # Also bind the item itself to '$' for accessing nested fields
+                extended_env = env.extend({**item, '$': item})
             else:
-                # For non-dict items, bind 'it' to the item
-                extended_env['it'] = item
+                # For non-dict items, bind '$' to the item
+                extended_env = env.extend({'$': item})
             
             # Compile and evaluate condition in extended environment
             condition_jpn = compile_to_postfix(condition_expr)
@@ -483,7 +472,7 @@ class SpecialFormEvaluator:
         
         return result
     
-    def eval_transform(self, args: List[Any], env: Dict[str, Any]) -> Any:
+    def eval_transform(self, args: List[Any], env: Env) -> Any:
         """
         Evaluate 'transform' special form: apply transformations to data.
         
@@ -516,11 +505,11 @@ class SpecialFormEvaluator:
             new_items = []
             for item in items:
                 # Extend environment with item's fields
-                extended_env = env.copy()
                 if isinstance(item, dict):
-                    extended_env.update(item)
+                    # Also bind the item itself to '$' for accessing nested fields
+                    extended_env = env.extend({**item, '$': item})
                 else:
-                    extended_env['it'] = item
+                    extended_env = env.extend({'$': item})
                 
                 # Compile and evaluate the operation
                 operation_jpn = compile_to_postfix(operation_expr)
@@ -584,18 +573,17 @@ class SpecialFormEvaluator:
                             func = func_expr
                         
                         # Apply the function
-                        if isinstance(func, dict) and func.get('type') == 'closure':
-                            # Stack evaluator closure
-                            params = func['params']
-                            body = func['body']
-                            closure_env = func.get('env', {})
+                        if isinstance(func, Closure):
+                            # Apply the closure
+                            params = func.params
+                            body = func.body
+                            closure_env = func.env if func.env is not None else env
                             
                             if len(params) != 1:
                                 raise ValueError(f"Transform apply function must take 1 argument, got {len(params)}")
                             
                             # Create new environment with parameter bound
-                            new_env = closure_env.copy()
-                            new_env[params[0]] = item[field]
+                            new_env = closure_env.extend({params[0]: item[field]})
                             
                             # Evaluate function body
                             body_jpn = compile_to_postfix(body)
@@ -613,7 +601,7 @@ class SpecialFormEvaluator:
         
         return items if is_collection else items[0]
     
-    def eval_host(self, args: List[Any], env: Dict[str, Any]) -> Any:
+    def eval_host(self, args: List[Any], env: Env) -> Any:
         """Evaluate 'host' special form: ["host", command, arg1, ...]"""
         if len(args) < 1:
             raise ValueError("'host' requires at least a command")

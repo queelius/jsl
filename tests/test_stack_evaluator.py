@@ -2,9 +2,12 @@
 Tests for the stack-based evaluator and compiler.
 """
 
+import json
 import pytest
 from jsl.compiler import compile_to_postfix, decompile_from_postfix
 from jsl.stack_evaluator import StackEvaluator, StackState
+from jsl.prelude import make_prelude
+from jsl.core import Env, Closure
 
 
 class TestCompiler:
@@ -254,19 +257,18 @@ class TestUserEnvironmentResumption:
     
     def setup_method(self):
         """Set up test components."""
-        from jsl.prelude import make_prelude
-        prelude = make_prelude()
-        self.evaluator = StackEvaluator(env=prelude.to_dict())
+        prelude_env = make_prelude()
+        self.evaluator = StackEvaluator(env=prelude_env)
     
     def test_resume_with_user_function(self):
         """Test resuming execution with a user-defined function."""
-        # Define a user function
-        self.evaluator.env['double'] = {
-            'type': 'closure',
-            'params': ['x'],
-            'body': ['*', 'x', 2],
-            'env': {}
-        }
+        # Define a user function using Env's define method with a proper Closure
+        double_closure = Closure(
+            params=['x'],
+            body=['*', 'x', 2],
+            env=self.evaluator.env  # Capture current environment
+        )
+        self.evaluator.env.define('double', double_closure)
         
         # Execute partially
         instructions = [10, 1, 'double']  # Should return 20
@@ -274,12 +276,11 @@ class TestUserEnvironmentResumption:
         
         assert result is None
         assert state is not None
-        assert 'double' in state.user_env
+        assert 'double' in state.env
         
         # Create fresh evaluator and resume
-        from jsl.prelude import make_prelude
         fresh_prelude = make_prelude()
-        fresh_evaluator = StackEvaluator(env=fresh_prelude.to_dict())
+        fresh_evaluator = StackEvaluator(env=fresh_prelude)
         
         # Resume execution
         final_result, final_state = fresh_evaluator.eval_partial(
@@ -292,13 +293,15 @@ class TestUserEnvironmentResumption:
     def test_resume_with_captured_variables(self):
         """Test resuming with closures that capture variables."""
         # Define variables and a closure that captures them
-        self.evaluator.env['multiplier'] = 5
-        self.evaluator.env['add-and-multiply'] = {
-            'type': 'closure',
-            'params': ['a', 'b'],
-            'body': ['*', ['+', 'a', 'b'], 'multiplier'],
-            'env': {'multiplier': 5}
-        }
+        self.evaluator.env.define('multiplier', 5)
+        
+        # Create closure that captures the environment with 'multiplier'
+        add_multiply_closure = Closure(
+            params=['a', 'b'],
+            body=['*', ['+', 'a', 'b'], 'multiplier'],
+            env=self.evaluator.env  # This captures 'multiplier'
+        )
+        self.evaluator.env.define('add-and-multiply', add_multiply_closure)
         
         # Execute partially - (3 + 4) * 5 = 35
         instructions = [3, 4, 2, 'add-and-multiply']
@@ -306,13 +309,12 @@ class TestUserEnvironmentResumption:
         
         assert result is None
         assert state is not None
-        assert 'add-and-multiply' in state.user_env
-        assert 'multiplier' in state.user_env
+        assert 'add-and-multiply' in state.env
+        assert 'multiplier' in state.env
         
         # Create fresh evaluator and resume
-        from jsl.prelude import make_prelude
         fresh_prelude = make_prelude()
-        fresh_evaluator = StackEvaluator(env=fresh_prelude.to_dict())
+        fresh_evaluator = StackEvaluator(env=fresh_prelude)
         
         # Resume execution
         final_result, final_state = fresh_evaluator.eval_partial(
@@ -324,16 +326,16 @@ class TestUserEnvironmentResumption:
     
     def test_state_serialization_with_user_env(self):
         """Test that state with user environment can be JSON serialized."""
-        import json
-        
         # Define a user function and variable
-        self.evaluator.env['scale'] = 10
-        self.evaluator.env['scale-it'] = {
-            'type': 'closure',
-            'params': ['n'],
-            'body': ['*', 'n', 'scale'],
-            'env': {'scale': 10}
-        }
+        self.evaluator.env.define('scale', 10)
+        
+        # Create closure that captures 'scale'
+        scale_closure = Closure(
+            params=['n'],
+            body=['*', 'n', 'scale'],
+            env=self.evaluator.env  # Captures 'scale'
+        )
+        self.evaluator.env.define('scale-it', scale_closure)
         
         # Execute partially
         instructions = [7, 1, 'scale-it']  # Should return 70
@@ -347,12 +349,11 @@ class TestUserEnvironmentResumption:
         
         # Deserialize state
         restored_dict = json.loads(json_str)
-        restored_state = StackState.from_dict(restored_dict)
+        fresh_prelude = make_prelude()
+        restored_state = StackState.from_dict(restored_dict, fresh_prelude)
         
         # Create fresh evaluator and resume with restored state
-        from jsl.prelude import make_prelude
-        fresh_prelude = make_prelude()
-        fresh_evaluator = StackEvaluator(env=fresh_prelude.to_dict())
+        fresh_evaluator = StackEvaluator(env=fresh_prelude)
         
         final_result, final_state = fresh_evaluator.eval_partial(
             instructions, max_steps=100, state=restored_state

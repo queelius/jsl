@@ -13,6 +13,8 @@ from typing import List, Any, Optional, Dict, Callable
 from dataclasses import dataclass
 from .resources import ResourceBudget, ResourceExhausted, GasCost
 from .stack_special_forms import SpecialFormEvaluator, Opcode, detect_special_form
+from .core import Env, Closure
+from .serialization import to_json, from_json
 
 
 @dataclass
@@ -22,43 +24,43 @@ class StackState:
     pc: int  # Program counter (position in postfix instructions)
     instructions: List[Any]
     resource_checkpoint: Optional[Dict[str, Any]] = None  # Resource state for resumption
-    user_env: Optional[Dict[str, Any]] = None  # User-defined environment (not prelude)
+    env: Optional[Env] = None  # The environment (user-defined bindings extend prelude)
     
     def to_dict(self) -> Dict:
         """Convert to serializable dictionary."""
         return {
-            'stack': self.stack.copy(),
+            'stack': to_json(self.stack),
             'pc': self.pc,
-            'instructions': self.instructions.copy(),
-            'resource_checkpoint': self.resource_checkpoint.copy() if self.resource_checkpoint else None,
-            'user_env': self.user_env.copy() if self.user_env else None
+            'instructions': self.instructions,
+            'resource_checkpoint': self.resource_checkpoint,
+            'env': to_json(self.env) if self.env else None
         }
     
     @classmethod
-    def from_dict(cls, data: Dict) -> 'StackState':
+    def from_dict(cls, data: Dict, prelude_env: Optional[Env] = None) -> 'StackState':
         """Restore from dictionary."""
         return cls(
-            stack=data['stack'].copy(),
+            stack=from_json(data['stack'], prelude_env),
             pc=data['pc'],
-            instructions=data['instructions'].copy(),
-            resource_checkpoint=data.get('resource_checkpoint', {}).copy() if data.get('resource_checkpoint') else None,
-            user_env=data.get('user_env', {}).copy() if data.get('user_env') else None
+            instructions=data['instructions'],
+            resource_checkpoint=data.get('resource_checkpoint'),
+            env=from_json(data['env'], prelude_env) if data.get('env') else prelude_env
         )
 
 
 class StackEvaluator:
     """Evaluator for postfix expressions using a value stack."""
     
-    def __init__(self, env: Optional[Dict[str, Any]] = None, resource_budget: Optional[ResourceBudget] = None, host_dispatcher=None):
+    def __init__(self, env: Optional[Env] = None, resource_budget: Optional[ResourceBudget] = None, host_dispatcher=None):
         """
         Initialize evaluator with optional environment and resource budget.
         
         Args:
-            env: Environment for variable lookups
+            env: Environment for variable lookups (Env object)
             resource_budget: Optional resource budget for tracking gas/memory
             host_dispatcher: Optional host dispatcher for side effects
         """
-        self.env = env or {}
+        self.env = env or Env()
         self.resource_budget = resource_budget
         self.host_dispatcher = host_dispatcher
         self.builtins = self._setup_builtins()
@@ -181,14 +183,14 @@ class StackEvaluator:
             'append': lambda args: args[0] + [args[1]] if isinstance(args[0], list) else [args[0], args[1]],
         }
     
-    def eval(self, instructions: List[Any], state: Optional[StackState] = None, env: Optional[Dict[str, Any]] = None) -> Any:
+    def eval(self, instructions: List[Any], state: Optional[StackState] = None, env: Optional[Env] = None) -> Any:
         """
         Evaluate postfix instructions.
         
         Args:
             instructions: List of postfix instructions
             state: Optional saved state for resumption
-            env: Optional environment override
+            env: Optional environment override (Env object)
             
         Returns:
             Result of evaluation
@@ -205,9 +207,9 @@ class StackEvaluator:
             # Restore resource state if available
             if state.resource_checkpoint and self.resource_budget:
                 self.resource_budget.restore(state.resource_checkpoint)
-            # Restore user environment if available
-            if state.user_env:
-                self.env.update(state.user_env)
+            # Restore environment if available
+            if state.env:
+                self.env = state.env
         else:
             # Start fresh
             stack = []
@@ -281,32 +283,25 @@ class StackEvaluator:
                     func = stack.pop()
                     
                     # Apply the function
-                    if isinstance(func, dict) and func.get('type') == 'closure':
-                        # It's a closure - apply it
+                    if isinstance(func, Closure):
+                        # It's a Closure - apply it
                         self._consume_gas(GasCost.FUNCTION_CALL, "closure application")
                         
-                        # Extract closure parts
-                        params = func['params']
-                        body = func['body']
-                        closure_env = func.get('env', {})
-                        
                         # Check arity
-                        if len(args) != len(params):
-                            raise ValueError(f"Arity mismatch: closure expects {len(params)} args, got {len(args)}")
+                        if len(args) != len(func.params):
+                            raise ValueError(f"Arity mismatch: closure expects {len(func.params)} args, got {len(args)}")
                         
-                        # Create new environment: merge current env (with prelude) with closure env
-                        # This ensures the closure has access to prelude functions
-                        new_env = self.env.copy()  # Start with current env (includes prelude)
-                        new_env.update(closure_env)  # Add closure's captured environment
-                        for param, arg in zip(params, args):
-                            new_env[param] = arg
+                        # Create new environment extending the closure's captured environment
+                        # If closure.env is None (deserialization issue), use current env
+                        closure_env = func.env if func.env is not None else self.env
+                        call_env = closure_env.extend(dict(zip(func.params, args)))
                         
                         # Import compiler here to avoid circular dependency
                         from .compiler import compile_to_postfix
                         
                         # Compile and evaluate body in new environment
-                        body_jpn = compile_to_postfix(body)
-                        result = self.eval(body_jpn, env=new_env)
+                        body_jpn = compile_to_postfix(func.body)
+                        result = self.eval(body_jpn, env=call_env)
                         
                         # Check result constraints if we have a resource budget
                         if self.resource_budget:
@@ -363,33 +358,26 @@ class StackEvaluator:
                     
                     # Look up the function
                     if operator in self.env:
-                        func = self.env[operator]
-                        if isinstance(func, dict) and func.get('type') == 'closure':
+                        func = self.env.get(operator)
+                        if isinstance(func, Closure):
                             # It's a closure - apply it
                             self._consume_gas(GasCost.FUNCTION_CALL, f"closure call: {operator}")
                             
-                            # Extract closure parts
-                            params = func['params']
-                            body = func['body']
-                            closure_env = func.get('env', {})
-                            
                             # Check arity
-                            if len(args) != len(params):
-                                raise ValueError(f"Arity mismatch: {operator} expects {len(params)} args, got {len(args)}")
+                            if len(args) != len(func.params):
+                                raise ValueError(f"Arity mismatch: {operator} expects {len(func.params)} args, got {len(args)}")
                             
-                            # Create new environment: merge current env (with prelude) with closure env
-                            # This ensures the closure has access to prelude functions
-                            new_env = self.env.copy()  # Start with current env (includes prelude)
-                            new_env.update(closure_env)  # Add closure's captured environment
-                            for param, arg in zip(params, args):
-                                new_env[param] = arg
+                            # Create new environment extending the closure's captured environment
+                            # If closure.env is None (deserialization issue), use current env
+                            closure_env = func.env if func.env is not None else self.env
+                            call_env = closure_env.extend(dict(zip(func.params, args)))
                             
                             # Import compiler here to avoid circular dependency
                             from .compiler import compile_to_postfix
                             
                             # Compile and evaluate body in new environment
-                            body_jpn = compile_to_postfix(body)
-                            result = self.eval(body_jpn, env=new_env)
+                            body_jpn = compile_to_postfix(func.body)
+                            result = self.eval(body_jpn, env=call_env)
                             
                             # Check result constraints if we have a resource budget
                             if self.resource_budget:
@@ -425,9 +413,10 @@ class StackEvaluator:
                 else:
                     # Variable lookup
                     self._consume_gas(GasCost.VARIABLE, f"variable {instr}")
-                    if instr in self.env:
-                        stack.append(self.env[instr])
-                    else:
+                    try:
+                        value = self.env.get(instr)
+                        stack.append(value)
+                    except:
                         raise ValueError(f"Undefined variable: {instr}")
                 pc += 1
             
@@ -486,9 +475,9 @@ class StackEvaluator:
             if state.resource_checkpoint and self.resource_budget:
                 self.resource_budget.restore(state.resource_checkpoint)
             # Restore user environment if available
-            if state.user_env:
-                # Merge user environment with current (prelude) environment
-                self.env.update(state.user_env)
+            if state.env:
+                # Use the restored environment
+                self.env = state.env
         else:
             stack = []
             pc = 0
@@ -551,33 +540,26 @@ class StackEvaluator:
                 else:
                     # Not a builtin - could be a user-defined function in env
                     if operator in self.env:
-                        func = self.env[operator]
-                        if isinstance(func, dict) and func.get('type') == 'closure':
+                        func = self.env.get(operator)
+                        if isinstance(func, Closure):
                             # It's a closure - apply it
                             self._consume_gas(GasCost.FUNCTION_CALL, f"closure call: {operator}")
                             
-                            # Extract closure parts
-                            params = func['params']
-                            body = func['body']
-                            closure_env = func.get('env', {})
-                            
                             # Check arity
-                            if len(args) != len(params):
-                                raise ValueError(f"Arity mismatch: {operator} expects {len(params)} args, got {len(args)}")
+                            if len(args) != len(func.params):
+                                raise ValueError(f"Arity mismatch: {operator} expects {len(func.params)} args, got {len(args)}")
                             
-                            # Create new environment: merge current env (with prelude) with closure env
-                            # This ensures the closure has access to prelude functions
-                            new_env = self.env.copy()  # Start with current env (includes prelude)
-                            new_env.update(closure_env)  # Add closure's captured environment
-                            for param, arg in zip(params, args):
-                                new_env[param] = arg
+                            # Create new environment extending the closure's captured environment
+                            # If closure.env is None (deserialization issue), use current env
+                            closure_env = func.env if func.env is not None else self.env
+                            call_env = closure_env.extend(dict(zip(func.params, args)))
                             
                             # Import compiler here to avoid circular dependency
                             from .compiler import compile_to_postfix
                             
                             # Compile and evaluate body in new environment
-                            body_jpn = compile_to_postfix(body)
-                            result = self.eval(body_jpn, env=new_env)
+                            body_jpn = compile_to_postfix(func.body)
+                            result = self.eval(body_jpn, env=call_env)
                             
                             # Check result constraints if we have a resource budget
                             if self.resource_budget:
@@ -613,9 +595,10 @@ class StackEvaluator:
                 else:
                     # Variable lookup
                     self._consume_gas(GasCost.VARIABLE, f"variable {instr}")
-                    if instr in self.env:
-                        stack.append(self.env[instr])
-                    else:
+                    try:
+                        value = self.env.get(instr)
+                        stack.append(value)
+                    except:
                         raise ValueError(f"Undefined variable: {instr}")
                 pc += 1
             
@@ -652,20 +635,12 @@ class StackEvaluator:
             if self.resource_budget:
                 resource_checkpoint = self.resource_budget.checkpoint()
             
-            # Extract user-defined environment (exclude prelude functions)
-            # We identify prelude by checking if values are callable Python functions
-            user_env = {}
-            for key, value in self.env.items():
-                # Include if: not a Python callable (user lambdas are dicts), or is a user value
-                if not callable(value) or isinstance(value, dict):
-                    user_env[key] = value
-            
             state = StackState(
                 stack=stack, 
                 pc=pc, 
                 instructions=instructions,
                 resource_checkpoint=resource_checkpoint,
-                user_env=user_env
+                env=self.env
             )
             return None, state
 

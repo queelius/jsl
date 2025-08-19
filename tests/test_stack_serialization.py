@@ -1,14 +1,14 @@
 """
 Test suite for stack evaluator serialization functionality.
 
-The stack evaluator uses dict-based closures instead of Closure objects,
-so it needs its own serialization tests.
+Tests the serialization of Closure objects and environments in the stack evaluator.
 """
 
 import unittest
 import json
 from jsl.runner import JSLRunner
 from jsl import make_prelude
+from jsl.core import Closure, Env
 
 
 class TestStackClosureSerialization(unittest.TestCase):
@@ -19,17 +19,16 @@ class TestStackClosureSerialization(unittest.TestCase):
         self.runner = JSLRunner(use_recursive_evaluator=False)
     
     def test_simple_closure_structure(self):
-        """Test structure of dict-based closures."""
+        """Test structure of Closure objects."""
         # Create a closure
         self.runner.execute('["def", "square", ["lambda", ["x"], ["*", "x", "x"]]]')
         closure = self.runner.stack_evaluator.env.get("square")
         
-        # Check it's a dict-based closure
-        self.assertIsInstance(closure, dict)
-        self.assertEqual(closure["type"], "closure")
-        self.assertEqual(closure["params"], ["x"])
-        self.assertEqual(closure["body"], ["*", "x", "x"])
-        self.assertIn("env", closure)
+        # Check it's a Closure object
+        self.assertIsInstance(closure, Closure)
+        self.assertEqual(closure.params, ["x"])
+        self.assertEqual(closure.body, ["*", "x", "x"])
+        self.assertIsInstance(closure.env, Env)
     
     def test_closure_with_captured_env(self):
         """Test closure that captures variables."""
@@ -43,9 +42,10 @@ class TestStackClosureSerialization(unittest.TestCase):
         closure = self.runner.stack_evaluator.env.get("multiplier")
         
         # Check captured environment
-        self.assertIn("env", closure)
-        self.assertIn("factor", closure["env"])
-        self.assertEqual(closure["env"]["factor"], 10)
+        self.assertIsInstance(closure, Closure)
+        self.assertIsInstance(closure.env, Env)
+        # The closure's env should have access to 'factor'
+        self.assertEqual(closure.env.get("factor"), 10)
     
     def test_nested_closures(self):
         """Test nested closures (higher-order functions)."""
@@ -63,10 +63,11 @@ class TestStackClosureSerialization(unittest.TestCase):
         closure = self.runner.stack_evaluator.env.get("add5")
         
         # Should be the inner closure with n=5 captured
-        self.assertEqual(closure["params"], ["x"])
-        self.assertEqual(closure["body"], ["+", "x", "n"])
-        self.assertIn("n", closure["env"])
-        self.assertEqual(closure["env"]["n"], 5)
+        self.assertIsInstance(closure, Closure)
+        self.assertEqual(closure.params, ["x"])
+        self.assertEqual(closure.body, ["+", "x", "n"])
+        # Check that n is captured in the closure's environment
+        self.assertEqual(closure.env.get("n"), 5)
     
     def test_closure_execution_after_reconstruction(self):
         """Test that closures work after manual reconstruction."""
@@ -74,17 +75,18 @@ class TestStackClosureSerialization(unittest.TestCase):
         self.runner.execute('["def", "double", ["lambda", ["x"], ["*", "x", 2]]]')
         original = self.runner.stack_evaluator.env.get("double")
         
-        # Manually create a simplified version without circular refs
-        simplified = {
-            "type": "closure",
-            "params": original["params"],
-            "body": original["body"],
-            "env": {"*": original["env"]["*"]}  # Only copy needed function
-        }
+        # Create a new Closure object with minimal environment
+        # We need to preserve the prelude functions for it to work
+        minimal_env = make_prelude()
+        reconstructed = Closure(
+            params=original.params,
+            body=original.body,
+            env=minimal_env
+        )
         
-        # Create new runner and install the simplified closure
+        # Create new runner and install the reconstructed closure
         new_runner = JSLRunner(use_recursive_evaluator=False)
-        new_runner.stack_evaluator.env["double"] = simplified
+        new_runner.stack_evaluator.env.define("double", reconstructed)
         
         # Test that it works
         result = new_runner.execute('["double", 21]')
@@ -102,16 +104,15 @@ class TestStackClosureSerialization(unittest.TestCase):
         '''
         closures = self.runner.execute(program)
         
-        # All should be dict-based closures
+        # All should be Closure objects
         for closure in closures:
-            self.assertIsInstance(closure, dict)
-            self.assertEqual(closure["type"], "closure")
-            self.assertEqual(len(closure["params"]), 2)
+            self.assertIsInstance(closure, Closure)
+            self.assertEqual(len(closure.params), 2)
         
         # Check bodies
-        self.assertEqual(closures[0]["body"], ["+", "x", "y"])
-        self.assertEqual(closures[1]["body"], ["-", "x", "y"])
-        self.assertEqual(closures[2]["body"], ["*", "x", "y"])
+        self.assertEqual(closures[0].body, ["+", "x", "y"])
+        self.assertEqual(closures[1].body, ["-", "x", "y"])
+        self.assertEqual(closures[2].body, ["*", "x", "y"])
 
 
 class TestStackDataSerialization(unittest.TestCase):
@@ -177,14 +178,14 @@ class TestStackDataSerialization(unittest.TestCase):
         self.runner.execute(program)
         closure = self.runner.stack_evaluator.env.get("test_func")
         
-        # Extract serializable parts
+        # Extract serializable parts from Closure object
+        self.assertIsInstance(closure, Closure)
         closure_info = {
-            "type": closure["type"],
-            "params": closure["params"],
-            "body": closure["body"],
+            "type": "closure",
+            "params": closure.params,
+            "body": closure.body,
             "captured_vars": {
-                k: v for k, v in closure["env"].items()
-                if not callable(v) and k == "user_var"
+                "user_var": closure.env.get("user_var")
             }
         }
         

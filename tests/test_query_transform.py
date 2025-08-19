@@ -141,8 +141,8 @@ class TestWhereOperator:
             {"id": 3, "customer": {"name": "Charlie", "vip": True}, "total": 200}
         ]]])
         
-        # Filter by nested field
-        result = self.runner.execute(["where", "orders", ["=", "customer.vip", True]])
+        # Filter by nested field using $ and get-path
+        result = self.runner.execute(["where", "orders", ["=", ["get-path", "$", "@customer.vip"], True]])
         assert len(result) == 2
         assert all(order["customer"]["vip"] is True for order in result)
 
@@ -174,7 +174,7 @@ class TestTransformOperator:
         """Test transform with assign operation."""
         result = self.runner.execute([
             "transform", "user",
-            ["@", ["assign", "@verified", True]]
+            ["assign", "@verified", True]
         ])
         assert result["verified"] is True
         assert result["name"] == "Alice"  # Original fields preserved
@@ -183,7 +183,7 @@ class TestTransformOperator:
         """Test transform with pick operation."""
         result = self.runner.execute([
             "transform", "user",
-            ["@", ["pick", "name", "@email", "role"]]
+            ["pick", "@name", "@email", "@role"]
         ])
         assert set(result.keys()) == {"name", "email", "role"}
         assert result["name"] == "Alice"
@@ -194,7 +194,7 @@ class TestTransformOperator:
         """Test transform with omit operation."""
         result = self.runner.execute([
             "transform", "user",
-            ["@", ["omit", "@metadata", "active"]]
+            ["omit", "@metadata", "@active"]
         ])
         assert "metadata" not in result
         assert "active" not in result
@@ -205,7 +205,7 @@ class TestTransformOperator:
         """Test transform with rename operation."""
         result = self.runner.execute([
             "transform", "user",
-            ["@", ["rename", "@email", "@contact"]]
+            ["rename", "@email", "@contact"]
         ])
         assert "email" not in result
         assert result["contact"] == "alice@example.com"
@@ -215,8 +215,8 @@ class TestTransformOperator:
         """Test transform with default operation."""
         result = self.runner.execute([
             "transform", "user",
-            ["@", ["default", "@status", "@pending"]],
-            ["@", ["default", "name", "@Unknown"]]  # Should not override existing
+            ["default", "@status", "@pending"],
+            ["default", "@name", "@Unknown"]  # Should not override existing
         ])
         assert result["status"] == "pending"
         assert result["name"] == "Alice"  # Not overridden
@@ -225,8 +225,8 @@ class TestTransformOperator:
         """Test transform with apply operation."""
         result = self.runner.execute([
             "transform", "user",
-            ["@", ["apply", "name", ["lambda", ["s"], ["str-upper", "s"]]]],
-            ["@", ["apply", "age", ["lambda", ["n"], ["*", "n", 2]]]]
+            ["apply", "@name", ["lambda", ["s"], ["str-upper", "s"]]],
+            ["apply", "@age", ["lambda", ["n"], ["*", "n", 2]]]
         ])
         assert result["name"] == "ALICE"
         assert result["age"] == 60
@@ -235,11 +235,11 @@ class TestTransformOperator:
         """Test transform with multiple operations in pipeline."""
         result = self.runner.execute([
             "transform", "user",
-            ["@", ["pick", "name", "age", "role"]],
-            ["@", ["assign", "@full_name", "@Alice Smith"]],
-            ["@", ["rename", "age", "@years"]],
-            ["@", ["default", "@department", "@IT"]],
-            ["@", ["omit", "role"]]
+            ["pick", "@name", "@age", "@role"],
+            ["assign", "@full_name", "@Alice Smith"],
+            ["rename", "@age", "@years"],
+            ["default", "@department", "@IT"],
+            ["omit", "@role"]
         ])
         
         assert set(result.keys()) == {"name", "full_name", "years", "department"}
@@ -252,8 +252,8 @@ class TestTransformOperator:
         """Test transform on a collection of objects."""
         result = self.runner.execute([
             "transform", "users",
-            ["@", ["assign", "active", True]],
-            ["@", ["pick", "name", "active", "role"]]
+            ["assign", "@active", True],
+            ["pick", "@name", "@active", "@role"]
         ])
         
         assert len(result) == 3
@@ -262,30 +262,36 @@ class TestTransformOperator:
             assert set(user.keys()) == {"name", "active", "role"}
     
     def test_pick_function(self):
-        """Test standalone pick function."""
-        result = self.runner.execute(["pick", "user", "name", "age"])
+        """Test pick operation within transform."""
+        result = self.runner.execute([
+            "transform", "user",
+            ["pick", "@name", "@age"]
+        ])
         assert set(result.keys()) == {"name", "age"}
         assert result["name"] == "Alice"
         assert result["age"] == 30
     
     def test_omit_function(self):
-        """Test standalone omit function."""
-        result = self.runner.execute(["omit", "user", "@metadata", "active"])
+        """Test omit operation within transform."""
+        result = self.runner.execute([
+            "transform", "user",
+            ["omit", "@metadata", "@active"]
+        ])
         assert "metadata" not in result
         assert "active" not in result
         assert result["name"] == "Alice"
     
     def test_pluck_function(self):
         """Test pluck function to extract field from collection."""
-        names = self.runner.execute(["pluck", "users", "name"])
+        names = self.runner.execute(["pluck", "users", "@name"])
         assert names == ["Alice", "Bob", "Charlie"]
         
-        ages = self.runner.execute(["pluck", "users", "age"])
+        ages = self.runner.execute(["pluck", "users", "@age"])
         assert ages == [30, 25, 35]
     
     def test_index_by_function(self):
         """Test index-by function to convert list to keyed object."""
-        result = self.runner.execute(["index-by", "users", "name"])
+        result = self.runner.execute(["index-by", "users", "@name"])
         assert isinstance(result, dict)
         assert "Alice" in result
         assert "Bob" in result
@@ -314,8 +320,8 @@ class TestCombinedOperations:
         self.runner.execute(["def", "expensive", [
             "transform",
             ["where", "products", [">", "price", 50]],
-            ["@", ["pick", "name", "price"]],
-            ["@", ["assign", "@expensive", True]]
+            ["pick", "@name", "@price"],
+            ["assign", "@expensive", True]
         ]])
         
         result = self.runner.execute("expensive")
@@ -330,10 +336,10 @@ class TestCombinedOperations:
         self.runner.execute(["def", "discounted", [
             "where",
             ["transform", "products",
-                ["@", ["apply", "price", ["lambda", ["p"], ["*", "p", 0.8]]]],
-                ["@", ["assign", "@discounted", True]]
+                ["apply", "@price", ["lambda", ["p"], ["*", "p", 0.8]]],
+                ["assign", "@discounted", True]
             ],
-            ["@", ["<", "price", 80]]
+            ["<", "price", 80]
         ]])
         
         result = self.runner.execute("discounted")
@@ -348,10 +354,10 @@ class TestCombinedOperations:
             "pluck",
             ["transform",
                 ["where", "products", ["=", "category", "@tools"]],
-                ["@", ["pick", "name", "price"]],
-                ["@", ["apply", "name", ["lambda", ["n"], ["str-upper", "n"]]]]
+                ["pick", "@name", "@price"],
+                ["apply", "@name", ["lambda", ["n"], ["str-upper", "n"]]]
             ],
-            "name"
+            "@name"
         ]])
         
         result = self.runner.execute("tool_names")
@@ -363,12 +369,12 @@ class TestCombinedOperations:
         self.runner.execute(["def", "low_stock_value", [
             "where",
             ["transform", "products",
-                ["@", ["assign", "@total_value", ["*", ["get", "products", "price"], ["get", "products", "@stock"]]]]
+                ["assign", "@total_value", ["*", "price", "stock"]]
             ],
             [
                 "and",
-                ["<", "@stock", 100],
-                ["<", "@total_value", 5000]
+                ["<", "stock", 100],
+                ["<", "total_value", 5000]
             ]
         ]])
         
@@ -380,7 +386,7 @@ class TestCombinedOperations:
             [
                 "and",
                 ["=", "category", "@tools"],
-                [">", "@stock", 50]
+                [">", "stock", 50]
             ]
         ]])
         

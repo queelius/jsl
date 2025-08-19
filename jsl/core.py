@@ -79,6 +79,15 @@ class Env:
         else:
             raise SymbolNotFoundError(f"Symbol '{name}' not found")
     
+    def __contains__(self, name: str) -> bool:
+        """Check if a variable exists in this environment or its parents."""
+        if name in self.bindings:
+            return True
+        elif self.parent:
+            return name in self.parent
+        else:
+            return False
+    
     def define(self, name: str, value: Any) -> None:
         """Define a variable in this environment."""
         self.bindings[name] = value
@@ -458,11 +467,12 @@ class Evaluator:
         for item in items:
             # Extend environment with item's fields (if it's a dict)
             if isinstance(item, dict):
-                # Simply extend the environment with all fields from the item
-                extended_env = env.extend(item)
+                # Extend the environment with all fields from the item
+                # Also bind the item itself to '$' for accessing nested fields
+                extended_env = env.extend({**item, '$': item})
             else:
-                # For non-dict items, bind 'it' to the item
-                extended_env = env.extend({'it': item})
+                # For non-dict items, bind '$' to the item
+                extended_env = env.extend({'$': item})
             
             # Evaluate condition in extended environment using standard eval
             try:
@@ -500,9 +510,10 @@ class Evaluator:
             for item in items:
                 # Extend environment with item's fields
                 if isinstance(item, dict):
-                    extended_env = env.extend(item)
+                    # Also bind the item itself to '$' for accessing nested fields
+                    extended_env = env.extend({**item, '$': item})
                 else:
-                    extended_env = env.extend({'it': item})
+                    extended_env = env.extend({'$': item})
                 
                 # Evaluate the operation to get the actual operation list
                 operation = self.eval(operation_expr, extended_env)

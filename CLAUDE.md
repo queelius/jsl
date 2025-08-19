@@ -64,6 +64,19 @@ JSL code is JSON arrays where the first element is the operator:
 - Let binding: `["let", ["x", 5], ["*", "x", 2]]`
 - Conditional: `["if", ["=", "x", 0], "zero", "non-zero"]`
 
+### Special Forms
+These forms have special evaluation rules and are handled directly by the evaluator:
+- `if` - Conditional evaluation
+- `let` - Local variable binding
+- `lambda` - Function creation
+- `def` - Global variable definition
+- `do` - Sequential evaluation
+- `quote` / `@` - Prevent evaluation
+- `try` - Error handling
+- `host` - Host interaction
+- `where` - Collection filtering (extends environment with item fields)
+- `transform` - Data transformation (extends environment with item fields)
+
 ### String Conventions
 - `"variable"` - Variable lookup
 - `"@literal"` - Literal string value (@ prefix makes it a string literal)
@@ -80,43 +93,52 @@ JSL code is JSON arrays where the first element is the operator:
    - The quote operator returns its argument WITHOUT evaluating it as JSL code
    - The quoted data is passed as-is to functions that interpret it
    
-   **Example: Where Conditions**
+   **Example: Quote usage**
    ```json
-   ["where", "products", ["@", ["=", "@price", 50]]]
+   ["@", ["+", 1, 2]]  // Returns the list ["+", 1, 2] without evaluating it
    ```
-   - Step 1: JSL evaluates `["@", ["=", "@price", 50]]` → returns literal list `["=", "@price", 50]`
-   - Step 2: This list is passed to the `where` function (implemented in Python)
-   - Step 3: The Python function `_evaluate_where_condition` receives `["=", "@price", 50]`
-   - Step 4: Python code strips @ from "@price" to get "price" as the field name
-   - Step 5: Python looks up item["price"] in each object being filtered
+
+3. **Special Forms (where, transform) - NOW WORK WITHOUT QUOTING:**
    
-   **Why we need the quote operator:**
-   - Without quote: `["=", "@price", 50]` would try to evaluate "=" as a variable lookup (error!)
-   - With quote: `["@", ["=", "@price", 50]]` passes the list as data to the where function
+   **Where is now a special form:**
+   - `["where", "products", [">", "price", 50]]`
+   - No quoting needed - the condition is evaluated in an extended environment
+   - The environment includes all fields from each item being filtered
+   - Field access: `"price"` directly accesses the field (it's in the environment)
+   - Root item access: `"$"` refers to the entire item for nested access
+   
+   **Example:**
+   ```json
+   ["where", "orders", ["=", ["get-path", "$", "@customer.vip"], true]]
+   ```
+   - `"$"` = the current order object
+   - `["get-path", "$", "@customer.vip"]` = accesses order.customer.vip
 
-3. **Where conditions (S-expression format):**
-   - `["where", "products", ["@", [">", "@price", 50]]]`
-   - The condition must be quoted to prevent JSL evaluation
-   - Inside: `[">", "@price", 50]` - operator first (S-expression style)
-   - `"@price"` = string literal "price" (becomes field name after @ is stripped)
-   - String values need @ too: `["=", "@category", "@tools"]`
+4. **Transform is also a special form:**
+   - `["transform", "data", ["pick", "@name", "@email"]]`
+   - No quoting needed for the operation
+   - The operation is evaluated with item fields in the environment
+   - Operations like `pick`, `omit`, `assign` are evaluated in context
+   
+   **Example:**
+   ```json
+   ["transform", "users", 
+     ["assign", "@fullName", ["str-concat", "firstName", "@", "lastName"]]]
+   ```
+   - `"firstName"` and `"lastName"` are field lookups (from environment)
+   - `"@fullName"` is the literal string "fullName" (new field name)
 
-4. **Transform operations:**
-   - `["transform", "obj", ["@", ["pick", "@name", "@email"]]]`
-   - The operation is quoted to pass it as data
-   - `"pick"` = operation name (plain string, no @)
-   - `"@name"`, `"@email"` = string literals that become field names "name", "email"
-
-5. **Common mistakes to avoid:**
-   - DON'T: `["@", ["price", ">", 50]]` - "price" without @ would be a symbol lookup if evaluated
-   - DO: `["@", [">", "@price", 50]]` - S-expression format with string literal field
-   - DON'T: `["@", ["@pick", "@name"]]` - "@pick" is wrong (not a string literal here)
-   - DO: `["@", ["pick", "@name"]]` - operation name without @, field with @
+5. **Common patterns:**
+   - Field access in where/transform: `"fieldName"` (direct lookup)
+   - String literals for field names: `"@fieldName"` 
+   - Access entire item: `"$"`
+   - Nested field access: `["get-path", "$", "@path.to.field"]`
 
 6. **Key insight:**
-   - Quoted expressions are DATA passed to Python functions, not JSL code to evaluate
-   - The Python implementations decide how to interpret this data
-   - The @ prefix convention inside quoted data helps distinguish field names from other values
+   - `where` and `transform` are special forms that extend the environment
+   - They make item fields available as variables during evaluation
+   - This eliminates the need for quoting in most cases
+   - The `$` binding provides access to the entire item when needed
 
 ### Effect System (JHIP)
 All side effects go through the host dispatcher:

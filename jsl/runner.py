@@ -16,7 +16,7 @@ from .resources import ResourceLimits, ResourceBudget, HostGasPolicy, ResourceEx
 from .prelude import make_prelude
 from .compiler import compile_to_postfix, decompile_from_postfix
 from .stack_evaluator import StackEvaluator
-
+from .sexp import from_canonical_sexp
 
 class JSLRuntimeError(Exception):
     """Runtime error during JSL execution."""
@@ -111,7 +111,7 @@ class JSLRunner:
                 from .resources import ResourceBudget
                 budget = ResourceBudget(resource_limits, host_gas_policy)
             self.stack_evaluator = StackEvaluator(
-                env=self.base_environment.to_dict(),
+                env=self.base_environment,
                 resource_budget=budget,
                 host_dispatcher=self.host_dispatcher
             )
@@ -250,7 +250,6 @@ class JSLRunner:
             if format_type == 'lisp':
                 # Parse Lisp-style S-expressions
                 if isinstance(expression, str):
-                    from .sexp import from_canonical_sexp
                     expression = from_canonical_sexp(expression)
                 else:
                     raise JSLSyntaxError("Lisp format detected but expression is not a string")
@@ -289,7 +288,7 @@ class JSLRunner:
                         expression = decompile_from_postfix(expression)
                         result = self.recursive_evaluator.eval(expression, self.base_environment)
                     else:
-                        result = self.stack_evaluator.eval(expression)
+                        result = self.stack_evaluator.eval(expression, env=self.base_environment)
                 else:
                     # S-expression format (json or lisp parsed to json)
                     if self.use_recursive_evaluator:
@@ -298,7 +297,7 @@ class JSLRunner:
                     else:
                         # Compile to JPN and use stack evaluator
                         jpn = compile_to_postfix(expression)
-                        result = self.stack_evaluator.eval(jpn)
+                        result = self.stack_evaluator.eval(jpn, env=self.base_environment)
                 
                 # Record performance stats
                 if self._profiling_enabled:
@@ -342,9 +341,6 @@ class JSLRunner:
             else:
                 raise JSLRuntimeError(f"Execution failed: {e}")
     
-    # Removed define() - use execute(["def", name, value]) instead
-    # Removed get_variable() - use execute(name) instead
-    
     @contextmanager
     def new_environment(self):
         """
@@ -353,22 +349,8 @@ class JSLRunner:
         Yields:
             ExecutionContext: New execution context
         """
-        # For recursive evaluator, create extended environment
-        # For stack evaluator, we need to copy the current state
-        if self.use_recursive_evaluator:
-            # Create new environment extending the base
-            new_env = self.base_environment.extend({})
-        else:
-            # For stack evaluator, need to preserve current state
-            # Copy the current environment (includes all definitions)
-            if self.stack_evaluator:
-                current_env_dict = self.stack_evaluator.env.copy()
-            else:
-                current_env_dict = self.base_environment.to_dict()
-            
-            # Create new Env from the current state
-            new_env = Env(current_env_dict)
-        
+        # Create new environment extending the base environment
+        new_env = self.base_environment.extend({})        
         context = ExecutionContext(new_env)
         
         # Create temporary runner for this context with same configuration
@@ -379,9 +361,11 @@ class JSLRunner:
         )
         temp_runner.base_environment = new_env
         
-        # If using stack evaluator, update its environment
+        # Update the stack evaluator's default env (if it exists)
+        # Both evaluators receive env as parameter, but stack evaluator also
+        # needs its internal env updated for variable lookups during evaluation
         if temp_runner.stack_evaluator:
-            temp_runner.stack_evaluator.env = new_env.to_dict()
+            temp_runner.stack_evaluator.env = new_env
         
         try:
             yield temp_runner
@@ -496,9 +480,9 @@ def eval_expression(
             runner.recursive_evaluator.host = host_dispatcher
     if environment:
         runner.base_environment = environment
-        # Also update stack evaluator's environment if it exists
+        # Both evaluators now handle Env consistently
         if runner.stack_evaluator:
-            runner.stack_evaluator.env = environment.to_dict()
+            runner.stack_evaluator.env = environment
     
     return runner.execute(expression)
 

@@ -54,7 +54,7 @@ class StackEvaluatorAdapter(EvaluatorAdapter):
     
     def __init__(self):
         prelude = make_prelude()
-        self.env = prelude.to_dict()
+        self.env = prelude
         self.evaluator = StackEvaluator(env=self.env)
     
     def eval(self, expr: Any) -> Any:
@@ -66,8 +66,8 @@ class StackEvaluatorAdapter(EvaluatorAdapter):
     
     def define(self, name: str, value: Any) -> None:
         """Define a variable in environment."""
-        self.env[name] = value
-        self.evaluator.env[name] = value
+        self.env.define(name, value)
+        self.evaluator.env.define(name, value)
     
     def __repr__(self):
         return "StackEvaluator"
